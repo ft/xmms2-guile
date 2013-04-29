@@ -1,0 +1,67 @@
+# Ignore all dotfiles and tilde-backup files.
+.*
+*~
+*.go
+*.so
+
+# Cleanup below, grouped by general ignores first and then by subdirectory:
+Makefile
+Doxyfile
+CMakeCache.txt
+cmake_install.cmake
+install_manifest.txt
+
+c/TAGS
+c/tags
+c/*.a
+
+compat/*.a
+
+manual/*.[0-9]
+manual/*.html
+manual/*.info
+manual/*.texi
+manual/*.log
+manual/*.toc
+manual/*.pdf
+manual/html-*.*.mdwn
+manual/info-*.*.mdwn
+manual/man-*.*.mdwn
+manual/pdf-*.*.mdwn
+
+test/c/*/*.t
+test/c/*.t
+test/libtap/*.a
+
+scheme/TAGS
+scheme/tags
+
+# Ignore all subdirectories of the main directory, except for a few that
+# are actually part of the project. This helps with in-tree-builds.
+*/
+!b/
+!b/*/
+!b/*/*/
+!c/
+!c/*/
+!c/*/*/
+!demo/
+!doc/
+!doc/dev/
+!compat/
+!manual/
+!scheme/
+!scheme/*/
+!scheme/*/*/
+!scheme/*/*/*/
+!test/
+!test/*/
+!test/*/*/
+!test/*/*/*/
+
+# Don't ignore gitignore files.
+!.gitignore
+
+# This needs to be at the end, because they may appear everywhere, even
+# in explicitly unignored directories.
+CMakeFiles/

@@ -1,0 +1,20 @@
+;; -*- scheme -*-
+
+;; Copyright (c) 2013 xmms2-guile workers, All rights reserved.
+;;
+;; Terms for redistribution and use can be found in LICENCE.
+
+;; Connect to a locally running xmms2 server and tell it to start playback.
+
+(use-modules (xmms2 sync))
+
+;; `with-xmms2-connection' supports setting client id, fail-handler and server
+;; uri via keywords, too. The only one that's required is `#:handler'. The
+;; default server uri is the one used by xmms2-servers unless defined
+;; differently. The default fail-handler just prints the reason for the failure
+;; and exits. And the default client id is "xmms2-guile".
+(with-xmms2-connection
+ #:handler (lambda (c) (xmms2/play c)))
+
+;; Exit signaling success.
+(quit 0)
