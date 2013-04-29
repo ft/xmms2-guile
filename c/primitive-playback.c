@@ -10,19 +10,8 @@
 #include <libguile.h>
 #include <xmmsclient/xmmsclient.h>
 
-static SCM x2_play(SCM);
-
-static SCM
-x2_play(SCM connection)
-{
-    return x2_trivial_server_action(xmmsc_playback_start, connection);
-}
-
-static SCM
-x2_pause(SCM connection)
-{
-    return x2_trivial_server_action(xmmsc_playback_pause, connection);
-}
+X2_TRIVIAL_SERVER_ACTION(x2_play, xmmsc_playback_start)
+X2_TRIVIAL_SERVER_ACTION(x2_pause, xmmsc_playback_pause)
 
 void
 init_x2_primitive_playback(void)
