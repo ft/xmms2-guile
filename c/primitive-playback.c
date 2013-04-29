@@ -15,29 +15,13 @@ static SCM x2_play(SCM);
 static SCM
 x2_play(SCM connection)
 {
-    struct x2_connection *c;
-    xmmsc_result_t *result;
-    SCM retval;
-
-    c = (struct x2_connection *) SCM_SMOB_DATA(connection);
-    result = xmmsc_playback_start(c->c);
-    retval = make_x2_result();
-    SCM_SET_SMOB_DATA(retval, result);
-    return retval;
+    return x2_trivial_server_action(xmmsc_playback_start, connection);
 }
 
 static SCM
 x2_pause(SCM connection)
 {
-    struct x2_connection *c;
-    xmmsc_result_t *result;
-    SCM retval;
-
-    c = (struct x2_connection *) SCM_SMOB_DATA(connection);
-    result = xmmsc_playback_pause(c->c);
-    retval = make_x2_result();
-    SCM_SET_SMOB_DATA(retval, result);
-    return retval;
+    return x2_trivial_server_action(xmmsc_playback_pause, connection);
 }
 
 void

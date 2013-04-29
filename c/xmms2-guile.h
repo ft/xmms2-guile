@@ -12,6 +12,7 @@ struct x2_connection {
 };
 
 void xg_scm_define_and_export(const char *, int, int, int, SCM (*)());
+SCM x2_trivial_server_action(xmmsc_result_t *(*)(xmmsc_connection_t *), SCM);
 
 SCM make_x2_result(void);
 
