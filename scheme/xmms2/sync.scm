@@ -8,7 +8,8 @@
   #:use-module (xmms2 core connection)
   #:export (with-xmms2-connection
             xmms2/pause
-            xmms2/play))
+            xmms2/play
+            xmms2/stop))
 
 (define* (with-xmms2-connection
           #:key
@@ -35,3 +36,6 @@
 
 (define (xmms2/pause connection)
   (synchronous-action xmms2:primitive/pause connection))
+
+(define (xmms2/stop connection)
+  (synchronous-action xmms2:primitive/stop connection))
