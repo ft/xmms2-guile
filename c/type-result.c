@@ -57,6 +57,5 @@ init_x2_type_result(void)
     x2_result_tag = scm_make_smob_type("xmms2-result", 0);
     scm_set_smob_print(x2_result_tag, print_x2_result);
     scm_set_smob_free(x2_result_tag, free_x2_result);
-    scm_c_define_gsubr("xmms2:type/make-result", 0, 0, 0, make_x2_result);
-    scm_c_export("xmms2:type/make-result");
+    xg_scm_define_and_export("xmms2:type/make-result", 0, 0, 0, make_x2_result);
 }

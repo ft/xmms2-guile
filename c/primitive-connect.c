@@ -34,6 +34,5 @@ x2_connect(SCM connection, SCM uri)
 void
 init_x2_primitive_connect(void)
 {
-    scm_c_define_gsubr("xmms2:primitive/connect", 2, 0, 0, x2_connect);
-    scm_c_export("xmms2:primitive/connect");
+    xg_scm_define_and_export("xmms2:primitive/connect", 2, 0, 0, x2_connect);
 }

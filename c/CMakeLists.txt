@@ -12,7 +12,8 @@ set(SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/init.c
             ${CMAKE_CURRENT_SOURCE_DIR}/primitive-synchronous.c
             ${CMAKE_CURRENT_SOURCE_DIR}/type-connection.c
             ${CMAKE_CURRENT_SOURCE_DIR}/type-result.c
-            ${CMAKE_CURRENT_SOURCE_DIR}/type-value.c)
+            ${CMAKE_CURRENT_SOURCE_DIR}/type-value.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/utils.c)
 
 add_library(xmms2-guile SHARED ${SOURCES})
 target_link_libraries(xmms2-guile ${XMMS2_CLIENT_LDFLAGS})

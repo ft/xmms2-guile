@@ -105,7 +105,6 @@ init_x2_type_connection(void)
     scm_set_smob_mark(x2_connection_tag, mark_x2_connection);
     scm_set_smob_print(x2_connection_tag, print_x2_connection);
     scm_set_smob_free(x2_connection_tag, free_x2_connection);
-    scm_c_define_gsubr("xmms2:type/make-connection", 1, 0, 0,
-                       make_x2_connection);
-    scm_c_export("xmms2:type/make-connection");
+    xg_scm_define_and_export("xmms2:type/make-connection",
+                             1, 0, 0, make_x2_connection);
 }

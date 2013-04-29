@@ -25,6 +25,6 @@ x2_sync_wait(SCM result)
 void
 init_x2_primitive_synchronous(void)
 {
-    scm_c_define_gsubr("xmms2:primitive/sync-wait", 1, 0, 0, x2_sync_wait);
-    scm_c_export("xmms2:primitive/sync-wait");
+    xg_scm_define_and_export("xmms2:primitive/sync-wait",
+                             1, 0, 0, x2_sync_wait);
 }

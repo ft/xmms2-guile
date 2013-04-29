@@ -11,6 +11,8 @@ struct x2_connection {
     xmmsc_connection_t *c;
 };
 
+void xg_scm_define_and_export(const char *, int, int, int, SCM (*)());
+
 SCM make_x2_result(void);
 
 void init_x2_primitive_connect(void);

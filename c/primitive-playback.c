@@ -43,8 +43,6 @@ x2_pause(SCM connection)
 void
 init_x2_primitive_playback(void)
 {
-    scm_c_define_gsubr("xmms2:primitive/play", 1, 0, 0, x2_play);
-    scm_c_export("xmms2:primitive/play");
-    scm_c_define_gsubr("xmms2:primitive/pause", 1, 0, 0, x2_pause);
-    scm_c_export("xmms2:primitive/pause");
+    xg_scm_define_and_export("xmms2:primitive/play", 1, 0, 0, x2_play);
+    xg_scm_define_and_export("xmms2:primitive/pause", 1, 0, 0, x2_pause);
 }

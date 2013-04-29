@@ -47,6 +47,5 @@ init_x2_type_value(void)
     x2_value_tag = scm_make_smob_type("xmms2-value", 0);
     scm_set_smob_print(x2_value_tag, print_x2_value);
     scm_set_smob_free(x2_value_tag, NULL);
-    scm_c_define_gsubr("xmms2:type/make-value", 0, 0, 0, make_x2_value);
-    scm_c_export("xmms2:type/make-value");
+    xg_scm_define_and_export("xmms2:type/make-value", 0, 0, 0, make_x2_value);
 }
