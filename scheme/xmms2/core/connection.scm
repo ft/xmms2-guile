@@ -34,4 +34,5 @@ the connection."
   (let ((connection (make-xmms2-connection client uri)))
     (xmms2:primitive/connect (get-xmms2-connection-container connection)
                              (get-xmms2-connection-uri connection))
+    (set-xmms2-connection-status! connection 'up)
     connection))
