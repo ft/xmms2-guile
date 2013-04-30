@@ -47,14 +47,14 @@ free_x2_result(SCM smob)
 static int
 print_x2_result(UNUSED SCM smob, SCM port, UNUSED scm_print_state *pstate)
 {
-    scm_puts("#<xmms2-result>", port);
+    scm_puts("#<xmms2:type/result>", port);
     return 1;
 }
 
 void
 init_x2_type_result(void)
 {
-    x2_result_tag = scm_make_smob_type("xmms2-result", 0);
+    x2_result_tag = scm_make_smob_type("xmms2:type/result", 0);
     scm_set_smob_print(x2_result_tag, print_x2_result);
     scm_set_smob_free(x2_result_tag, free_x2_result);
     xg_scm_define_and_export("xmms2:type/make-result", 0, 0, 0, make_x2_result);

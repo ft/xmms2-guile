@@ -37,14 +37,14 @@ make_x2_value(void)
 static int
 print_x2_value(UNUSED SCM smob, SCM port, UNUSED scm_print_state *pstate)
 {
-    scm_puts("#<xmms2-value>", port);
+    scm_puts("#<xmms2:type/value>", port);
     return 1;
 }
 
 void
 init_x2_type_value(void)
 {
-    x2_value_tag = scm_make_smob_type("xmms2-value", 0);
+    x2_value_tag = scm_make_smob_type("xmms2:type/value", 0);
     scm_set_smob_print(x2_value_tag, print_x2_value);
     scm_set_smob_free(x2_value_tag, NULL);
     xg_scm_define_and_export("xmms2:type/make-value", 0, 0, 0, make_x2_value);
