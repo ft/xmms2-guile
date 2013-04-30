@@ -6,10 +6,7 @@
   #:use-module (ice-9 optargs)
   #:use-module (xmms2 core primitives)
   #:use-module (xmms2 core connection)
-  #:export (with-xmms2-connection
-            xmms2/pause
-            xmms2/play
-            xmms2/stop))
+  #:export (with-xmms2-connection))
 
 (define* (with-xmms2-connection
           #:key
@@ -31,11 +28,13 @@
   (let ((result (action (get-xmms2-connection-container connection))))
     (xmms2:primitive/sync-wait result)))
 
-(define (xmms2/play connection)
-  (synchronous-action xmms2:primitive/play connection))
+(define-syntax define-synchronous-action
+  (lambda (x)
+    (syntax-case x ()
+      ((_ synchronous-function primitive-function)
+       #'(define-public (synchronous-function connection)
+           (synchronous-action primitive-function connection))))))
 
-(define (xmms2/pause connection)
-  (synchronous-action xmms2:primitive/pause connection))
-
-(define (xmms2/stop connection)
-  (synchronous-action xmms2:primitive/stop connection))
+(define-synchronous-action xmms2/pause xmms2:primitive/pause)
+(define-synchronous-action xmms2/play xmms2:primitive/play)
+(define-synchronous-action xmms2/stop xmms2:primitive/stop)
