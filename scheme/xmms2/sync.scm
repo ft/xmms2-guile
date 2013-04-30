@@ -38,3 +38,4 @@
 (define-synchronous-action xmms2/pause xmms2:primitive/pause)
 (define-synchronous-action xmms2/play xmms2:primitive/play)
 (define-synchronous-action xmms2/stop xmms2:primitive/stop)
+(define-synchronous-action xmms2/tickle xmms2:primitive/tickle)
