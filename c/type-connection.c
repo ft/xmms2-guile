@@ -55,7 +55,7 @@ make_x2_connection(SCM clientname)
     char *cn;
 
     c = (struct x2_connection *)scm_gc_malloc(sizeof (struct x2_connection),
-                                              "xmms2-connection");
+                                              "xmms2:type/connection");
     c->clientname = clientname;
     c->c = NULL;
     SCM_NEWSMOB(smob, x2_connection_tag, c);
@@ -91,7 +91,7 @@ print_x2_connection(SCM smob, SCM port, UNUSED scm_print_state *pstate)
     struct x2_connection *c;
 
     c = (struct x2_connection *) SCM_SMOB_DATA(smob);
-    scm_puts("#<xmms2-connection ", port);
+    scm_puts("#<xmms2:type/connection ", port);
     scm_display(c->clientname, port);
     scm_puts(">", port);
     return 1;
@@ -100,7 +100,7 @@ print_x2_connection(SCM smob, SCM port, UNUSED scm_print_state *pstate)
 void
 init_x2_type_connection(void)
 {
-    x2_connection_tag = scm_make_smob_type("xmms2-connection",
+    x2_connection_tag = scm_make_smob_type("xmms2:type/connection",
                                            sizeof(struct x2_connection));
     scm_set_smob_mark(x2_connection_tag, mark_x2_connection);
     scm_set_smob_print(x2_connection_tag, print_x2_connection);
