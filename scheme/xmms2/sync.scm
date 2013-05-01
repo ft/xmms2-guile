@@ -20,7 +20,8 @@
   (catch 'xmms2:sync/connection-failure
     (lambda ()
       (let ((connection (xmms2-connect client server)))
-        (handler connection)))
+        (handler connection)
+        (xmms2:primitive/unref-connection connection)))
     (lambda (key . args)
       (fail (car args)))))
 
