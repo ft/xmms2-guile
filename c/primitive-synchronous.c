@@ -19,7 +19,7 @@ x2_sync_wait(SCM result)
 
     r = (xmmsc_result_t *) SCM_SMOB_DATA(result);
     xmmsc_result_wait(r);
-    return SCM_BOOL_T;
+    return result;
 }
 
 void

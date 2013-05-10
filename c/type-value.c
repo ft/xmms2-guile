@@ -19,11 +19,10 @@
 #include <libguile.h>
 #include <xmmsclient/xmmsclient.h>
 
-static SCM make_x2_value(void);
 static int print_x2_value(SCM, SCM, scm_print_state *);
 static scm_t_bits x2_value_tag;
 
-static SCM
+SCM
 make_x2_value(void)
 {
     xmmsv_t *r;

@@ -4,8 +4,9 @@
 
 (define-module (xmms2 sync)
   #:use-module (ice-9 optargs)
-  #:use-module (xmms2 core primitives)
   #:use-module (xmms2 core connection)
+  #:use-module (xmms2 core primitives)
+  #:use-module (xmms2 core value)
   #:export (with-xmms2-connection))
 
 (define* (with-xmms2-connection
@@ -34,7 +35,9 @@
     (syntax-case x ()
       ((_ synchronous-function primitive-function)
        #'(define-public (synchronous-function connection)
-           (synchronous-action primitive-function connection))))))
+           (let* ((result (synchronous-action primitive-function connection))
+                  (value (xmms2-result->value result)))
+             (xmms2-value->scheme-data value)))))))
 
 (define-synchronous-action xmms2/pause xmms2:primitive/pause)
 (define-synchronous-action xmms2/play xmms2:primitive/play)
