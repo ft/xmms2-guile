@@ -1,0 +1,11 @@
+;; -*- scheme -*-
+
+;; Copyright (c) 2013 xmms2-guile workers, All rights reserved.
+;;
+;; Terms for redistribution and use can be found in LICENCE.
+
+(use-modules (xmms2 sync))
+(with-xmms2-connection
+ #:handler (lambda (c)
+             (format #t "Status: ~a~%" (xmms2/status c))))
+(quit 0)
