@@ -28,12 +28,12 @@
   (from-symbol-map status-map x 'unknown-status))
 
 (define type-map
-  `((,XMMS2-VALUE-NONE . XMMS2-VALUE-NONE)
-    (,XMMS2-VALUE-ERROR . XMMS2-VALUE-ERROR)
-    (,XMMS2-VALUE-INTEGER . XMMS2-VALUE-INTEGER)))
+  `((,XMMS2-VALUE-NONE . empty-value)
+    (,XMMS2-VALUE-ERROR . erroneous-value)
+    (,XMMS2-VALUE-INTEGER . integer)))
 
 (define (integer->value-type x)
-  (from-symbol-map type-map x 'XMMS2-VALUE-UNKNOWN))
+  (from-symbol-map type-map x 'unknown-value-type))
 
 (define (type-of-value x)
   (integer->value-type (xmms2:primitive/type-of-value x)))
@@ -49,14 +49,14 @@
   (xmms2:primitive/result->scheme x))
 
 (define (trivial-type? x)
-  (or (eq? x 'XMMS2-VALUE-NONE)
-      (eq? x 'XMMS2-VALUE-ERROR)
-      (eq? x 'XMMS2-VALUE-UNKNOWN)))
+  (or (eq? x 'empty-value)
+      (eq? x 'erroneous-value)
+      (eq? x 'unknown-value-type)))
 
 (define (xmms2-value->scheme-data x)
   (let ((type (type-of-value x)))
     (cond
       ((trivial-type? type) type)
-      ((eq? type 'XMMS2-VALUE-INTEGER)
+      ((eq? type 'integer)
        (xmms2:primitive/value->integer x))
       (else 'XMMS2-UNSUPPORTED-DATA-TYPE))))
