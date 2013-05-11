@@ -9,15 +9,20 @@
   #:use-module (xmms2 core value)
   #:export (with-xmms2-connection))
 
+(define default-uri
+  (string-concatenate `("unix:///tmp/xmms-ipc-"
+                        ,(passwd:name (getpwuid (geteuid))))))
+
+(define (default-fail-handler msg)
+  (format #t "xmms2-connection failed: ~a~%" msg)
+  (quit 1))
+
 (define* (with-xmms2-connection
           #:key
           handler
-          (server (string-concatenate `("unix:///tmp/xmms-ipc-"
-                                        ,(passwd:name (getpwuid (geteuid))))))
+          (server default-uri)
           (client "xmms2-guile")
-          (fail (lambda (msg)
-                  (format #t "xmms2-connection failed: ~a~%" msg)
-                  (quit 1))))
+          (fail default-fail-handler))
   (catch 'xmms2:sync/connection-failure
     (lambda ()
       (let ((connection (xmms2-connect client server)))
