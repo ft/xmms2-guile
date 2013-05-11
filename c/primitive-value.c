@@ -10,6 +10,9 @@
 #include <libguile.h>
 #include <xmmsclient/xmmsclient.h>
 
+static SCM x2co_S_PAUSED;
+static SCM x2co_S_PLAYING;
+static SCM x2co_S_STOPPED;
 static SCM x2co_V_INTEGER;
 static SCM x2co_V_NONE;
 static SCM x2co_V_ERROR;
@@ -90,6 +93,12 @@ void
 init_x2_primitive_value(void)
 {
     /* Constants */
+    X2_SCM_EXPORT_CONSTANT(x2co_S_PAUSED, "XMMS2-STATUS-PAUSED",
+                           scm_from_int(XMMS_PLAYBACK_STATUS_PAUSE));
+    X2_SCM_EXPORT_CONSTANT(x2co_S_PLAYING, "XMMS2-STATUS-PLAYING",
+                           scm_from_int(XMMS_PLAYBACK_STATUS_PLAY));
+    X2_SCM_EXPORT_CONSTANT(x2co_S_STOPPED, "XMMS2-STATUS-STOPPED",
+                           scm_from_int(XMMS_PLAYBACK_STATUS_STOP));
     X2_SCM_EXPORT_CONSTANT(x2co_V_INTEGER, "XMMS2-VALUE-INTEGER",
                            scm_from_int(XMMSV_TYPE_INT64));
     X2_SCM_EXPORT_CONSTANT(x2co_V_NONE, "XMMS2-VALUE-NONE",
