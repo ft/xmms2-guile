@@ -52,6 +52,7 @@
 (define-synchronous-action xmms2/current-id xmms2:primitive/current-id)
 (define-synchronous-action xmms2/pause xmms2:primitive/pause)
 (define-synchronous-action xmms2/play xmms2:primitive/play)
+(define-synchronous-action xmms2/playtime xmms2:primitive/playtime)
 (define-synchronous-action xmms2/status xmms2:primitive/status integer->status)
 (define-synchronous-action xmms2/stop xmms2:primitive/stop)
 (define-synchronous-action xmms2/tickle xmms2:primitive/tickle)

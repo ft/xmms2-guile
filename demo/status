@@ -8,5 +8,6 @@
 (with-xmms2-connection
  #:handler (lambda (c)
              (format #t "Status: ~a~%" (xmms2/status c))
+             (format #t "Playtime (ms): ~d~%" (xmms2/playtime c))
              (format #t "Current-Id: ~d~%" (xmms2/current-id c))))
 (quit 0)
