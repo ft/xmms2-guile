@@ -56,3 +56,4 @@
 (define-synchronous-action xmms2/status xmms2:primitive/status integer->status)
 (define-synchronous-action xmms2/stop xmms2:primitive/stop)
 (define-synchronous-action xmms2/tickle xmms2:primitive/tickle)
+(define-synchronous-action xmms2/volume-get xmms2:primitive/volume-get)
