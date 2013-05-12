@@ -1,4 +1,8 @@
 ;; -*- scheme -*-
+;;
+;; Copyright (c) 2013 xmms2-guile workers, All rights reserved.
+;;
+;; Terms for redistribution and use can be found in LICENCE.
 
 (use-modules (taptest)
              (xmms2 core value))
