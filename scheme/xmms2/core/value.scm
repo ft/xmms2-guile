@@ -28,9 +28,16 @@
   (from-symbol-map status-map x 'unknown-status))
 
 (define type-map
-  `((,XMMS2-VALUE-NONE . empty-value)
+  `((,XMMS2-VALUE-BINARY . binary)
+    (,XMMS2-VALUE-BITBUFFER . bitbuffer)
+    (,XMMS2-VALUE-COLLECTION . collection)
+    (,XMMS2-VALUE-DICTIONARY . dictionary)
     (,XMMS2-VALUE-ERROR . erroneous-value)
-    (,XMMS2-VALUE-INTEGER . integer)))
+    (,XMMS2-VALUE-FLOAT . float)
+    (,XMMS2-VALUE-INTEGER . integer)
+    (,XMMS2-VALUE-LIST . list)
+    (,XMMS2-VALUE-NONE . empty-value)
+    (,XMMS2-VALUE-STRING . string)))
 
 (define (integer->value-type x)
   (from-symbol-map type-map x 'unknown-value-type))
@@ -59,4 +66,4 @@
       ((trivial-type? type) type)
       ((eq? type 'integer)
        (xmms2:primitive/value->integer x))
-      (else 'XMMS2-UNSUPPORTED-DATA-TYPE))))
+      (else `(XMMS2-UNSUPPORTED-DATA-TYPE . ,type)))))

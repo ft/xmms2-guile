@@ -13,9 +13,16 @@
 static SCM x2co_S_PAUSED;
 static SCM x2co_S_PLAYING;
 static SCM x2co_S_STOPPED;
-static SCM x2co_V_INTEGER;
-static SCM x2co_V_NONE;
+static SCM x2co_V_BIN;
+static SCM x2co_V_BITBUFFER;
+static SCM x2co_V_COLL;
+static SCM x2co_V_DICT;
 static SCM x2co_V_ERROR;
+static SCM x2co_V_FLOAT;
+static SCM x2co_V_INTEGER;
+static SCM x2co_V_LIST;
+static SCM x2co_V_NONE;
+static SCM x2co_V_STRING;
 
 static SCM x2_result_to_scheme(SCM);
 static SCM x2_type_of_value(SCM);
@@ -99,12 +106,28 @@ init_x2_primitive_value(void)
                            scm_from_int(XMMS_PLAYBACK_STATUS_PLAY));
     X2_SCM_EXPORT_CONSTANT(x2co_S_STOPPED, "XMMS2-STATUS-STOPPED",
                            scm_from_int(XMMS_PLAYBACK_STATUS_STOP));
-    X2_SCM_EXPORT_CONSTANT(x2co_V_INTEGER, "XMMS2-VALUE-INTEGER",
-                           scm_from_int(XMMSV_TYPE_INT64));
-    X2_SCM_EXPORT_CONSTANT(x2co_V_NONE, "XMMS2-VALUE-NONE",
-                           scm_from_int(XMMSV_TYPE_NONE));
+
+    X2_SCM_EXPORT_CONSTANT(x2co_V_BIN, "XMMS2-VALUE-BINARY",
+                           scm_from_int(XMMSV_TYPE_BIN));
+    X2_SCM_EXPORT_CONSTANT(x2co_V_BITBUFFER, "XMMS2-VALUE-BITBUFFER",
+                           scm_from_int(XMMSV_TYPE_BITBUFFER));
+    X2_SCM_EXPORT_CONSTANT(x2co_V_COLL, "XMMS2-VALUE-COLLECTION",
+                           scm_from_int(XMMSV_TYPE_COLL));
+    X2_SCM_EXPORT_CONSTANT(x2co_V_DICT, "XMMS2-VALUE-DICTIONARY",
+                           scm_from_int(XMMSV_TYPE_DICT));
     X2_SCM_EXPORT_CONSTANT(x2co_V_ERROR, "XMMS2-VALUE-ERROR",
                            scm_from_int(XMMSV_TYPE_ERROR));
+    X2_SCM_EXPORT_CONSTANT(x2co_V_FLOAT, "XMMS2-VALUE-FLOAT",
+                           scm_from_int(XMMSV_TYPE_FLOAT));
+    X2_SCM_EXPORT_CONSTANT(x2co_V_INTEGER, "XMMS2-VALUE-INTEGER",
+                           scm_from_int(XMMSV_TYPE_INT64));
+    X2_SCM_EXPORT_CONSTANT(x2co_V_LIST, "XMMS2-VALUE-LIST",
+                           scm_from_int(XMMSV_TYPE_LIST));
+    X2_SCM_EXPORT_CONSTANT(x2co_V_NONE, "XMMS2-VALUE-NONE",
+                           scm_from_int(XMMSV_TYPE_NONE));
+    X2_SCM_EXPORT_CONSTANT(x2co_V_STRING, "XMMS2-VALUE-STRING",
+                           scm_from_int(XMMSV_TYPE_STRING));
+
     /* Primitives */
     xg_scm_define_and_export("xmms2:primitive/result->scheme",
                              1, 0, 0, x2_result_to_scheme);
