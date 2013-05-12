@@ -22,3 +22,8 @@ add_subdirectory(c)
 add_custom_target(
   uninstall
   COMMAND ${PERL} ${CMAKE_SOURCE_DIR}/b/bin/uninstall.pl)
+
+add_custom_target(
+  test
+  COMMAND ${PERL} ${CMAKE_SOURCE_DIR}/b/bin/prove "${CMAKE_BINARY_DIR}/c"
+  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")

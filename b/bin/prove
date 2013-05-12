@@ -1,0 +1,21 @@
+#!/bin/sh
+
+if [ "$#" != 1 ]; then
+    printf 'usage: prove <path-to-libxmms2-guile>\n'
+    exit 1
+fi
+
+if [ ! -e "$1"/libxmms2-guile.so ]; then
+    printf 'libxmms2-guile.so not found in `%s'\''!\n' "$1"
+    exit 1
+fi
+
+GUILE_AUTO_COMPILE=0
+GUILE_LOAD_PATH=$PWD/scheme
+XMMS2_GUILE_EXTENSION_PATH=$1
+
+for i in GUILE_AUTO_COMPILE GUILE_LOAD_PATH XMMS2_GUILE_EXTENSION_PATH; do
+    export "$i"
+done
+
+prove -e guile --merge --verbose --recurse test
