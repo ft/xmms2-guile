@@ -7,5 +7,6 @@
 (use-modules (xmms2 sync))
 (with-xmms2-connection
  #:handler (lambda (c)
-             (format #t "Status: ~a~%" (xmms2/status c))))
+             (format #t "Status: ~a~%" (xmms2/status c))
+             (format #t "Current-Id: ~d~%" (xmms2/current-id c))))
 (quit 0)
