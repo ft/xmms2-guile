@@ -21,6 +21,7 @@ xmms2_guile_ext_init(void)
     /* Add new primitives */
     init_x2_primitive_connect();
     init_x2_primitive_playback();
+    init_x2_primitive_playlist();
     init_x2_primitive_synchronous();
     init_x2_primitive_value();
 }

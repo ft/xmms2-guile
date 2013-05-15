@@ -33,6 +33,7 @@ SCM make_x2_value(void);
 
 void init_x2_primitive_connect(void);
 void init_x2_primitive_playback(void);
+void init_x2_primitive_playlist(void);
 void init_x2_primitive_synchronous(void);
 void init_x2_primitive_value(void);
 void init_x2_type_connection(void);
