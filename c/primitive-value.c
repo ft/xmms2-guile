@@ -118,7 +118,7 @@ value_guard(xmmsv_t *v)
 {
     const char *err;
 
-    if (xmmsv_get_error (v, &err))
+    if (xmmsv_get_error(v, &err))
         scm_throw(
             scm_string_to_symbol(
                 scm_from_locale_string("xmms2:primitive/value-error")),
