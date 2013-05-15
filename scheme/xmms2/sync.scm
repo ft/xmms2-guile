@@ -59,3 +59,4 @@
 (define-synchronous-action xmms2/volume-get xmms2:primitive/volume-get)
 
 (define-synchronous-action xmms2/active-playlist xmms2:primitive/active-playlist)
+(define-synchronous-action xmms2/get-playlists xmms2:primitive/get-playlists)

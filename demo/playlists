@@ -1,0 +1,21 @@
+;; -*- scheme -*-
+
+;; Copyright (c) 2013 xmms2-guile workers, All rights reserved.
+;;
+;; Terms for redistribution and use can be found in LICENCE.
+
+(use-modules (ice-9 regex)
+             (xmms2 sync))
+
+(with-xmms2-connection
+ #:handler
+ (lambda (connection)
+   (format #t "Available Playlists:~%--------------------~%")
+   (map (lambda (name)
+          ;; XMMS2's client author guidelines mandate, that internal playlists
+          ;; (ones starting with an underscore), are to be hidden from the
+          ;; user. So, do that here as well for fun. Also sort the list.
+          (if (not (string-match "^_" name))
+              (format #t "~a~%" name)))
+        (sort (xmms2/get-playlists connection) string<?))))
+(quit 0)
