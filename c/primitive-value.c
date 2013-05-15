@@ -70,6 +70,14 @@
 #include <libguile.h>
 #include <xmmsclient/xmmsclient.h>
 
+#define RETURN_ERROR_VALUE_IF_ERROR(value)                         \
+    do {                                                           \
+        const char *error;                                         \
+        if (xmmsv_get_error(value, &error))                        \
+            return scm_string_to_symbol(                           \
+                scm_from_locale_string("erroneous-value"));        \
+    } while (0)
+
 static SCM x2co_S_PAUSED;
 static SCM x2co_S_PLAYING;
 static SCM x2co_S_STOPPED;
@@ -102,8 +110,6 @@ static SCM value_to_container(xmmsv_t *);
 static SCM value_t_to_scm(xmmsv_t *);
 static SCM unbox_and_call(SCM, SCM (*)(xmmsv_t *));
 
-static void value_guard(xmmsv_t *);
-
 static SCM
 unbox_and_call(SCM value, SCM (*cb)(xmmsv_t *))
 {
@@ -113,24 +119,12 @@ unbox_and_call(SCM value, SCM (*cb)(xmmsv_t *))
     return cb(v);
 }
 
-static void
-value_guard(xmmsv_t *v)
-{
-    const char *err;
-
-    if (xmmsv_get_error(v, &err))
-        scm_throw(
-            scm_string_to_symbol(
-                scm_from_locale_string("xmms2:primitive/value-error")),
-            scm_from_locale_string(err));
-}
-
 static SCM
 value_to_container(xmmsv_t *v)
 {
     SCM value;
 
-    value_guard(v);
+    RETURN_ERROR_VALUE_IF_ERROR(v);
     value = make_x2_value();
     SCM_SET_SMOB_DATA(value, v);
     return value;
@@ -153,7 +147,7 @@ x2_value_to_scheme(SCM value)
     xmmsv_t *v;
 
     v = (xmmsv_t *) SCM_SMOB_DATA(value);
-    value_guard(v);
+    RETURN_ERROR_VALUE_IF_ERROR(v);
     return value;
 }
 
