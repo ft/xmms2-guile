@@ -68,6 +68,8 @@
        (xmms2:primitive/value->integer x))
       ((eq? type 'string)
        (xmms2:primitive/value->string x))
+      ((eq? type 'list)
+       (xmms2:primitive/value->list x))
       ((eq? type 'dictionary)
        (xmms2:primitive/value->dictionary x))
       (else `(XMMS2-UNSUPPORTED-DATA-TYPE . ,type)))))

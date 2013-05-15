@@ -88,6 +88,8 @@ static SCM value_to_dict(xmmsv_t *);
 static SCM x2_value_to_dict(SCM);
 static SCM value_to_integer(xmmsv_t *);
 static SCM x2_value_to_integer(SCM);
+static SCM value_to_list(xmmsv_t *);
+static SCM x2_value_to_list(SCM);
 static SCM value_to_string(xmmsv_t *);
 static SCM x2_value_to_string(SCM);
 
@@ -185,6 +187,8 @@ value_t_to_scm(xmmsv_t *v)
         return value_to_string(v);
     case XMMSV_TYPE_DICT:
         return value_to_dict(v);
+    case XMMSV_TYPE_LIST:
+        return value_to_list(v);
     default:
         return scm_cons(
             scm_string_to_symbol(
@@ -254,6 +258,29 @@ x2_value_to_dict(SCM value)
     return unbox_and_call(value, value_to_dict);
 }
 
+static SCM
+value_to_list(xmmsv_t *v)
+{
+    xmmsv_list_iter_t *it;
+    xmmsv_t *iv;
+    SCM result;
+
+    xmmsv_get_list_iter(v, &it);
+    result = SCM_EOL;
+    while (xmmsv_list_iter_entry(it, &iv)) {
+        result = scm_cons(value_t_to_scm(iv), result);
+        xmmsv_list_iter_next(it);
+    }
+    xmmsv_list_iter_explicit_destroy(it);
+    return result;
+}
+
+static SCM
+x2_value_to_list(SCM value)
+{
+    return unbox_and_call(value, value_to_list);
+}
+
 void
 init_x2_primitive_value(void)
 {
@@ -296,6 +323,8 @@ init_x2_primitive_value(void)
 
     xg_scm_define_and_export("xmms2:primitive/value->integer",
                              1, 0, 0, x2_value_to_integer);
+    xg_scm_define_and_export("xmms2:primitive/value->list",
+                             1, 0, 0, x2_value_to_list);
     xg_scm_define_and_export("xmms2:primitive/value->string",
                              1, 0, 0, x2_value_to_string);
     xg_scm_define_and_export("xmms2:primitive/value->dictionary",
