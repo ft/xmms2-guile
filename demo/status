@@ -10,6 +10,5 @@
              (format #t "       Status: ~a~%" (xmms2/status c))
              (format #t "Playtime (ms): ~d~%" (xmms2/playtime c))
              (format #t "   Current-Id: ~d~%" (xmms2/current-id c))
-             ;; Return value type from `volume-get' is not supported yet.
              (format #t "       Volume: ~a~%" (xmms2/volume-get c))))
 (quit 0)
