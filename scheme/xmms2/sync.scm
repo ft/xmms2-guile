@@ -27,7 +27,8 @@
     (lambda ()
       (let ((connection (xmms2-connect client server)))
         (handler connection)
-        (xmms2:primitive/unref-connection connection)))
+        (xmms2:primitive/unref-connection
+         (get-xmms2-connection-container connection))))
     (lambda (key . args)
       (fail (car args)))))
 
