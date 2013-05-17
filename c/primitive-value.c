@@ -261,10 +261,11 @@ value_to_list(xmmsv_t *v)
     SCM result;
 
     xmmsv_get_list_iter(v, &it);
+    xmmsv_list_iter_seek(it, -1);
     result = SCM_EOL;
     while (xmmsv_list_iter_entry(it, &iv)) {
         result = scm_cons(value_t_to_scm(iv), result);
-        xmmsv_list_iter_next(it);
+        xmmsv_list_iter_prev(it);
     }
     xmmsv_list_iter_explicit_destroy(it);
     return result;
