@@ -23,13 +23,7 @@ SCM
 x2_trivial_server_action(xmmsc_result_t *(*fnc)(xmmsc_connection_t *),
                          SCM connection)
 {
-    struct x2_connection *c;
-    xmmsc_result_t *result;
-    SCM retval;
-
-    c = (struct x2_connection *) SCM_SMOB_DATA(connection);
+    X2_SERVER_CMD_HEADER(c, connection, result, retval);
     result = fnc(c->c);
-    retval = make_x2_result();
-    SCM_SET_SMOB_DATA(retval, result);
-    return retval;
+    X2_SERVER_CMD_FOOTER(result, retval);
 }

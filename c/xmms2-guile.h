@@ -13,6 +13,17 @@ struct x2_connection {
 
 void xg_scm_define_and_export(const char *, int, int, int, SCM (*)());
 
+#define X2_SERVER_CMD_HEADER(c, connection, result, retval)     \
+    struct x2_connection *c;                                    \
+    xmmsc_result_t *result;                                     \
+    SCM retval;                                                 \
+    c = (struct x2_connection *) SCM_SMOB_DATA(connection)
+
+#define X2_SERVER_CMD_FOOTER(result, retval)    \
+    retval = make_x2_result();                  \
+    SCM_SET_SMOB_DATA(retval, result);          \
+    return retval
+
 #define X2_SCM_EXPORT_CONSTANT(c_level, scm_level, value)               \
     do {                                                                \
         c_level = scm_permanent_object(scm_c_define(scm_level, value)); \

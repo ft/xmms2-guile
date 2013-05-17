@@ -32,18 +32,39 @@
     (lambda (key . args)
       (fail (car args)))))
 
-(define (synchronous-action action connection)
-  (let ((result (action (get-xmms2-connection-container connection))))
+(define (synchronous-action action connection . args)
+  (let ((result (apply action
+                       (cons (get-xmms2-connection-container connection)
+                             args))))
     (xmms2:primitive/sync-wait result)))
 
+;; TODO: This is four times about the same expansion. There must be a way to
+;; write this in a less redundant way.
 (define-syntax define-synchronous-action
   (lambda (x)
     (syntax-case x ()
+      ((_ synchronous-function (a0 ...) primitive-function)
+       #'(define-public (synchronous-function connection a0 ...)
+           (let* ((result (synchronous-action primitive-function
+                                              connection
+                                              a0 ...))
+                  (value (xmms2-result->value result)))
+             (xmms2-value->scheme-data value))))
+
       ((_ synchronous-function primitive-function)
        #'(define-public (synchronous-function connection)
            (let* ((result (synchronous-action primitive-function connection))
                   (value (xmms2-result->value result)))
              (xmms2-value->scheme-data value))))
+
+      ((_ synchronous-function primitive-function (a0 ...) post-process-fcn)
+       #'(define-public (synchronous-function connection a0 ...)
+           (let* ((result (synchronous-action primitive-function
+                                              connection
+                                              a0 ...))
+                  (value (xmms2-result->value result)))
+             (post-process-fcn (xmms2-value->scheme-data value)))))
+
       ((_ synchronous-function primitive-function post-process-fcn)
        #'(define-public (synchronous-function connection)
            (let* ((result (synchronous-action primitive-function connection))
@@ -61,3 +82,5 @@
 
 (define-synchronous-action xmms2/active-playlist xmms2:primitive/active-playlist)
 (define-synchronous-action xmms2/get-playlists xmms2:primitive/get-playlists)
+(define-synchronous-action xmms2/playlist-entries (playlist)
+                           xmms2:primitive/playlist-entries)
