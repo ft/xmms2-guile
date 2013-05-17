@@ -7,6 +7,7 @@
 #include "xmms2-guile.h"
 
 #include <libguile.h>
+#include <xmmsclient/xmmsclient.h>
 
 void
 xg_scm_define_and_export(const char *name,
