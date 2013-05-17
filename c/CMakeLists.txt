@@ -8,6 +8,7 @@ endif()
 
 set(SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/init.c
             ${CMAKE_CURRENT_SOURCE_DIR}/primitive-connect.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/primitive-medialib.c
             ${CMAKE_CURRENT_SOURCE_DIR}/primitive-playback.c
             ${CMAKE_CURRENT_SOURCE_DIR}/primitive-playlist.c
             ${CMAKE_CURRENT_SOURCE_DIR}/primitive-synchronous.c

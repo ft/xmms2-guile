@@ -84,3 +84,6 @@
 (define-synchronous-action xmms2/get-playlists xmms2:primitive/get-playlists)
 (define-synchronous-action xmms2/playlist-entries (playlist)
                            xmms2:primitive/playlist-entries)
+
+(define-synchronous-action xmms2/medialib-get-info (id)
+                           xmms2:primitive/medialib-get-info)

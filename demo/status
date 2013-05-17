@@ -4,15 +4,24 @@
 ;;
 ;; Terms for redistribution and use can be found in LICENCE.
 
-(use-modules (xmms2 sync))
+(use-modules (ice-9 pretty-print)
+             (xmms2 sync))
+
 (with-xmms2-connection
  #:handler (lambda (c)
              (let* ((l (xmms2/active-playlist c))
-                    (e (xmms2/playlist-entries c l)))
+                    (e (xmms2/playlist-entries c l))
+                    (id (xmms2/current-id c)))
                (format #t "     Playlist: ~a~%" l)
                (format #t "  # of Tracks: ~d~%" (length e))
                (format #t "       Status: ~a~%" (xmms2/status c))
                (format #t "Playtime (ms): ~d~%" (xmms2/playtime c))
-               (format #t "   Current-Id: ~d~%" (xmms2/current-id c))
-               (format #t "       Volume: ~a~%" (xmms2/volume-get c)))))
+               (format #t "       Volume: ~a~%" (xmms2/volume-get c))
+               (format #t "   Current-Id: ~d~%" id)
+               (format #t "   Track Info:~%")
+               (pretty-print (xmms2/medialib-get-info c id)
+                             (current-output-port)
+                             #:per-line-prefix "            "
+                             #:width (or (getenv "COLUMNS")
+                                         79)))))
 (quit 0)
