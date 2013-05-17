@@ -237,7 +237,8 @@ value_to_dict(xmmsv_t *v)
     while (xmmsv_dict_iter_valid(it)) {
         xmmsv_dict_iter_pair(it, &key, &iv);
         result = scm_cons(scm_cons(
-                              scm_from_locale_string(key),
+                              scm_string_to_symbol(
+                                  scm_from_locale_string(key)),
                               value_t_to_scm(iv)),
                           result);
         xmmsv_dict_iter_next(it);
