@@ -7,6 +7,17 @@
 (use-modules (ice-9 pretty-print)
              (xmms2 sync))
 
+(define (pretty-time t)
+  (let* ((i (if (inexact? t)
+                (truncate (inexact->exact t))
+                (truncate t)))
+         (hours (truncate (/ i 3600)))
+         (minutes (truncate (/ (remainder i 3600) 60)))
+         (seconds (- i (* 60 minutes) (* 3600 hours))))
+    (cond ((>= i 3600) (format #f "~d:~2,'0d:~2,'0d" hours minutes seconds))
+          ((>= i 60) (format #f "~2,'0d:~2,'0d" minutes seconds))
+          (else (format #f "00:~2,'0d" i)))))
+
 (with-xmms2-connection
  #:handler (lambda (c)
              (let* ((l (xmms2/active-playlist c))
@@ -15,7 +26,9 @@
                (format #t "     Playlist: ~a~%" l)
                (format #t "  # of Tracks: ~d~%" (length e))
                (format #t "       Status: ~a~%" (xmms2/status c))
-               (format #t "Playtime (ms): ~d~%" (xmms2/playtime c))
+               (format #t "Playtime (ms): ~a~%" (pretty-time
+                                                 (/ (xmms2/playtime c)
+                                                    1000)))
                (format #t "       Volume: ~a~%" (xmms2/volume-get c))
                (format #t "   Current-Id: ~d~%" id)
                (format #t "   Track Info:~%")
