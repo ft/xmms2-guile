@@ -1,0 +1,46 @@
+;; -*- scheme -*-
+
+;; Copyright (c) 2013 xmms2-guile workers, All rights reserved.
+;;
+;; Terms for redistribution and use can be found in LICENCE.
+
+(use-modules (srfi srfi-1)
+             (xmms2 sync))
+
+(define (pretty-time t)
+  (let* ((i (if (inexact? t)
+                (truncate (inexact->exact t))
+                (truncate t)))
+         (hours (truncate (/ i 3600)))
+         (minutes (truncate (/ (remainder i 3600) 60)))
+         (seconds (- i (* 60 minutes) (* 3600 hours))))
+    (cond ((>= i 3600) (format #f "~d:~2,'0d:~2,'0d" hours minutes seconds))
+          ((>= i 60) (format #f "~2,'0d:~2,'0d" minutes seconds))
+          (else (format #f "00:~2,'0d" i)))))
+
+(define (pretty-track track)
+  (define (w/fallback info fallback)
+    (if info (cdar info) fallback))
+  (let ((album (assq-ref track 'album))
+        (artist (assq-ref track 'artist))
+        (duration (assq-ref track 'duration))
+        (tracknumber (assq-ref track 'tracknr))
+        (tracktitle (assq-ref track 'title)))
+    (format #t "~a - ~a - ~2,'0d. ~a (~a)~%"
+            (w/fallback artist "<No Artist>")
+            (w/fallback album "<No Album>")
+            (w/fallback tracknumber 0)
+            (w/fallback tracktitle "<No Tracktitle>")
+            (if duration
+                (pretty-time (/ (cdar duration) 1000))
+                "xx:xx"))))
+
+(with-xmms2-connection
+ #:handler (lambda (c)
+             (fold (lambda (x i)
+                     (format #t "~d. " i)
+                     (pretty-track (xmms2/medialib-get-info c x))
+                     (1+ i))
+                   1
+                   (xmms2/playlist-entries c "_active"))))
+(quit 0)
