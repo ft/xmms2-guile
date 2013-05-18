@@ -4,8 +4,7 @@
 ;;
 ;; Terms for redistribution and use can be found in LICENCE.
 
-(use-modules (ice-9 pretty-print)
-             (xmms2 sync))
+(use-modules (xmms2 sync))
 
 (define (pretty-time t)
   (let* ((i (if (inexact? t)
@@ -18,23 +17,32 @@
           ((>= i 60) (format #f "~2,'0d:~2,'0d" minutes seconds))
           (else (format #f "00:~2,'0d" i)))))
 
+(define (pretty-track track)
+  (define (w/fallback info fallback)
+    (if info (cdar info) fallback))
+  (let ((album (assq-ref track 'album))
+        (artist (assq-ref track 'artist))
+        (tracknumber (assq-ref track 'tracknr))
+        (tracktitle (assq-ref track 'title)))
+    (format #t "~a - ~a - ~2,'0d. ~a~%"
+            (w/fallback artist "<No Artist>")
+            (w/fallback album "<No Album>")
+            (w/fallback tracknumber 0)
+            (w/fallback tracktitle "<No Tracktitle>"))))
+
 (with-xmms2-connection
  #:handler (lambda (c)
              (let* ((l (xmms2/active-playlist c))
                     (e (xmms2/playlist-entries c l))
                     (id (xmms2/current-id c)))
-               (format #t "     Playlist: ~a~%" l)
-               (format #t "  # of Tracks: ~d~%" (length e))
-               (format #t "       Status: ~a~%" (xmms2/status c))
+               (format #t "Current Track: ")
+               (pretty-track (xmms2/medialib-get-info c id))
                (format #t "Playtime (ms): ~a~%" (pretty-time
                                                  (/ (xmms2/playtime c)
                                                     1000)))
-               (format #t "       Volume: ~a~%" (xmms2/volume-get c))
+               (format #t "     Playlist: ~a~%" l)
+               (format #t "  # of Tracks: ~d~%" (length e))
+               (format #t "       Status: ~a~%" (xmms2/status c))
                (format #t "   Current-Id: ~d~%" id)
-               (format #t "   Track Info:~%")
-               (pretty-print (xmms2/medialib-get-info c id)
-                             (current-output-port)
-                             #:per-line-prefix "            "
-                             #:width (or (getenv "COLUMNS")
-                                         79)))))
+               (format #t "       Volume: ~a~%" (xmms2/volume-get c)))))
 (quit 0)
