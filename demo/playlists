@@ -7,6 +7,10 @@
 (use-modules (ice-9 regex)
              (xmms2 sync))
 
+;; Initialise locale environment. If this is not done, conversion of non-ascii
+;; strings in the C glue code will probably fail.
+(setlocale LC_ALL "")
+
 (with-xmms2-connection
  #:handler
  (lambda (connection)

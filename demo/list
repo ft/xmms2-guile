@@ -35,6 +35,10 @@
                 (pretty-time (/ (cdar duration) 1000))
                 "xx:xx"))))
 
+;; Initialise locale environment. If this is not done, conversion of non-ascii
+;; strings in the C glue code will probably fail.
+(setlocale LC_ALL "")
+
 (with-xmms2-connection
  #:handler (lambda (c)
              (fold (lambda (x i)
