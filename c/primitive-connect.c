@@ -26,7 +26,7 @@ x2_connect(SCM connection, SCM uri)
     if (rc == false)
         scm_throw(
             scm_string_to_symbol(
-                scm_from_locale_string("xmms2:sync/connection-failure")),
+                scm_from_utf8_string("xmms2:sync/connection-failure")),
             scm_list_1(
                 scm_from_locale_string(
                     xmmsc_get_last_error(c->c))));

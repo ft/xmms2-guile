@@ -75,7 +75,7 @@
         const char *error;                                         \
         if (xmmsv_get_error(value, &error))                        \
             return scm_string_to_symbol(                           \
-                scm_from_locale_string("erroneous-value"));        \
+                scm_from_utf8_string("erroneous-value"));          \
     } while (0)
 
 static SCM x2co_S_PAUSED;
@@ -186,7 +186,7 @@ value_t_to_scm(xmmsv_t *v)
     default:
         return scm_cons(
             scm_string_to_symbol(
-                scm_from_locale_string("XMMS2-UNSUPPORTED-DATA-TYPE")),
+                scm_from_utf8_string("XMMS2-UNSUPPORTED-DATA-TYPE")),
                 scm_from_int(type));
     }
 }
