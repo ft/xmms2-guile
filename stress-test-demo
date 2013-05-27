@@ -1,0 +1,59 @@
+#!/bin/sh
+
+# This script is a utility to stress test the shipped demos. There are two ways
+# to call the utility:
+#
+#    ./stress-test-demo <demo> <log-file>
+#
+# ...and...
+#
+#    ./stress-test-demo <demo> <log-file> <max-iterations>
+#
+# The first form calls <demo> infinitely and logs the current run's output to
+# <log-file>. It will stop calling <demo> if it returned non-success.
+#
+# The second form works the same, except that it will also abort if <demo> ran
+# successfully <max-iteration> times.
+#
+# You can also add additional arguments to be passed to the `guile' binary, by
+# adding a double-dash followed by a list of guile-options. For example:
+#
+#    ./stress-test-demo demo/status status.log -- --debug
+#
+# Runs `demo/status' forever, logging to `status.log' and passes `--debug' to
+# each and every invocation of the `guile' binary.
+
+if [ $# -lt 2 ]; then
+    printf 'usage: ./stress-test-demo <demo> <log-file> [<max-iterations>]'
+    printf ' [-- GUILE_OPTION(s)]\n'
+    exit 1
+fi
+
+demo=$1
+shift
+log=$1
+shift
+
+if [ $# -gt 0 ] && [ "x$1x" != x--x ]; then
+    max=${1:-forever}
+    shift
+else
+    max=forever
+fi
+
+if [ $# -gt 0 ] && [ "x$1x" = x--x ]; then
+    shift
+fi
+
+
+finished () {
+    [ "$max" = forever ] && return 1
+    [ "$1" -lt "$max" ] && return 1
+    return 0
+}
+
+i=0
+while ! finished $i; do
+    time guile "$@" "$demo" > "$log" || break
+    [ "$max" = forever ] || i=$(expr $i + 1)
+done
