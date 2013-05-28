@@ -106,7 +106,7 @@ static SCM x2_value_to_scheme(SCM);
 
 static SCM x2_type_of_value(SCM);
 
-static SCM value_to_container(xmmsv_t *);
+static SCM value_to_container(xmmsv_t *, SCM);
 static SCM value_t_to_scm(xmmsv_t *);
 static SCM unbox_and_call(SCM, SCM (*)(xmmsv_t *));
 
@@ -114,22 +114,25 @@ static SCM
 unbox_and_call(SCM value, SCM (*cb)(xmmsv_t *))
 {
     SCM retval;
-    xmmsv_t *v;
+    struct x2_value *v;
 
-    v = (xmmsv_t *) SCM_SMOB_DATA(value);
-    retval = cb(v);
-    scm_remember_upto_here_1(value);
+    v = (struct x2_value *) SCM_SMOB_DATA(value);
+    retval = cb(v->value);
+    scm_remember_upto_here_2(value, v->parent_result);
     return retval;
 }
 
 static SCM
-value_to_container(xmmsv_t *v)
+value_to_container(xmmsv_t *v, SCM parent)
 {
     SCM value;
+    struct x2_value *iv;
 
     RETURN_ERROR_VALUE_IF_ERROR(v);
     value = make_x2_value();
-    SCM_SET_SMOB_DATA(value, v);
+    iv = (struct x2_value *) SCM_SMOB_DATA(value);
+    iv->value = v;
+    iv->parent_result = parent;
     return value;
 }
 
@@ -141,26 +144,26 @@ x2_result_to_scheme(SCM result)
 
     r = (xmmsc_result_t *) SCM_SMOB_DATA(result);
     v = xmmsc_result_get_value(r);
-    return value_to_container(v);
+    return value_to_container(v, result);
 }
 
 static SCM
 x2_value_to_scheme(SCM value)
 {
-    xmmsv_t *v;
+    struct x2_value *v;
 
-    v = (xmmsv_t *) SCM_SMOB_DATA(value);
-    RETURN_ERROR_VALUE_IF_ERROR(v);
+    v = (struct x2_value *) SCM_SMOB_DATA(value);
+    RETURN_ERROR_VALUE_IF_ERROR(v->value);
     return value;
 }
 
 static SCM
 x2_type_of_value(SCM value)
 {
-    xmmsv_t *v;
+    struct x2_value *v;
 
-    v = (xmmsv_t *) SCM_SMOB_DATA(value);
-    return scm_from_int(xmmsv_get_type(v));
+    v = (struct x2_value *) SCM_SMOB_DATA(value);
+    return scm_from_int(xmmsv_get_type(v->value));
 }
 
 /**

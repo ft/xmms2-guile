@@ -11,6 +11,20 @@ struct x2_connection {
     xmmsc_connection_t *c;
 };
 
+struct x2_value {
+    /** The actual value container */
+    xmmsv_t *value;
+    /**
+     * This is a backreference to the parent `xmmsc_result_t' container (well,
+     * its SCM version). This is needed to be able to keep the parent container
+     * referenced while the value container is used in the C glue code. When
+     * this is not done, it is possible to access parts of memory the garbage
+     * collection process already freed again. This would (and did) cause
+     * segfaults.
+     */
+    SCM parent_result;
+};
+
 void xg_scm_define_and_export(const char *, int, int, int, SCM (*)());
 
 #define X2_SERVER_CMD_HEADER(c, connection, result, retval)     \
