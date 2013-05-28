@@ -3,6 +3,7 @@
 *~
 *.go
 *.so
+*.log
 
 # Cleanup below, grouped by general ignores first and then by subdirectory:
 Makefile
