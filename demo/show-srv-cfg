@@ -1,0 +1,20 @@
+;; -*- scheme -*-
+
+;; Copyright (c) 2013 xmms2-guile workers, All rights reserved.
+;;
+;; Terms for redistribution and use can be found in LICENCE.
+
+(use-modules (xmms2 sync))
+
+(with-xmms2-connection
+ #:handler
+ (lambda (c)
+   (map (lambda (x)
+          (format #t "~a = ~a~%" (car x) (cdr x)))
+    (sort (xmms2/config-list c)
+          (lambda (x y)
+            (let ((extract (lambda (x)
+                             (symbol->string (car x)))))
+              (string<? (extract x)
+                        (extract y))))))))
+(quit 0)

@@ -7,6 +7,7 @@ if (NOT ("${GUILE_CFLAGS}" STREQUAL ""))
 endif()
 
 set(SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/init.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/primitive-config.c
             ${CMAKE_CURRENT_SOURCE_DIR}/primitive-connect.c
             ${CMAKE_CURRENT_SOURCE_DIR}/primitive-medialib.c
             ${CMAKE_CURRENT_SOURCE_DIR}/primitive-playback.c

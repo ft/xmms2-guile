@@ -56,6 +56,7 @@ SCM x2_trivial_server_action(xmmsc_result_t *(*)(xmmsc_connection_t *), SCM);
 SCM make_x2_result(void);
 SCM make_x2_value(void);
 
+void init_x2_primitive_config(void);
 void init_x2_primitive_connect(void);
 void init_x2_primitive_medialib(void);
 void init_x2_primitive_playback(void);

@@ -19,6 +19,7 @@ xmms2_guile_ext_init(void)
     init_x2_type_result();
     init_x2_type_value();
     /* Add new primitives */
+    init_x2_primitive_config();
     init_x2_primitive_connect();
     init_x2_primitive_medialib();
     init_x2_primitive_playback();

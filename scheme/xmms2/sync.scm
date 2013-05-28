@@ -87,3 +87,5 @@
 
 (define-synchronous-action xmms2/medialib-get-info (id)
                            xmms2:primitive/medialib-get-info)
+
+(define-synchronous-action xmms2/config-list xmms2:primitive/config-list)
