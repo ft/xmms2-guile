@@ -73,6 +73,7 @@ free_x2_connection(SCM smob)
 
     c = (struct x2_connection *) SCM_SMOB_DATA(smob);
     xmmsc_unref(c->c);
+    scm_gc_free(c, sizeof (struct x2_connection), "xmms2:type/connection");
     return 0;
 }
 
