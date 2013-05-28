@@ -113,10 +113,13 @@ static SCM unbox_and_call(SCM, SCM (*)(xmmsv_t *));
 static SCM
 unbox_and_call(SCM value, SCM (*cb)(xmmsv_t *))
 {
+    SCM retval;
     xmmsv_t *v;
 
     v = (xmmsv_t *) SCM_SMOB_DATA(value);
-    return cb(v);
+    retval = cb(v);
+    scm_remember_upto_here_1(value);
+    return retval;
 }
 
 static SCM
