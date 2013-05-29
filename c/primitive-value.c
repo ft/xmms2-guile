@@ -78,6 +78,10 @@
                 scm_from_utf8_string("erroneous-value"));          \
     } while (0)
 
+/*
+ * Symbols for permanently visible constants
+ */
+
 static SCM x2co_S_PAUSED;
 static SCM x2co_S_PLAYING;
 static SCM x2co_S_STOPPED;
@@ -92,6 +96,10 @@ static SCM x2co_V_LIST;
 static SCM x2co_V_NONE;
 static SCM x2co_V_STRING;
 
+/*
+ * Prototypes for value_to_*() and corresponding x2_value_to_*() functions
+ */
+
 static SCM value_to_dict(xmmsv_t *);
 static SCM x2_value_to_dict(SCM);
 static SCM value_to_integer(xmmsv_t *);
@@ -101,15 +109,33 @@ static SCM x2_value_to_list(SCM);
 static SCM value_to_string(xmmsv_t *);
 static SCM x2_value_to_string(SCM);
 
+/*
+ * C -> Scheme conversion
+ */
+
 static SCM x2_result_to_scheme(SCM);
-static SCM x2_value_to_scheme(SCM);
+
+/* Exported utilities */
 
 static SCM x2_type_of_value(SCM);
 
-static SCM value_to_container(xmmsv_t *, SCM);
-static SCM value_t_to_scm(xmmsv_t *);
-static SCM unbox_and_call(SCM, SCM (*)(xmmsv_t *));
+/* Private utilities */
 
+static SCM result_value_to_container(xmmsv_t *, SCM);
+static SCM unbox_and_call(SCM, SCM (*)(xmmsv_t *));
+static SCM value_t_to_scm(xmmsv_t *);
+
+/**
+ * Unbox an `xmmsv_t' container from a SMOB and call a function on it.
+ *
+ * This is a common operation in `x2_value_to_*()' functions.
+ *
+ * @param  value   SMOB containing the `xmmsv_t' container to work on
+ * @param  cb      The callback function to call on the unpacked `xmmsv_t'
+ *
+ * @return The return value of the callback function
+ * @sideeffects none
+ */
 static SCM
 unbox_and_call(SCM value, SCM (*cb)(xmmsv_t *))
 {
@@ -122,8 +148,21 @@ unbox_and_call(SCM value, SCM (*cb)(xmmsv_t *))
     return retval;
 }
 
+/**
+ * Take `xmmsv_t' from `xmmsc_result_t' and put it into a smob container.
+ *
+ * This is a common operation with synchronous clients. We also need to keep
+ * reference to the parent structure, because the XMMS2 client library cleans
+ * up the `xmmsv_t' value with the parent `xmmsc_result_t'.
+ *
+ * @param  v        Pointer to the `xmmsv_t' data to put into the smob
+ * @param  parent   SMOB containining the parent `xmmsc_result_t'
+ *
+ * @return The created SMOB
+ * @sideeffects none
+ */
 static SCM
-value_to_container(xmmsv_t *v, SCM parent)
+result_value_to_container(xmmsv_t *v, SCM parent)
 {
     SCM value;
     struct x2_value *iv;
@@ -136,6 +175,16 @@ value_to_container(xmmsv_t *v, SCM parent)
     return value;
 }
 
+/**
+ * From a `xmmsc_result_t' smob, return a smob containing the `xmmsv_t'
+ *
+ * This only really makes sense with synchronous connections.
+ *
+ * @param  result   SMOB containing the `xmmsc_result_t'
+ *
+ * @return SMOB holding the `xmmsv_t' data
+ * @sideeffects none
+ */
 static SCM
 x2_result_to_scheme(SCM result)
 {
@@ -144,19 +193,17 @@ x2_result_to_scheme(SCM result)
 
     r = (xmmsc_result_t *) SCM_SMOB_DATA(result);
     v = xmmsc_result_get_value(r);
-    return value_to_container(v, result);
+    return result_value_to_container(v, result);
 }
 
-static SCM
-x2_value_to_scheme(SCM value)
-{
-    struct x2_value *v;
-
-    v = (struct x2_value *) SCM_SMOB_DATA(value);
-    RETURN_ERROR_VALUE_IF_ERROR(v->value);
-    return value;
-}
-
+/**
+ * Return magic-integer that describes the type of value kept in a SMOB.
+ *
+ * @param  value   SMOB value to check
+ *
+ * @return The determined magic-integer from the XMMS2 client library
+ * @sideeffects none
+ */
 static SCM
 x2_type_of_value(SCM value)
 {
@@ -283,6 +330,7 @@ x2_value_to_list(SCM value)
     return unbox_and_call(value, value_to_list);
 }
 
+/** Sub-Initialisation routine */
 void
 init_x2_primitive_value(void)
 {
@@ -320,8 +368,6 @@ init_x2_primitive_value(void)
                              1, 0, 0, x2_result_to_scheme);
     xg_scm_define_and_export("xmms2:primitive/type-of-value",
                              1, 0, 0, x2_type_of_value);
-    xg_scm_define_and_export("xmms2:primitive/value->scheme",
-                             1, 0, 0, x2_value_to_scheme);
 
     xg_scm_define_and_export("xmms2:primitive/value->integer",
                              1, 0, 0, x2_value_to_integer);
