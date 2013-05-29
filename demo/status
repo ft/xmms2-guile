@@ -41,7 +41,7 @@
                     (id (xmms2/current-id c)))
                (format #t "Current Track: ")
                (pretty-track (xmms2/medialib-get-info c id))
-               (format #t "Playtime (ms): ~a~%" (pretty-time
+               (format #t "     Playtime: ~a~%" (pretty-time
                                                  (/ (xmms2/playtime c)
                                                     1000)))
                (format #t "     Playlist: ~a~%" l)
