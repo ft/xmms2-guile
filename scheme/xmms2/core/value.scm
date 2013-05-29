@@ -73,6 +73,8 @@
        (xmms2:primitive/value->list x))
       ((eq? type 'dictionary)
        (xmms2:primitive/value->dictionary x))
+      ((eq? type 'binary)
+       (xmms2:primitive/value->binary x))
       (else `(XMMS2-UNSUPPORTED-DATA-TYPE . ,type)))))
 
 (define (xmms2-decode-url url)

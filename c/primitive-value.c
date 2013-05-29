@@ -102,6 +102,8 @@ static SCM x2co_V_STRING;
  * Prototypes for value_to_*() and corresponding x2_value_to_*() functions
  */
 
+static SCM value_to_binary(xmmsv_t *);
+static SCM x2_value_to_binary(SCM);
 static SCM value_to_dict(xmmsv_t *);
 static SCM x2_value_to_dict(SCM);
 static SCM value_to_integer(xmmsv_t *);
@@ -256,6 +258,8 @@ value_t_to_scm(xmmsv_t *v)
 
     type = xmmsv_get_type(v);
     switch (type) {
+    case XMMSV_TYPE_BIN:
+        return value_to_binary(v);
     case XMMSV_TYPE_INT64:
         return value_to_integer(v);
     case XMMSV_TYPE_STRING:
@@ -273,6 +277,29 @@ value_t_to_scm(xmmsv_t *v)
 }
 
 /* Conversions of xmmsv_t and SCMs that wrap one to actual scheme values */
+
+static SCM
+value_to_binary(xmmsv_t *v)
+{
+    SCM bv;
+    const unsigned char *buf;
+    unsigned int len, i;
+
+    xmmsv_get_bin(v, &buf, &len);
+    bv = scm_c_make_bytevector((size_t)len);
+    for (i = 0; i < len; ++i)
+        scm_bytevector_u8_set_x(
+            bv,
+            scm_from_int64(i),
+            scm_from_uint8(buf[i]));
+    return bv;
+}
+
+static SCM
+x2_value_to_binary(SCM value)
+{
+    return unbox_and_call(value, value_to_binary);
+}
 
 static SCM
 value_to_integer(xmmsv_t *v)
@@ -399,6 +426,8 @@ init_x2_primitive_value(void)
     xg_scm_define_and_export("xmms2:primitive/type-of-value",
                              1, 0, 0, x2_type_of_value);
 
+    xg_scm_define_and_export("xmms2:primitive/value->binary",
+                             1, 0, 0, x2_value_to_binary);
     xg_scm_define_and_export("xmms2:primitive/value->integer",
                              1, 0, 0, x2_value_to_integer);
     xg_scm_define_and_export("xmms2:primitive/value->list",
