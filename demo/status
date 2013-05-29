@@ -23,12 +23,14 @@
   (let ((album (assq-ref track 'album))
         (artist (assq-ref track 'artist))
         (tracknumber (assq-ref track 'tracknr))
-        (tracktitle (assq-ref track 'title)))
+        (tracktitle (assq-ref track 'title))
+        (url (assq-ref track 'url)))
     (format #t "~a - ~a - ~2,'0d. ~a~%"
             (w/fallback artist "<No Artist>")
             (w/fallback album "<No Album>")
             (w/fallback tracknumber 0)
-            (w/fallback tracktitle "<No Tracktitle>"))))
+            (w/fallback tracktitle "<No Tracktitle>"))
+    (format #t "          URL: ~a~%" (w/fallback url "<No URL>"))))
 
 ;; Initialise locale environment. If this is not done, conversion of non-ascii
 ;; strings in the C glue code will probably fail.
