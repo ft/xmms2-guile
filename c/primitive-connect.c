@@ -4,6 +4,11 @@
  * Terms for redistribution and use can be found in LICENCE.
  */
 
+/**
+ * @file primitive-connect.c
+ * @brief Implementation for primitives for XMMS2 connection handling
+ */
+
 #include "compiler.h"
 #include "xmms2-guile.h"
 

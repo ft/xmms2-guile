@@ -4,6 +4,11 @@
  * Terms for redistribution and use can be found in LICENCE.
  */
 
+/**
+ * @file primitive-playback.c
+ * @brief Implementation for synchronous-connection primitives
+ */
+
 #include "compiler.h"
 #include "xmms2-guile.h"
 

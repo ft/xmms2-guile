@@ -11,6 +11,16 @@
 
 #include "xmms2-guile.h"
 
+/**
+ * Main initialisation function.
+ *
+ * This is the function that needs to be called in the `load-extension' call
+ * from scheme. See `scheme/xmms2/core/primitives.scm' for how that is actually
+ * done.
+ *
+ * @return void
+ * @sideeffects All initialisation is done.
+ */
 void
 xmms2_guile_ext_init(void)
 {

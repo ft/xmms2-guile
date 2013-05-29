@@ -4,6 +4,11 @@
  * Terms for redistribution and use can be found in LICENCE.
  */
 
+/**
+ * @file primitive-playlist.c
+ * @brief Implementation for primitives that wrap xmmsc_playlist_*() functions
+ */
+
 #include "compiler.h"
 #include "xmms2-guile.h"
 
