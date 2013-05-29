@@ -7,6 +7,7 @@
   #:export (make-xmms2-value
             integer->status
             integer->value-type
+            xmms2-decode-url
             xmms2-result->value
             xmms2-value->scheme-data))
 
@@ -73,3 +74,6 @@
       ((eq? type 'dictionary)
        (xmms2:primitive/value->dictionary x))
       (else `(XMMS2-UNSUPPORTED-DATA-TYPE . ,type)))))
+
+(define (xmms2-decode-url url)
+  (xmms2-value->scheme-data (xmms2:primitive/decode-url url)))

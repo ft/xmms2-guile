@@ -120,12 +120,38 @@ static SCM x2_result_to_scheme(SCM);
 /* Exported utilities */
 
 static SCM x2_type_of_value(SCM);
+static SCM x2_decode_url(SCM);
 
 /* Private utilities */
 
 static SCM result_value_to_container(xmmsv_t *, SCM);
 static SCM unbox_and_call(SCM, SCM (*)(xmmsv_t *));
 static SCM value_t_to_scm(xmmsv_t *);
+
+/**
+ * Return `xmmsv_t' SMOB containing the decoded version of an encoded URL string
+ *
+ * @param  url   The encoded URL string
+ *
+ * @return SMOB containing `xmmsv_t' that contains the decoded URL
+ * @sideeffects none
+ */
+static SCM
+x2_decode_url(SCM url)
+{
+    SCM retval;
+    struct x2_value *iv;
+    xmmsv_t *string, *decoded;
+
+    string = xmmsv_new_string(scm_to_locale_string(url));
+    decoded = xmmsv_decode_url(string);
+    xmmsv_unref(string);
+    retval = make_x2_value();
+    iv = (struct x2_value *) SCM_SMOB_DATA(retval);
+    iv->value = decoded;
+    iv->needs_unref = 1;
+    return retval;
+}
 
 /**
  * Unbox an `xmmsv_t' container from a SMOB and call a function on it.
@@ -366,6 +392,8 @@ init_x2_primitive_value(void)
                            scm_from_int(XMMSV_TYPE_STRING));
 
     /* Primitives */
+    xg_scm_define_and_export("xmms2:primitive/decode-url",
+                             1, 0, 0, x2_decode_url);
     xg_scm_define_and_export("xmms2:primitive/result->scheme",
                              1, 0, 0, x2_result_to_scheme);
     xg_scm_define_and_export("xmms2:primitive/type-of-value",

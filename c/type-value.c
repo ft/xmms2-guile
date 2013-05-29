@@ -8,15 +8,19 @@
  * @file type-value.c
  * @brief Guile representation for xmmsv_t
  *
- * We don't need to free this data container. With synchronous connections,
- * it'll get wiped away with the corresponding `xmmsc_result_t'. With
- * asynchronous connections it gets freed after a callback is done with it.
+ * We normally don't need to free this data container. With synchronous
+ * connections, it'll get wiped away with the corresponding `xmmsc_result_t'.
+ * With asynchronous connections it gets freed after a callback is done with
+ * it.
  *
  * That sounds awesome, but makes our job a bit harder. Because the garbage
  * collection process might clean away a parent result container, while the C
  * glue code works on a value container. We need a back-reference to the parent
  * result container to be able to reference it together with the value. See
  * `xmms2-guile.h' for details.
+ *
+ * Still, there sometimes are reasons for creating `xmmsv_t' values manually.
+ * In that case, we obviously have to unref the value manually, too.
  */
 
 #include "compiler.h"
@@ -45,6 +49,7 @@ make_x2_value(void)
                                          "xmms2:type/value");
     v->value = (xmmsv_t *)NULL;
     v->parent_result = SCM_EOL;
+    v->needs_unref = 0;
     SCM_NEWSMOB(smob, x2_value_tag, v);
     return smob;
 }
@@ -72,6 +77,8 @@ free_x2_value(SCM smob)
     struct x2_value *v;
 
     v = (struct x2_value *) SCM_SMOB_DATA(smob);
+    if (v->needs_unref)
+        xmmsv_unref(v->value);
     scm_gc_free(v, sizeof (struct x2_value), "xmms2:type/value");
     return 0;
 }

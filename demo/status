@@ -4,7 +4,8 @@
 ;;
 ;; Terms for redistribution and use can be found in LICENCE.
 
-(use-modules (xmms2 sync))
+(use-modules (xmms2 sync)
+             (xmms2 core value))
 
 (define (pretty-time t)
   (let* ((i (if (inexact? t)
@@ -30,7 +31,8 @@
             (w/fallback album "<No Album>")
             (w/fallback tracknumber 0)
             (w/fallback tracktitle "<No Tracktitle>"))
-    (format #t "          URL: ~a~%" (w/fallback url "<No URL>"))))
+    (format #t "          URL: ~a~%" (xmms2-decode-url
+                                      (w/fallback url "<No URL>")))))
 
 ;; Initialise locale environment. If this is not done, conversion of non-ascii
 ;; strings in the C glue code will probably fail.

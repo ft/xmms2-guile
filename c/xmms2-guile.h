@@ -46,6 +46,11 @@ struct x2_value {
      * segfaults.
      */
     SCM parent_result;
+    /**
+     * Indicates if a value was created manually be the glue code. If so, it
+     * requires to be unreferenced in the garbage collection's free() routine.
+     */
+    int needs_unref;
 };
 
 /**
