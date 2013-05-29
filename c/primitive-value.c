@@ -74,8 +74,10 @@
     do {                                                           \
         const char *error;                                         \
         if (xmmsv_get_error(value, &error))                        \
-            return scm_string_to_symbol(                           \
-                scm_from_utf8_string("erroneous-value"));          \
+            return scm_cons(                                       \
+                scm_string_to_symbol(                              \
+                    scm_from_utf8_string("erroneous-value")),      \
+                scm_from_locale_string(error));                    \
     } while (0)
 
 /*
