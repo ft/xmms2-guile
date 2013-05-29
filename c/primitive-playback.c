@@ -24,6 +24,7 @@ X2_TRIVIAL_SERVER_ACTION(x2_stop, xmmsc_playback_stop)
 X2_TRIVIAL_SERVER_ACTION(x2_tickle, xmmsc_playback_tickle)
 X2_TRIVIAL_SERVER_ACTION(x2_volume_get, xmmsc_playback_volume_get)
 
+/** Sub-Initialisation routine */
 void
 init_x2_primitive_playback(void)
 {

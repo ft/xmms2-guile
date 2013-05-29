@@ -23,6 +23,12 @@ static int print_x2_result(SCM, SCM, scm_print_state *);
 /** Bit-field to identify the new data type by */
 static scm_t_bits x2_result_tag;
 
+/**
+ * Constructor for `xmmsc_result_t' smobs.
+ *
+ * @return Fully initialised `xmmsc_result_t' smob
+ * @sideeffects none
+ */
 SCM
 make_x2_result(void)
 {
@@ -34,6 +40,7 @@ make_x2_result(void)
     return smob;
 }
 
+/** Garbage collection: free smob */
 static size_t
 free_x2_result(SCM smob)
 {
@@ -44,6 +51,15 @@ free_x2_result(SCM smob)
     return 0;
 }
 
+/**
+ * Printer for `xmmsc_result_t' smobs
+ *
+ * Prints a representation of the `xmmsc_result_t' smob handed in as `smob' to
+ * a given port.
+ *
+ * @return The integer 1
+ * @sideeffects See description.
+ */
 static int
 print_x2_result(UNUSED SCM smob, SCM port, UNUSED scm_print_state *pstate)
 {
@@ -51,6 +67,7 @@ print_x2_result(UNUSED SCM smob, SCM port, UNUSED scm_print_state *pstate)
     return 1;
 }
 
+/** Sub-Initialisation routine */
 void
 init_x2_type_result(void)
 {

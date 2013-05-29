@@ -29,6 +29,12 @@ static int print_x2_value(SCM, SCM, scm_print_state *);
 static size_t free_x2_value(SCM);
 static scm_t_bits x2_value_tag;
 
+/**
+ * Constructor for `xmmsv_t' smobs.
+ *
+ * @return Fully initialised `xmmsv_t' smob
+ * @sideeffects none
+ */
 SCM
 make_x2_value(void)
 {
@@ -43,6 +49,15 @@ make_x2_value(void)
     return smob;
 }
 
+/**
+ * Printer for `xmmsv_t' smobs
+ *
+ * Prints a representation of the `xmmsv_t' smob handed in as `smob' to a given
+ * port.
+ *
+ * @return The integer 1
+ * @sideeffects See description.
+ */
 static int
 print_x2_value(UNUSED SCM smob, SCM port, UNUSED scm_print_state *pstate)
 {
@@ -50,6 +65,7 @@ print_x2_value(UNUSED SCM smob, SCM port, UNUSED scm_print_state *pstate)
     return 1;
 }
 
+/** Garbage collection: free smob */
 static size_t
 free_x2_value(SCM smob)
 {
@@ -60,6 +76,7 @@ free_x2_value(SCM smob)
     return 0;
 }
 
+/** Garbage collection: mark smob */
 static SCM
 mark_x2_value(SCM smob)
 {
@@ -69,6 +86,7 @@ mark_x2_value(SCM smob)
     return v->parent_result;
 }
 
+/** Sub-Initialisation routine */
 void
 init_x2_type_value(void)
 {

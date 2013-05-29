@@ -51,6 +51,7 @@ x2_unref_connection(SCM connection)
     return SCM_BOOL_F;
 }
 
+/** Sub-Initialisation routine */
 void
 init_x2_primitive_connect(void)
 {

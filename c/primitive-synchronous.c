@@ -27,6 +27,7 @@ x2_sync_wait(SCM result)
     return result;
 }
 
+/** Sub-Initialisation routine */
 void
 init_x2_primitive_synchronous(void)
 {

@@ -29,6 +29,7 @@ x2_playlist_entries(SCM connection, SCM playlist)
     X2_SERVER_CMD_FOOTER(result, retval);
 }
 
+/** Sub-Initialisation routine */
 void
 init_x2_primitive_playlist(void)
 {

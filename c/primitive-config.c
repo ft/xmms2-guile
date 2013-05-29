@@ -17,6 +17,7 @@
 
 X2_TRIVIAL_SERVER_ACTION(x2_config_list, xmmsc_config_list_values)
 
+/** Sub-Initialisation routine */
 void
 init_x2_primitive_config(void)
 {

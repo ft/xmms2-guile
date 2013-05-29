@@ -26,6 +26,7 @@ x2_medialib_get_info(SCM connection, SCM id)
     X2_SERVER_CMD_FOOTER(result, retval);
 }
 
+/** Sub-Initialisation routine */
 void
 init_x2_primitive_medialib(void)
 {
