@@ -51,8 +51,8 @@
 ;;
 ;; (define v (xmms2-result->value (xmms2:primitive/status connection)))
 ;;
-;; Because the XMMS2 client library frees the together with the parent result
-;; container.
+;; Because the XMMS2 client library frees the value together with the parent
+;; result container.
 (define (xmms2-result->value x)
   (xmms2:primitive/result->scheme x))
 
