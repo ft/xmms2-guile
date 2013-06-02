@@ -4,33 +4,10 @@
 
 (define-module (xmms2 sync)
   #:use-module (ice-9 optargs)
+  #:use-module (xmms2 common)
   #:use-module (xmms2 core connection)
   #:use-module (xmms2 core primitives)
-  #:use-module (xmms2 core value)
-  #:export (with-xmms2-connection))
-
-(define default-uri
-  (string-concatenate `("unix:///tmp/xmms-ipc-"
-                        ,(passwd:name (getpwuid (geteuid))))))
-
-(define (default-fail-handler msg)
-  (format #t "xmms2-connection failed: ~a~%" msg)
-  (quit 1))
-
-(define* (with-xmms2-connection
-          #:key
-          handler
-          (server default-uri)
-          (client "xmms2-guile")
-          (fail default-fail-handler))
-  (catch 'xmms2:sync/connection-failure
-    (lambda ()
-      (let ((connection (xmms2-connect client server)))
-        (handler connection)
-        (xmms2:primitive/unref-connection
-         (get-xmms2-connection-container connection))))
-    (lambda (key . args)
-      (fail (car args)))))
+  #:use-module (xmms2 core value))
 
 (define (synchronous-action action connection . args)
   (let ((result (apply action

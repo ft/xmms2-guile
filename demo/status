@@ -5,6 +5,7 @@
 ;; Terms for redistribution and use can be found in LICENCE.
 
 (use-modules (ice-9 iconv)
+             (xmms2 common)
              (xmms2 sync)
              (xmms2 core value))
 

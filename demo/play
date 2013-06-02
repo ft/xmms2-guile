@@ -6,7 +6,8 @@
 
 ;; Connect to a locally running xmms2 server and tell it to start playback.
 
-(use-modules (xmms2 sync))
+(use-modules (xmms2 common)
+             (xmms2 sync))
 
 ;; `with-xmms2-connection' supports setting client id, fail-handler and server
 ;; uri via keywords, too. The only one that's required is `#:handler'. The

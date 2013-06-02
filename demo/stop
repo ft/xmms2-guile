@@ -4,7 +4,8 @@
 ;;
 ;; Terms for redistribution and use can be found in LICENCE.
 
-(use-modules (xmms2 sync))
+(use-modules (xmms2 common)
+             (xmms2 sync))
 (with-xmms2-connection
  #:handler (lambda (c) (xmms2/stop c)))
 (quit 0)
