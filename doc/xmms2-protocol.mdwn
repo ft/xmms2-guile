@@ -1,0 +1,225 @@
+---
+title: XMMS2 Client Server Protocol
+subtitle: An Unreliable Hacker's Guide
+author:
+- name: Frank Terbeck
+  email: ft@bewatermyfriend.org
+...
+
+# Introduction
+
+**Note: This is very much work in progress and serves as a scratch pad from
+  time to time. This is by no means a polished reference to the XMMS2 protocol,
+  which one could possibly guess by looking at the document's title.**
+
+XMMS2[^xmms2] (X-platform Music Multiplexing System 2) is an audio player for
+various operating systems. It uses a client-server setup, where the actual
+playback is done by a server application, that can be controlled by one or more
+client applications that interact with the user to provide an actual interface
+to the player.
+
+[^xmms2]: \url{http://xmms2.org}
+
+In a client-server setup, both parts of the system need to agree on a protocol
+to use in order to exchange data. XMMS2 is no exception with this basic
+requirement.
+
+Unfortunately the protocol is not canonically specified. Instead, it is
+specified by implementation. In particular by the C client library and the
+server implemenation[^serverimpl]. Most languages that provide library access
+to XMMS2 implement their access by wrapping the C library[^javalib]. However
+there is no further documenatation available.
+
+[^serverimpl]: The server is also implemented in C.
+[^javalib]: There is a Java client library, that implements the protocol
+            natively.
+
+This document is being written during the development of a native client
+library for the GNU Guile implementation of the Scheme programming language.
+
+With the Guile library, I started off as a wrapper around the XMMS2 C client
+library. But I found myself writing lots of glue code in C, which is not what I
+wanted at all. Using Guile's FFI would have also been a possibility, but I
+suspect that to be a rather gnarly piece of work, since XMMS2 uses an
+ubiquitous datatype to express many different types of values. Thus, the plan
+to write a native implementation of the protocol was forged.
+
+XMMS2's protocol is a binary protocol[^whybinary], which makes creating an
+implementation off of a network sniffer log considerably harder.
+
+[^whybinary]: With large playlists, the amount of data to be exchanced grows
+              large. That is why it makes sense to use a binary protocol, to
+              minimise the protocol overhead in any given transmission.
+
+This document discusses the client-server protocol from the point of view of a
+client application: The protocol is made up by binary messages. The client
+makes requests and the server sends replies. Messages have a certain structure
+and they may contain arbitrary payload data that is made up of an arbitrarily
+nested structure of types. What is valid depends on the individual message.
+
+**Note:** As it is the case with binary protocols, numbers encode values.
+Sometimes the text will mention the actual octets that map to a certain meaning
+(the C client library uses enums to do that; the Scheme library follows a
+similar approach). Other times, it will refer to the name within the Scheme
+library though. If you really want the numeric value for a symbol, you will be
+able to get it by loading up a Guile REPL, load the `(xmms2 constants)` module
+and inspect the value bound to the symbol you're after.
+
+
+# Message Structure
+
+This section is largely based on reading the C client library's code, which
+uses a simple structure to store data that will actually be send over the wire:
+
+``` C
+struct xmms_ipc_msg_St {
+	xmmsv_t *bb;
+	uint32_t xfered;
+};
+```
+
+The ‘`xmmsv_t`’ has support for a “bit-buffer” value[^bitbufferimpl], which is
+what is used to build and store the binary message that will be send to the
+server.
+
+[^bitbufferimpl]: If you are interested, the implementation can be found in
+   ‘`xmmsv_bitbuffer.c`’.
+
+The first part of a message is the type of message[^msgtype] we're dealing
+with. This is the first 32 bits of the message. The next 32 bits contain the
+command id of the message[^helloid]. The rest of the message depends on the
+payload that is sent along with the message. And if you take a look at the octet
+representation[^byteisoctett] of the data on the wire, you will realise that
+octets are not rotated in any fashion but appear as you would naïvely write them
+out: The byte-order is *big-endian*.
+
+[^msgtype]: XMMS2 has different types of messages, grouped by the kind of work
+   they are used for. For example, commands like `HELLO` (whch are in the
+   `XMMS_IPC_OBJECT_MAIN` group) are marked `00 00 00 01`, as per the
+   `xmms_ipc_objects_t` enum defined in ‘`xmmsc_idnumbers.h`’.
+
+[^helloid]: The `HELLO` command, for example will send `00 00 00 20`, since
+   `XMMS_IPC_CMD_HELLO` is set to `XMMS_IPC_CMD_FIRST` which is defined to
+   `0x20` in ‘`xmmsc_idnumbers.h`’.
+
+[^byteisoctett]: And when I say *byte* I mean what most people consider a byte:
+   A tuple of eight bits or an octet. If ‘byte’ is used in this text it will
+   use that exact sense. Most of the time, I will stick to ‘octet’, though.
+
+Looking at a binary log of a message, it will look like this:
+
+- 32 Bits: Object Type
+- 32 Bits: Command
+- 32 Bits: `00 00 00 00` (Purpose unknown thus far)
+- 32 Bits: Length of Payload Data in octets
+
+The above is the message's header. If the message has payload, the header is
+followed by this:
+
+- 32 Bits: Payload Type
+- 8·n (where ‘n’ is the length from the header) Bits: The Payload™.
+
+In short, XMMS2 messages:
+
+- Construct a binary protocol
+- with big-endian byte-order.
+- Consists of: Type, command, length of payload…
+- …and maybe the type of the payload and the *actual* payload.
+- at byte-offsets: `0`, `4`, `12`, `16` and `20`.
+- Message can contain an arbitrary payload from a fair set of types.
+
+And that is that. Messages are used to compose requests to a server. The server
+will reply in some way or another.
+
+
+# Replies
+
+Replies are messages the server sends back to a client. Since they *are*
+messages, they obviously look like messages:
+
+- 32 Bits: Object Type
+- 32 Bits: Command (`CMD-REPLY` and `CMD-ERROR`)
+- 32 Bits: `00 00 00 00`
+- 32 Bits: Length of Payload Data in octets
+- (optional) 32 Bits: Payload Type
+- (optional) 8·n (where ‘n’ is the length from the header) Bits: The Payload™.
+
+This should look familiar, since you have *just* read it a few lines above in
+the previous section. Like with general messages the payload part is optional.
+
+
+# Types
+
+## Scalar Types
+
+### NONE
+
+### INT64
+
+### STRING
+
+### FLOAT
+
+### ERROR
+
+### BINARY
+
+### BITBUFFER
+
+## Complex Types
+
+### LIST
+
+The first 32 Bits of a list payload is an id, telling whether we're dealing
+with a restricted type list[^notypelist]. The next 32 Bits contain an unsigned
+integer representing the number of octets, that will follow. Next 32 Bits are
+the type identifier for lists: `00 00 00 06`.
+
+[^notypelist]: If the list is not restricted, the type id is `00 00 00 00`,
+   derived from `XMMSV_TYPE_NONE`.
+
+With `PAYLOAD_TYPE` set to `00 00 00 06`:
+
+- 32 Bits: Restricted type? (`00 00 00 00` if unrestricted)
+- 32 Bits: List size (number of entries, not octets)
+
+Then the individual entries are listed:
+
+- 32 Bits: Type of entry (e.g. `00 00 00 02` for an INT64 entry)
+- (With the INT64 example): 64 Bits: Data
+
+- 32 Bits: Type of entry (e.g. `00 00 00 03` for a STRING entry)
+- 32 Bits: String length + 1 (zero, if string was NULL)
+- (string-length+1)·8 Bits: The String data with a trailing NUL octet.
+
+### DICTIONARY
+
+### COLLECTION
+
+
+# Requests
+
+This is the interesting part of the text. It describes what can actually be
+done with an XMMS2 server. First we will discuss a simple example in fair
+detail: How to make up the message to the server and what the server will send
+back to us if we did everything right. After that a reference-like listing of
+requests and their expected results is presented.
+
+## General Requests
+
+The first thing you send to a server after connecting to a server is to send a
+`HELLO` request. This is a request, that takes two pieces of information to
+send to the server: The *protocol version* the client is using as well as the
+*name of the client*.
+
+
+# Errors
+
+Sometimes things go wrong and when they do, the server needs to be able to tell
+the client. This is when error messages come into play and this section will
+cover these kind of replies.
+
+
+## Other Messages
+
+TODO: Signals, broadcasts and client-to-client messages.
