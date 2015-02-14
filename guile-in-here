@@ -1,0 +1,5 @@
+#!/bin/sh
+
+. ./dev-env
+
+exec ${GUILE_BINARY:-guile} "$@"
