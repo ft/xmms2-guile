@@ -15,8 +15,8 @@
   ;;       higher level utility module.
   #:export (default-uri
             make-xmms2-connection
-            xmms2-connected?
             xmms2-connection?
+            xmms2-connected?
             xmms2-ipv4?
             xmms2-ipv6?
             xmms2-unix?
@@ -159,8 +159,6 @@
                             (len (car l)))
                         (bytevector-copy! cur 0 data offset len)
                         (loop (cdr in) (cdr l) (+ offset len)))))))))
-
-;; Public API below
 
 (define (make-xmms2-connection uri)
   "Create an object that encapsulates information for xmms2 server
