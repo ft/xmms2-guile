@@ -1,0 +1,34 @@
+;; -*- scheme-*-
+
+;; Here is the simplest exchange you can do with an XMMS2 server. You create a
+;; connection object, then use that object to connect to the server and then
+;; you send the HELLO message to the server, to which the server will reply.
+;;
+;; The script prints the reply from the server to stdout.
+
+(use-modules (xmms2 io)
+             (xmms2 messages))
+
+;; You'll notice the "socat" in the unix socket name here. What this hints at
+;; is the use of socat to look at the byte-stream between client and server.
+;; The thing is that it is impossible to sniff unix socket connections with
+;; something like wireshark. But you can insert something that provides a
+;; socket to a client and forwards everything to another socket while printing
+;; all the traffic that goes through that pipe. "socat" does exactly that.
+;;
+;; Here is how I construct such a printing connection:
+;;
+;;    socat -t100 -x -v \
+;;          UNIX-LISTEN:/tmp/xmms-ipc-"$USER".socat,mode=700,reuseaddr \
+;;          fork \
+;;          UNIX-CONNECT:/tmp/xmms-ipc-"$USER"
+;;
+;; Where "$USER" is my user name on the system, which is why getlogin is used
+;; in the expression below.
+(define server (make-xmms2-connection
+                (string-concatenate (list "unix:///tmp/xmms-ipc-"
+                                          (getlogin)
+                                          ".socat"))))
+(xmms2-connect server)
+(xmms2-send server (make-hello "example-hello-server"))
+(format #t "~a~%" (xmms2-recv server))
