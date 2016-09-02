@@ -3,12 +3,13 @@
 ;; Terms for redistribution and use can be found in LICENCE.
 
 (define-module (xmms2 constants)
-  #:use-module (rnrs bytevectors))
+  #:use-module (rnrs bytevectors)
+  #:use-module (xmms2 data-conversion))
 
 ;; Some utilities:
 (define (int32-bv value)
   (let ((rv (make-bytevector 4 0)))
-    (bytevector-u32-set! rv 0 value 'big)
+    (uint32-set! rv 0 value)
     rv))
 
 ;; ‘define-type-constant’ defines two variables given a name FOO and

@@ -6,6 +6,7 @@
   #:use-module (ice-9 optargs)
   #:use-module (rnrs bytevectors)
   #:use-module (xmms2 constants)
+  #:use-module (xmms2 data-conversion)
   #:export (make-int64-payload
             make-string-payload
             make-list-payload
@@ -16,14 +17,14 @@
 
 (define (make-int64-payload value)
   (let ((rv (make-bytevector 8 0)))
-    (bytevector-u64-set! rv 0 value 'big)
+    (uint32-set! rv 0 value)
     rv))
 
 (define (make-string-payload value)
   (let* ((str (string->utf8 value))
          (len (bytevector-length str))
          (rv (make-bytevector (+ 5 len) 0)))
-    (bytevector-u32-set! rv 0 (+ 1 len) 'big)
+    (uint32-set! rv 0 (+ 1 len))
     (bytevector-copy! str 0 rv 4 len)
     rv))
 
