@@ -10,6 +10,7 @@
   #:export (make-protocol-header
             header->payload-length
             header->object-type
+            header->cookie
             header->command-id))
 
 (define *offset-object-type* 0)
@@ -27,7 +28,7 @@ header. The return value is an unsigned integer."
 protocol header. The return value is an unsigned integer."
   (uint32-ref header *offset-command-id*))
 
-(define (header->cookie result)
+(define (header->cookie header)
   "Return the cookie portion of a byte-vector, carrying an XMMS2 protocol
 header. The return value is an unsigned integer."
   (uint32-ref header *offset-cookie*))
