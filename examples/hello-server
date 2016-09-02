@@ -6,8 +6,11 @@
 ;;
 ;; The script prints the reply from the server to stdout.
 
-(use-modules (xmms2 io)
-             (xmms2 messages))
+(use-modules (ice-9 format)
+             (rnrs bytevectors)
+             (xmms2 io)
+             (xmms2 messages)
+             (xmms2 header))
 
 ;; You'll notice the "socat" in the unix socket name here. What this hints at
 ;; is the use of socat to look at the byte-stream between client and server.
@@ -31,4 +34,32 @@
                                           ".socat"))))
 (xmms2-connect server)
 (xmms2-send server (make-hello "example-hello-server"))
-(format #t "~a~%" (xmms2-recv server))
+
+;; Get the response from the server:
+(define response (xmms2-recv server))
+
+;; Extract the header from the response:
+(define header (car response))
+
+;; Deconstruct header:
+(format #t "~a~%" response)
+(format #t "object-type: ~x~%" (header->object-type header))
+(format #t "command-id: ~x~%" (header->command-id header))
+(format #t "cookie: ~x~%" (header->cookie header))
+(define pl (header->payload-length header))
+(format #t "payload-length: ~d~%" pl)
+
+;; The response from xmms2-recv contains a parsed version of the payload-length
+;; and that should better match the payload-length field from the header.
+(format #t "Payload length from header ~a payload from response list.~%"
+        (if (= pl (cadr response))
+            "matches"
+            "does NOT match"))
+
+;; In addition, the length of the payload byte-vector has to match that number
+;; as well. If it doesn't either the server sends faulty data, data gets lost
+;; in the transmission channel or we got a bug in this library.
+(format #t "The length of the payload buffer ~a payload from response list.~%"
+        (if (= pl (bytevector-length (caddr response)))
+            "matches"
+            "does NOT match"))
