@@ -17,7 +17,7 @@
 
 (define (make-int64-payload value)
   (let ((rv (make-bytevector 8 0)))
-    (uint32-set! rv 0 value)
+    (uint64-set! rv 0 value)
     rv))
 
 (define (make-string-payload value)
