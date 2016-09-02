@@ -21,7 +21,7 @@
   ;; Header:
   ;;   OBJECT-MAIN              4 Bytes
   ;;   CMD-REPLY | CMD-ERROR    4 Bytes
-  ;;   0x00000000 (Use unknown) 4 Bytes
+  ;;   Cookie                   4 Bytes
   ;;   Payload-Length           4 Bytes
   ;; Payload:
   ;;   INT64                    4 Bytes
