@@ -12,7 +12,7 @@
             payload-length
             payload-length*))
 
-(define PAYLOAD-TAG-SIZE 4)
+(define *payload-tag-size* 4)
 
 (define (make-int64-payload value)
   (let ((rv (make-bytevector 8 0)))
@@ -50,4 +50,4 @@
       (apply + (map bytevector-length p))))
 
 (define (payload-length* p)
-  (+ PAYLOAD-TAG-SIZE (payload-length p)))
+  (+ *payload-tag-size* (payload-length p)))
