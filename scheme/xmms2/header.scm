@@ -5,6 +5,7 @@
 (define-module (xmms2 header)
   #:use-module (rnrs bytevectors)
   #:use-module (xmms2 constants)
+  #:use-module (xmms2 data-conversion)
   #:use-module (xmms2 payload)
   #:export (make-protocol-header
             header->payload-length
