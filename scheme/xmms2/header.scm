@@ -13,6 +13,7 @@
 
 (define *offset-object-type* 0)
 (define *offset-command-id* 4)
+(define *offset-cookie* 8)
 (define *offset-payload-length* 12)
 
 (define (header->object-type header)
@@ -24,6 +25,11 @@ header. The return value is an unsigned integer."
   "Return the command-identifier portion of a byte-vector, carrying an XMMS2
 protocol header. The return value is an unsigned integer."
   (uint32-ref header *offset-command-id*))
+
+(define (header->cookie result)
+  "Return the cookie portion of a byte-vector, carrying an XMMS2 protocol
+header. The return value is an unsigned integer."
+  (uint32-ref header *offset-cookie*))
 
 (define (header->payload-length header)
   "Return the payload-length portion of a byte-vector, carrying an XMMS2
