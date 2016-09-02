@@ -110,7 +110,7 @@ Looking at a binary log of a message, it will look like this:
 
 - 32 Bits: Object Type
 - 32 Bits: Command
-- 32 Bits: `00 00 00 00` (Purpose unknown thus far)
+- 32 Bits: Cookie (Example: `00 00 00 00`, purpose unknown thus far)
 - 32 Bits: Length of Payload Data in octets
 
 The above is the message's header. If the message has payload, the header is
@@ -139,7 +139,7 @@ messages, they obviously look like messages:
 
 - 32 Bits: Object Type
 - 32 Bits: Command (`CMD-REPLY` and `CMD-ERROR`)
-- 32 Bits: `00 00 00 00`
+- 32 Bits: Cookie (For example: `00 00 00 00`)
 - 32 Bits: Length of Payload Data in octets
 - (optional) 32 Bits: Payload Type
 - (optional) 8·n (where ‘n’ is the length from the header) Bits: The Payload™.
@@ -163,6 +163,12 @@ the previous section. Like with general messages the payload part is optional.
 ### ERROR
 
 ### BINARY
+
+There is no such type, I have no idea where I got this from. Binary data is
+probably handled by BITBUFFER (see below). There *is* a “.bin” entry in xmms2's
+value type, which doesn't really seem to be used — unless I am missing
+something. There is a “bindata” object though, that suggests, binary data needs
+to be handled. I guess we will cross that particular bridge, what we get there.
 
 ### BITBUFFER
 
