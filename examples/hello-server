@@ -10,7 +10,10 @@
              (rnrs bytevectors)
              (xmms2 io)
              (xmms2 messages)
-             (xmms2 header))
+             (xmms2 jump-table)
+             (xmms2 header)
+             (xmms2 data-conversion)
+             (xmms2 constants))
 
 ;; You'll notice the "socat" in the unix socket name here. What this hints at
 ;; is the use of socat to look at the byte-stream between client and server.
@@ -41,8 +44,9 @@
 ;; Extract the header from the response:
 (define header (car response))
 
-;; Deconstruct header:
+(format #t "Entire server response:~%")
 (format #t "~a~%" response)
+(format #t "Deconstruct header:~%")
 (format #t "object-type: ~x~%" (header->object-type header))
 (format #t "command-id: ~x~%" (header->command-id header))
 (format #t "cookie: ~x~%" (header->cookie header))
@@ -56,10 +60,36 @@
             "matches"
             "does NOT match"))
 
+(define payload (caddr response))
+
 ;; In addition, the length of the payload byte-vector has to match that number
 ;; as well. If it doesn't either the server sends faulty data, data gets lost
 ;; in the transmission channel or we got a bug in this library.
 (format #t "The length of the payload buffer ~a payload from response list.~%"
-        (if (= pl (bytevector-length (caddr response)))
+        (if (= pl (bytevector-length payload))
             "matches"
             "does NOT match"))
+
+(define expected-length 12)
+
+(if (and (= pl expected-length)
+         (= (bytevector-length (caddr response)) expected-length))
+    (format #t "Payload length yields expected value. Good!~%")
+    (begin (format #t "Payload length looks fishy. Giving up.~%")
+           (exit 1)))
+
+(define (incorrect-type payload)
+  (format #t "Server did NOT return integer client ID!~%")
+  (exit 1))
+
+(define (correct-type payload)
+  (format #t "Analysing payload data...~%client-id: ~d~%"
+          (uint64-ref payload 4)))
+
+;; Build a trivial jump-table to get the client id from the server response's
+;; payload. The type tag is four octets wide, the int64 data is eight bytes
+;; wide. Hence, we expected twelve bytes earlier on.
+(define jmptbl (make-jump-table (table (TYPE-INT64 correct-type))
+                                #:others incorrect-type))
+
+(apply-jump-table jmptbl (uint32-ref payload 0) payload)
