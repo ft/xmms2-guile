@@ -121,7 +121,14 @@
                       (cons (cons #'name cur-iter) acc)))))))
 
     ;; Main entry point:
-    (syntax-case x (=>)
+    (syntax-case x (=> <>)
+      ((kw (<> xref-name) (=> definer) item ...)
+       (with-syntax ((((variable . value) ...)
+                      (produce-enum #'kw #'(item ...))))
+         #'(begin (definer variable value) ...
+                  (definer xref-name (list (cons value 'variable) ...)))))
+      ((kw (=> definer) (<> xref-name) item ...)
+       #'(define-enum (<> xref-name) (=> definer) item ...))
       ((kw (=> definer) item ...)
        (with-syntax ((((variable . value) ...)
                       (produce-enum #'kw #'(item ...))))
@@ -167,7 +174,7 @@
         (value-name-pair TYPE-BITBUFFER)
         (value-name-pair TYPE-FLOAT)))
 
-(define-enum
+(define-enum (<> xref-objects)
   OBJECT-SIGNAL
   OBJECT-MAIN
   OBJECT-PLAYLIST
@@ -183,7 +190,7 @@
   OBJECT-COURIER
   OBJECT-IPC-MANAGER)
 
-(define-enum
+(define-enum (<> xref-signals)
   SIGNAL-PLAYLIST-CHANGED
   SIGNAL-CONFIGVALUE-CHANGED
   SIGNAL-PLAYBACK-STATUS
@@ -206,21 +213,24 @@
 ;; There are FIRST-CMD-ID command identifiers, that are reserved for special
 ;; use. For now only two are used.
 (define-public FIRST-CMD-ID #x20)
-(define-enum
+
+(define-enum (<> xref-special-cmds)
   CMD-REPLY
   CMD-ERROR)
 
-(define-enum
+(define-enum (<> xref-server-messages)
+  ;; These are messages initiated by the server, rather than being replies to a
+  ;; command.
   (CMD-SIGNAL FIRST-CMD-ID)
   CMD-BROADCAST)
 
-(define-enum
+(define-enum (<> xref-main-cmds)
   (CMD-HELLO FIRST-CMD-ID)
   CMD-QUIT
   CMD-PLUGIN-LIST
   CMD-STATS)
 
-(define-enum
+(define-enum (<> xref-playlist-cmds)
   (CMD-REPLACE FIRST-CMD-ID)
   CMD-SET-POSITION
   CMD-SET-POSITION-RELATIVE
@@ -237,13 +247,13 @@
   CMD-RECURSIVE-ADD
   CMD-RECURSIVE-INSERT)
 
-(define-enum
+(define-enum (<> xref-config-cmds)
   (CMD-GET-VALUE FIRST-CMD-ID)
   CMD-SET-VALUE
   CMD-REGISTER-VALUE
   CMD-LIST-VALUES)
 
-(define-enum
+(define-enum (<> xref-playback-cmds)
   (CMD-START FIRST-CMD-ID)
   CMD-STOP
   CMD-PAUSE
@@ -256,7 +266,7 @@
   CMD-VOLUME-SET
   CMD-VOLUME-GET)
 
-(define-enum
+(define-enum (<> xref-medialib-cmds)
   (CMD-PATH-IMPORT FIRST-CMD-ID)
   CMD-REHASH
   CMD-GET-ID
@@ -267,10 +277,10 @@
   CMD-MOVE-URL
   CMD-MEDIALIB-ADD-URL)
 
-(define-enum
+(define-enum (<> xref-collection-sync-cmds)
   (CMD-COLLECTION-SYNC FIRST-CMD-ID))
 
-(define-enum
+(define-enum (<> xref-collection-cmds)
   (CMD-COLLECTION-GET FIRST-CMD-ID)
   CMD-COLLECTION-LIST
   CMD-COLLECTION-SAVE
@@ -281,13 +291,13 @@
   CMD-QUERY-INFOS
   CMD-IDLIST-FROM-PLS)
 
-(define-enum
+(define-enum (<> xref-binary-data-cmds)
   (CMD-GET-DATA FIRST-CMD-ID)
   CMD-ADD-DATA
   CMD-REMOVE-DATA
   CMD-LIST-DATA)
 
-(define-enum
+(define-enum (<> xref-visualisation-cmds)
   (CMD-VISUALIZATION-QUERY-VERSION FIRST-CMD-ID)
   CMD-VISUALIZATION-REGISTER
   CMD-VISUALIZATION-INIT-SHM
@@ -296,10 +306,10 @@
   CMD-VISUALIZATION-PROPERTIES
   CMD-VISUALIZATION-SHUTDOWN)
 
-(define-enum
+(define-enum (<> xref-xform-cmds)
   (CMD-BROWSE FIRST-CMD-ID))
 
-(define-enum
+(define-enum (<> xref-courier-cmds)
   (CMD-SEND-MESSAGE FIRST-CMD-ID)
   CMD-REPLY-MESSAGE
   CMD-GET-CONNECTED-CLIENTS)
@@ -309,7 +319,7 @@
 ;;  PLAYLIST-CHANGED-SHUFFLE
 ;;  PLAYLIST-CHANGED-CLEAR
 ;;  PLAYLIST-CHANGED-SORT
-(define-enum
+(define-enum (<> xref-playlist-signals)
   PLAYLIST-CHANGED-ADD
   PLAYLIST-CHANGED-INSERT
   PLAYLIST-CHANGED-SHUFFLE
@@ -320,37 +330,37 @@
   PLAYLIST-CHANGED-UPDATE
   PLAYLIST-CHANGED-REPLACE)
 
-(define-enum
+(define-enum (<> xref-collection-signals)
   COLLECTION-CHANGED-ADD
   COLLECTION-CHANGED-UPDATE
   COLLECTION-CHANGED-RENAME
   COLLECTION-CHANGED-REMOVE)
 
-(define-enum
+(define-enum (<> xref-playlist-position-codes)
   PLAYLIST-CURRENT-ID-FORGET
   PLAYLIST-CURRENT-ID-KEEP
   PLAYLIST-CURRENT-ID-MOVE-TO-FRONT)
 
-(define-enum
+(define-enum (<> xref-playback-states)
   PLAYBACK-STATUS-STOP
   PLAYBACK-STATUS-PLAY
   PLAYBACK-STATUS-PAUSE)
 
 ;; Yes, this one starts at one. I don't know why.
-(define-enum
+(define-enum (<> xref-playback-seek-modes)
   (PLAYBACK-SEEK-CURRENT 1)
   PLAYBACK-SEEK-SET)
 
-(define-enum
+(define-enum (<> xref-mediainfo-reader-states)
   MEDIAINFO-READER-IDLE
   MEDIAINFO-READER-RUNNING)
 
-(define-enum
+(define-enum (<> xref-plugin-types)
   PLUGIN-TYPE-ALL
   PLUGIN-TYPE-OUTPUT
   PLUGIN-TYPE-XFORM)
 
-(define-enum
+(define-enum (<> xref-collection-types)
   COLLECTION-TYPE-REFERENCE
   COLLECTION-TYPE-UNIVERSE
   COLLECTION-TYPE-UNION
@@ -370,14 +380,14 @@
   COLLECTION-TYPE-MEDIASET
   COLLECTION-TYPE-IDLIST)
 
-(define-enum
+(define-enum (<> xref-medialib-entry-codes)
   MEDIALIB-ENTRY-NEW
   MEDIALIB-ENTRY-OK
   MEDIALIB-ENTRY-RESOLVING
   MEDIALIB-ENTRY-NOT-AVAILABLE
   MEDIALIB-ENTRY-REHASH)
 
-(define-enum
+(define-enum (<> xref-log-levels)
   LOG-LEVEL-UNKNOWN
   LOG-LEVEL-FATAL
   LOG-LEVEL-FAIL
@@ -387,7 +397,7 @@
   ;; This has to be the last log level value:
   LOG-LEVEL-COUNT)
 
-(define-enum
+(define-enum (<> xref-client2client-codes)
   C2C-POLICY-NO-REPLY
   C2C-POLICY-SINGLE-REPLY
   C2C-POLICY-MULTI-REPLY)
