@@ -80,6 +80,9 @@
 
 (define (incorrect-type payload)
   (format #t "Server did NOT return integer client ID!~%")
+  (let ((n (uint32-ref payload 0)))
+    (format #t "Type code ~d suggests: ~a~%"
+            n (assoc-ref xref-types n)))
   (exit 1))
 
 (define (correct-type payload)
