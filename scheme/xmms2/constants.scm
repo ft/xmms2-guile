@@ -129,6 +129,10 @@
       ((_ item ...)
        #'(define-enum (=> define-public) item ...)))))
 
+(define-syntax value-name-pair
+  (syntax-rules ()
+    ((_ value) (cons value (quote value)))))
+
 ;; Constant definitions below:
 
 (define-public PROTOCOL-VERSION 23)
@@ -150,6 +154,18 @@
   DICTIONARY
   BITBUFFER
   FLOAT)
+
+(define-public xref-types
+  (list (value-name-pair TYPE-NONE)
+        (value-name-pair TYPE-ERROR)
+        (value-name-pair TYPE-INT64)
+        (value-name-pair TYPE-STRING)
+        (value-name-pair TYPE-COLLECTION)
+        (value-name-pair TYPE-BINARY)
+        (value-name-pair TYPE-LIST)
+        (value-name-pair TYPE-DICTIONARY)
+        (value-name-pair TYPE-BITBUFFER)
+        (value-name-pair TYPE-FLOAT)))
 
 (define-enum
   OBJECT-SIGNAL
