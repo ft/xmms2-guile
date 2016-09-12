@@ -37,8 +37,22 @@
           (map string-trim (string-split string #\newline))))
 
 (define (adjust-name name)
-  (string->symbol (regexp-substitute/global
-                   #f "_" name 'pre "-" 'post)))
+  (define name-map '((stats . statistics)
+                     (set-next-rel . set-next/relative)
+                     (current-pos . current-position)
+                     (radd . add/recursive)
+                     (rinsert . insert/recursive)
+                     (seek-ms . seek-milliseconds)
+                     (current-id . current-identifier)
+                     (get-id . get-identifier)
+                     (idlist-from-playlist . identifier-list-from-playlist)
+                     (current-pos . current-position)
+                     (playlist-changed . changed)))
+  (define (maybe-replace name)
+    (let ((replacement (assq-ref name-map name)))
+      (or replacement name)))
+  (maybe-replace (string->symbol (regexp-substitute/global
+                                  #f "_" name 'pre "-" 'post))))
 
 (define (adjust-type type)
   ;;(notify "type: ~a~%" type)
