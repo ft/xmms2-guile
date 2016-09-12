@@ -1,0 +1,11 @@
+#!/bin/sh
+
+GUILE_AUTO_COMPILE=0
+export GUILE_AUTO_COMPILE
+
+if test "$#" -ne 1; then
+    printf 'usage: generate-ipc-from-xml <PATH-TO-XMMS2-IPC.XML>\n'
+    exit 1
+fi
+
+exec ${GUILE_BINARY:-guile} -s genipc.scm "$1"
