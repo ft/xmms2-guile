@@ -8,9 +8,28 @@
              (sxml match)
              (sxml simple))
 
+;; If this is set to #t, the script will populate the scheme/xmms2/ipc/
+;; directory. If set to #f, all generated code goes to stdout.
+(define create-files? #f)
+
+(define (bend-output file thunk)
+  (if create-files?
+      (with-output-to-file file thunk)
+      (thunk)))
+
+(define (module->file-name module)
+  (cat (string-join (cons "scheme" (map symbol->string module)) "/") ".scm"))
+
 (define (file-exists? name)
   "Return #t if a file (of any kind) named NAME exist."
   (access? name F_OK))
+
+(define (directory-exists? name)
+  "Return #t if a file (of any kind) named NAME exist."
+  (let ((data (stat name #f)))
+    (if (not data)
+        #f
+        (eq? (stat:type data) 'directory))))
 
 (define (notify . args)
   (apply format (cons (current-error-port) args)))
@@ -288,34 +307,37 @@
   (let* ((meta (assq-ref data 'meta))
          (version (car (assq-ref meta 'version)))
          (objects (assq-ref data 'objects)))
-    (ipc/copyright)
-    (ipc/comment "This module contains meta information taken from xmms2's IPC definition,")
-    (ipc/comment "taken from the project's ipc.xml file. All method-, broadcast- and signal")
-    (ipc/comment "definitions for the server's IPC objects reside in sub-modules named after")
-    (ipc/comment "the respective object.")
-    (newline)
-    (ipc/module 'meta)
-    (newline)
-    (ipc/define-public 'ipc-version
-                       (if (= (length version) 1)
-                           (car version)
-                           (list 'quote version)))
-    (newline)
-    (ipc/define-public 'ipc-name (quote 'xmms2-server-client-ipc))
-    (newline)
-    (ipc/define-public
-     'ipc-generated-modules
-     (list 'quote
-           (let loop ((rest objects) (acc '()))
-             (if (null? rest)
-                 (sort (cons '(xmms2 ipc meta) acc)
-                       (lambda (a b)
-                         (let ((a3 (symbol->string (caddr a)))
-                               (b3 (symbol->string (caddr b))))
-                           (string< a3 b3))))
-                 (loop (cdr rest)
-                       (cons (generate-ipc/module-name (car rest))
-                             acc))))))))
+    (bend-output
+     (module->file-name '(xmms2 ipc meta))
+     (lambda ()
+       (ipc/copyright)
+       (ipc/comment "This module contains meta information taken from xmms2's IPC definition,")
+       (ipc/comment "taken from the project's ipc.xml file. All method-, broadcast- and signal")
+       (ipc/comment "definitions for the server's IPC objects reside in sub-modules named after")
+       (ipc/comment "the respective object.")
+       (newline)
+       (ipc/module 'meta)
+       (newline)
+       (ipc/define-public 'ipc-version
+                          (if (= (length version) 1)
+                              (car version)
+                              (list 'quote version)))
+       (newline)
+       (ipc/define-public 'ipc-name (quote 'xmms2-server-client-ipc))
+       (newline)
+       (ipc/define-public
+        'ipc-generated-modules
+        (list 'quote
+              (let loop ((rest objects) (acc '()))
+                (if (null? rest)
+                    (sort (cons '(xmms2 ipc meta) acc)
+                          (lambda (a b)
+                            (let ((a3 (symbol->string (caddr a)))
+                                  (b3 (symbol->string (caddr b))))
+                              (string< a3 b3))))
+                    (loop (cdr rest)
+                          (cons (generate-ipc/module-name (car rest))
+                                acc))))))))))
 
 (define (generate-ipc/method data)
   (newline)
@@ -374,8 +396,20 @@
   (let loop ((rest (assq-ref data 'objects)))
     (if (null? rest)
         #t
-        (begin (generate-ipc/object (car rest))
-               (loop (cdr rest))))))
+        (let ((this (car rest)))
+          (bend-output
+           (module->file-name
+            `(xmms2 ipc ,(car (assq-ref (assq-ref this 'meta) 'name))))
+           (lambda () (generate-ipc/object this)))
+          (loop (cdr rest))))))
+
+(if create-files?
+    (for-each (lambda (dir)
+                (or (directory-exists? dir)
+                    (mkdir dir)))
+              '("scheme"
+                "scheme/xmms2"
+                "scheme/xmms2/ipc")))
 
 (generate-ipc/meta *sexp-stage-2*)
 (generate-ipc/objects *sexp-stage-2*)
