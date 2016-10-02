@@ -11,9 +11,12 @@
             make-string-payload
             make-list-payload
             payload-length
-            payload-length*))
+            payload-length*
+            *payload-tag-size*
+            *integer-size*))
 
 (define *payload-tag-size* 4)
+(define *integer-size* 8)
 
 (define (make-int64-payload value)
   (let ((rv (make-bytevector 8 0)))
