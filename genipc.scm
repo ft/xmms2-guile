@@ -21,6 +21,9 @@
   (notify "Source XML file does not exist: ~a~%" *source-file*)
   (quit 1))
 
+(define (cat . lst)
+  (string-concatenate lst))
+
 (define (pp forms)
   (pretty-print forms
                 (current-output-port)
@@ -268,9 +271,9 @@
   (newline))
 
 (define (ipc/copyright)
-  (ipc/comment (string-concatenate `("Copyright (c) "
-                                     ,(number->string (date-year (current-date)))
-                                     " xmms2-guile workers, All rights reserved.")))
+  (ipc/comment (cat "Copyright (c) "
+                    (number->string (date-year (current-date)))
+                    " xmms2-guile workers, All rights reserved."))
   (ipc/comment "")
   (ipc/comment "Terms for redistribution and use can be found in LICENCE.")
   (ipc/comment "This file is generated from xmms2's ipc.xml definition file.")
@@ -343,18 +346,17 @@
 (define (generate-ipc/things what lst gen)
   (if (null? lst)
       (begin (newline)
-             (ipc/comment (string-concatenate (list "There are no "
-                                                    (string-downcase what)
-                                                    " definitions"
-                                                    " in this module."))))
+             (ipc/comment (cat "There are no "
+                               (string-downcase what)
+                               " definitions"
+                               " in this module.")))
       (begin (newline)
-             (ipc/comment (string-concatenate (list (string-titlecase what)
-                                                    " definitions")))
+             (ipc/comment (cat (string-titlecase what) " definitions"))
              (let loop ((rest (sort-thing lst)))
                (if (null? rest)
                    #t
                    (begin (gen (car rest))
-                     (loop (cdr rest))))))))
+                          (loop (cdr rest))))))))
 
 (define (generate-ipc/object data)
   (ipc/copyright)
