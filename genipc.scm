@@ -369,11 +369,11 @@
     (generate-ipc/things "signal" signals generate-ipc/signal)))
 
 (define (generate-ipc/objects data)
-  (let loop ((rest data))
+  (let loop ((rest (assq-ref data 'objects)))
     (if (null? rest)
         #t
         (begin (generate-ipc/object (car rest))
                (loop (cdr rest))))))
 
-;(generate-ipc/meta *sexp-stage-2*)
-(generate-ipc/objects (assq-ref *sexp-stage-2* 'objects))
+(generate-ipc/meta *sexp-stage-2*)
+(generate-ipc/objects *sexp-stage-2*)
