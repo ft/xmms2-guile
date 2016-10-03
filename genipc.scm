@@ -1,6 +1,7 @@
 ;; -*- scheme -*-
 
 (use-modules (ice-9 match)
+             (ice-9 optargs)
              (ice-9 pretty-print)
              (ice-9 regex)
              (srfi srfi-1)
@@ -10,7 +11,7 @@
 
 ;; If this is set to #t, the script will populate the scheme/xmms2/ipc/
 ;; directory. If set to #f, all generated code goes to stdout.
-(define create-files? #f)
+(define create-files? #t)
 
 (define (bend-output file thunk)
   (if create-files?
@@ -339,23 +340,52 @@
                           (cons (generate-ipc/module-name (car rest))
                                 acc))))))))))
 
-(define (generate-ipc/method data)
+(define (module->object module)
+  (string->symbol (cat "OBJECT-"
+                       (string-upcase (symbol->string (last module))))))
+
+(define (name->identifier name)
+  (string->symbol (cat "CMD-" (string-upcase (symbol->string name)))))
+
+(define* (ipc/packet-generator name module return-value
+                               #:key
+                               (arguments '())
+                               (documentation #f)
+                               (prefix #f))
+  (pp (append
+       (list 'define-ipc-packet-generator
+             (let ((sym (symbol-append 'make- name)))
+               (if prefix
+                   (symbol-append prefix sym)
+                   sym))
+             'public
+             (module->object module)
+             (name->identifier name)
+             ;; TODO: This should pretty print the documentation and also
+             ;; include the documentation of the arguments and the return value
+             ;; as well.
+             (if documentation
+                 (string-join (concatenate documentation) (format #f "~%"))
+                 "Not documented yet."))
+       (map (lambda (arg)
+              (list (car (assq-ref arg 'type))
+                    (car (assq-ref arg 'name))))
+            arguments))))
+
+(define (generate-ipc/method module data)
   (newline)
   (let ((arguments (assq-ref data 'arguments))
         (documentation (assq-ref data 'documentation))
-        (name (assq-ref data 'name))
+        (name (car (assq-ref data 'name)))
         (return-value (assq-ref data 'return-value)))
-    (pp (list 'define-public
-              (cons (symbol-append 'make- (car name))
-                    (map (lambda (x)
-                           (car (assq-ref x 'name)))
-                         arguments))
-              #t))))
+    (ipc/packet-generator name module return-value
+                          #:arguments arguments
+                          #:documentation documentation)))
 
-(define (generate-ipc/broadcast data)
+(define (generate-ipc/broadcast module data)
   #t)
 
-(define (generate-ipc/signal data)
+(define (generate-ipc/signal module data)
   #t)
 
 (define (sort-thing lst)
@@ -365,7 +395,7 @@
                 (name-b (symbol->string (car (assq-ref b 'name)))))
             (string< name-a name-b)))))
 
-(define (generate-ipc/things what lst gen)
+(define (generate-ipc/things what lst gen name)
   (if (null? lst)
       (begin (newline)
              (ipc/comment (cat "There are no "
@@ -377,7 +407,7 @@
              (let loop ((rest (sort-thing lst)))
                (if (null? rest)
                    #t
-                   (begin (gen (car rest))
+                   (begin (gen `(xmms2 ipc ,name) (car rest))
                           (loop (cdr rest))))))))
 
 (define (generate-ipc/object data)
@@ -387,10 +417,14 @@
          (methods (assq-ref data 'methods))
          (broadcasts (assq-ref data 'broadcasts))
          (signals (assq-ref data 'signals)))
-    (ipc/module name)
-    (generate-ipc/things "method" methods generate-ipc/method)
-    (generate-ipc/things "broadcast" broadcasts generate-ipc/broadcast)
-    (generate-ipc/things "signal" signals generate-ipc/signal)))
+    (ipc/module name
+                '(xmms2 constants)
+                '(xmms2 header)
+                '(xmms2 ipc)
+                '(xmms2 payload))
+    (generate-ipc/things "method" methods generate-ipc/method name)
+    (generate-ipc/things "broadcast" broadcasts generate-ipc/broadcast name)
+    (generate-ipc/things "signal" signals generate-ipc/signal name)))
 
 (define (generate-ipc/objects data)
   (let loop ((rest (assq-ref data 'objects)))
