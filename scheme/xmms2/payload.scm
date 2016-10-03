@@ -15,6 +15,12 @@
             *payload-tag-size*
             *integer-size*))
 
+(define-syntax-rule (missing-generator name args ...)
+  (define-public (name args ...)
+    (throw 'payload-generator-not-implemented 'name)))
+
+(missing-generator make-binary-payload data)
+
 (define *payload-tag-size* 4)
 (define *integer-size* 8)
 
