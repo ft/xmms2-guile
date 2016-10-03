@@ -1,0 +1,44 @@
+;; Copyright (c) 2016 xmms2-guile workers, All rights reserved.
+;;
+;; Terms for redistribution and use can be found in LICENCE.
+
+(define-module (xmms2 constants playlist)
+  #:use-module (xmms2 enumeration))
+
+(define-enum (<> xref-playlist-cmds)
+  (CMD-REPLACE FIRST-CMD-ID)
+  CMD-SET-POSITION
+  CMD-SET-POSITION-RELATIVE
+  CMD-ADD-URL
+  CMD-ADD-COLLECTION
+  CMD-REMOVE-ENTRY
+  CMD-MOVE-ENTRY
+  CMD-LIST
+  CMD-CURRENT-POSITION
+  CMD-CURRENT-ACTIVE
+  CMD-INSERT-URL
+  CMD-INSERT-COLLECTION
+  CMD-LOAD
+  CMD-RECURSIVE-ADD
+  CMD-RECURSIVE-INSERT)
+
+;; These are deprecated:
+;;
+;;  PLAYLIST-CHANGED-SHUFFLE
+;;  PLAYLIST-CHANGED-CLEAR
+;;  PLAYLIST-CHANGED-SORT
+(define-enum (<> xref-playlist-signals)
+  PLAYLIST-CHANGED-ADD
+  PLAYLIST-CHANGED-INSERT
+  PLAYLIST-CHANGED-SHUFFLE
+  PLAYLIST-CHANGED-REMOVE
+  PLAYLIST-CHANGED-CLEAR
+  PLAYLIST-CHANGED-MOVE
+  PLAYLIST-CHANGED-SORT
+  PLAYLIST-CHANGED-UPDATE
+  PLAYLIST-CHANGED-REPLACE)
+
+(define-enum (<> xref-playlist-position-codes)
+  PLAYLIST-CURRENT-ID-FORGET
+  PLAYLIST-CURRENT-ID-KEEP
+  PLAYLIST-CURRENT-ID-MOVE-TO-FRONT)
