@@ -15,7 +15,9 @@
 
 (define (bend-output file thunk)
   (if create-files?
-      (with-output-to-file file thunk)
+      (begin
+        (format #t "Generating ~a...~%" file)
+        (with-output-to-file file thunk))
       (thunk)))
 
 (define (module->file-name module)
