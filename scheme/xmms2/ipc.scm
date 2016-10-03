@@ -77,7 +77,7 @@
                             ((string) `(string? ,argument))
                             (else
                              ;; This should be fatal in the future.
-                             ;;(throw 'unknown-type type 'with argument)
+                             ;;(throw 'xmms2/unknown-type type 'with argument)
                              (format (current-error-port)
                                      "WARNING: Unknown type `~a' with argument `~a'~%"
                                      type argument))))
@@ -171,7 +171,7 @@
        #`(definer (ipc name ...)
            documentation
            (if (not (and #,@(generate-predicate-checks #'kw #'((type name) ...))))
-               (apply throw 'type-error
+               (apply throw 'xmms2/type-error
                       (let zip ((types '(type ...))
                                 (arguments (list name ...))
                                 (acc '()))

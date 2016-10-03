@@ -17,13 +17,13 @@
 
 (define-syntax-rule (missing-generator name args ...)
   (define-public (name args ...)
-    (throw 'payload-generator-not-implemented 'name)))
+    (throw 'xmms2/payload-generator-not-implemented 'name)))
 
 (missing-generator make-binary-payload data)
 (missing-generator make-collection-payload data)
 
 (define-public (make-unknown-payload data)
-  (throw 'incomplete-library-code
+  (throw 'xmms2/incomplete-library-code
          '(The library has emitted make-unknown-payload which
                is completely useless and hints at the library
                missing support for a data type in the
