@@ -7,7 +7,7 @@
   #:use-module (srfi srfi-9)
   #:use-module (xmms2 constants)
   #:use-module (xmms2 payload)
-  #:export (generate-ipc-packet
+  #:export (define-ipc-packet-generator
             make-ipc-broadcast
             make-ipc-method
             make-ipc-signal
@@ -97,7 +97,8 @@
     (define (generate-lengths kw lst)
       (let loop ((rest lst) (return-value '()))
         (if (null? rest)
-            (cond ((null? return-value) (datum->syntax kw (list 0)))
+            (cond ((null? return-value) (datum->syntax kw (list (+ *payload-tag-size*
+                                                                   *integer-size*))))
                   ((< (length return-value) 2)
                    (datum->syntax kw (reverse return-value)))
                   (else (datum->syntax
@@ -116,21 +117,24 @@
         (if (null? rest)
             (datum->syntax kw
                            (let ((n (ash (length return-value) -1)))
-                             (if (< n 2)
-                                 (reverse return-value)
-                                 (cons* 'TAG-LIST
-                                        `(make-int64-payload ,n)
-                                        (reverse return-value)))))
+                             (cond
+                              ((null? return-value) (list 'TAG-LIST
+                                                          '(make-int64-payload 0)))
+                              ((= n 1) (reverse return-value))
+                              (else (cons* 'TAG-LIST
+                                           `(make-int64-payload ,n)
+                                           (reverse return-value))))))
             (let ((name (syntax->datum (cadar rest)))
                   (type (syntax->datum (caar rest))))
-              (cons* (symbol-append 'payload: name)
-                     (case type
-                       ((integer) 'TAG-INT64)
-                       (else (symbol-append 'TAG-
-                                            (string->symbol
-                                             (string-upcase
-                                              (symbol->string type))))))
-                     return-value)))))
+              (loop (cdr rest)
+                    (cons* (symbol-append 'payload: name)
+                           (case type
+                             ((integer) 'TAG-INT64)
+                             (else (symbol-append 'TAG-
+                                                  (string->symbol
+                                                   (string-upcase
+                                                    (symbol->string type))))))
+                           return-value))))))
 
     (syntax-case ctx (public private)
       ((kw ipc private object identifier (type name) ...)
