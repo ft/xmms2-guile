@@ -22,6 +22,14 @@
 (missing-generator make-binary-payload data)
 (missing-generator make-collection-payload data)
 
+(define-public (make-unknown-payload data)
+  (throw 'incomplete-library-code
+         '(The library has emitted make-unknown-payload which
+               is completely useless and hints at the library
+               missing support for a data type in the
+               define-ipc-packet-generator macro from the
+               (xmms2 ipc) module. Please report this bug!)))
+
 (define *payload-tag-size* 4)
 (define *integer-size* 8)
 
