@@ -8,12 +8,11 @@
   #:use-module (xmms2 constants)
   #:use-module (xmms2 data-conversion)
   #:export (make-int64-payload
+            make-int64-payload*
             make-string-payload
             make-list-payload
             payload-length
-            payload-length*
-            *payload-tag-size*
-            *integer-size*))
+            payload-length*))
 
 (define-syntax-rule (missing-generator name args ...)
   (define-public (name args ...)
@@ -33,17 +32,25 @@
 (define *payload-tag-size* 4)
 (define *integer-size* 8)
 
-(define (make-int64-payload value)
+(define (make-int64-payload* value)
   (let ((rv (make-bytevector 8 0)))
     (uint64-set! rv 0 value)
+    rv))
+
+(define (make-int64-payload value)
+  (let ((rv (make-bytevector (+ *integer-size* *payload-tag-size*) 0)))
+    (bytevector-copy! TAG-INT64 0 rv 0 *payload-tag-size*)
+    (uint64-set! rv *payload-tag-size* value)
     rv))
 
 (define (make-string-payload value)
   (let* ((str (string->utf8 value))
          (len (bytevector-length str))
-         (rv (make-bytevector (+ 5 len) 0)))
-    (uint32-set! rv 0 (+ 1 len))
-    (bytevector-copy! str 0 rv 4 len)
+         (data-offset (+ *payload-tag-size* 4))
+         (rv (make-bytevector (+ data-offset 1 len) 0)))
+    (uint32-set! rv *payload-tag-size* (+ 1 len))
+    (bytevector-copy! TAG-STRING 0 rv 0 *payload-tag-size*)
+    (bytevector-copy! str 0 rv data-offset len)
     rv))
 
 (define* (make-list-payload lst #:key (restricted #f))
@@ -51,16 +58,17 @@
              (acc '()))
     (if (null? rest)
         (if (null? acc)
-            '()
+            (list TAG-LIST (make-int64-payload* 0))
             (if restricted
-                (cons* restricted (make-int64-payload (length lst)) acc)
-                (cons* (make-int64-payload (length lst)) acc)))
+                ;; TODO: This ‘restricted’ part doesn't look right.
+                (cons* restricted (make-int64-payload* (length lst)) acc)
+                (cons* TAG-LIST (make-int64-payload* (length lst)) acc)))
         (let ((cur (car rest)))
           (loop (cdr rest)
                 (cond ((integer? cur)
-                       (cons* TAG-INT64 (make-int64-payload cur) acc))
+                       (cons (make-int64-payload cur) acc))
                       ((string? cur)
-                       (cons* TAG-STRING (make-string-payload cur) acc))
+                       (cons (make-string-payload cur) acc))
                       (else (throw 'xmms2/unknown-data-type cur))))))))
 
 (define (payload-length p)
