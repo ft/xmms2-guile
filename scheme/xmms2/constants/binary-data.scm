@@ -7,7 +7,7 @@
   #:use-module (xmms2 enumeration))
 
 (define-enum (<> xref-binary-data-cmds)
-  (CMD-GET-DATA FIRST-CMD-ID)
-  CMD-ADD-DATA
-  CMD-REMOVE-DATA
-  CMD-LIST-DATA)
+  (CMD-RETRIEVE FIRST-CMD-ID)
+  CMD-ADD
+  CMD-REMOVE
+  CMD-LIST)
