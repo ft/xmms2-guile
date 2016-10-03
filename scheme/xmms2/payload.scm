@@ -20,6 +20,7 @@
     (throw 'payload-generator-not-implemented 'name)))
 
 (missing-generator make-binary-payload data)
+(missing-generator make-collection-payload data)
 
 (define *payload-tag-size* 4)
 (define *integer-size* 8)
