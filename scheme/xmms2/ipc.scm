@@ -91,12 +91,21 @@
                   (cons (let ((type (syntax->datum (caar rest)))
                               (argument (syntax->datum (cadar rest))))
                           (list (symbol-append 'payload: argument)
-                                (list (symbol-append 'make-
-                                                     (case type
-                                                       ((integer) 'int64)
-                                                       (else type))
-                                                     '-payload)
-                                      argument)))
+                                (list
+                                 (symbol-append
+                                  'make-
+                                  (cond
+                                   ((eq? type 'integer) 'int64)
+                                   ((symbol? type) type)
+                                   (else
+                                    ;; This should be fatal, too.
+                                    (format (current-error-port)
+                                            "WARNING: ~a: Unknown type structure: ~a~%"
+                                            "generate-temporaries"
+                                            type)
+                                    'unknown))
+                                  '-payload)
+                                 argument)))
                         return-value)))))
 
     (define (generate-lengths kw lst)
@@ -133,12 +142,20 @@
                   (type (syntax->datum (caar rest))))
               (loop (cdr rest)
                     (cons* (symbol-append 'payload: name)
-                           (case type
-                             ((integer) 'TAG-INT64)
-                             (else (symbol-append 'TAG-
-                                                  (string->symbol
-                                                   (string-upcase
-                                                    (symbol->string type))))))
+                           (cond
+                            ((eq? type 'integer) 'TAG-INT64)
+                            ((symbol? type)
+                             (symbol-append 'TAG-
+                                            (string->symbol
+                                             (string-upcase
+                                              (symbol->string type)))))
+                            (else
+                             ;; This should be fatal in the future as well.
+                             (format (current-error-port)
+                                     "WARNING: ~a: Unknown type structure: ~a~%"
+                                     "generate-payload-list"
+                                     type)
+                             'TAG-NONE))
                            return-value))))))
 
     (syntax-case ctx (public private)
