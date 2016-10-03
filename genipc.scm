@@ -81,6 +81,7 @@
   (define name-map '((bindata . binary-data)
                      (coll-sync . collection-sync)
                      (config . configuration)
+                     (mediainfo-reader . media-info-reader)
                      (medialib . media-library)))
   (adjust-name name-map name))
 
