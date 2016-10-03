@@ -2,7 +2,7 @@
 ;;
 ;; Terms for redistribution and use can be found in LICENCE.
 
-(define-module (xmms2 constants visualisation)
+(define-module (xmms2 constants visualization)
   #:use-module (xmms2 constants)
   #:use-module (xmms2 enumeration))
 
