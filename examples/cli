@@ -10,7 +10,7 @@
 (define generator-map `(("play" . ,make-start)
                         ("stop" . ,make-stop)
                         ("pause" . ,make-pause)
-                        ("tickle" . ,make-tickle)))
+                        ("tickle" . ,make-kill-decoder)))
 
 (define (cmd->generator cmd)
   (let ((rv (assoc cmd generator-map)))

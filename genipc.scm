@@ -101,6 +101,7 @@
                      (set-next-rel . set-next/relative)
                      (set-property-int . set-property-integer)
                      (stats . statistics)
+                     (tickle . kill-decoder)
                      (volume-get . get-volume)
                      (volume-set . set-volume)))
   (adjust-name name-map name))
