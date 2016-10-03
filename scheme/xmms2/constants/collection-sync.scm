@@ -3,6 +3,7 @@
 ;; Terms for redistribution and use can be found in LICENCE.
 
 (define-module (xmms2 constants collection-sync)
+  #:use-module (xmms2 constants)
   #:use-module (xmms2 enumeration))
 
 (define-enum (<> xref-collection-sync-cmds)

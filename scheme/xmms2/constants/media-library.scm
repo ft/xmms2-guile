@@ -3,6 +3,7 @@
 ;; Terms for redistribution and use can be found in LICENCE.
 
 (define-module (xmms2 constants media-library)
+  #:use-module (xmms2 constants)
   #:use-module (xmms2 enumeration))
 
 (define-enum (<> xref-media-library-cmds)
