@@ -1,0 +1,43 @@
+;; -*- scheme-*-
+
+(use-modules (ice-9 format)
+             (rnrs bytevectors)
+             (xmms2 constants)
+             (xmms2 io)
+             (xmms2 ipc main)
+             (xmms2 ipc playback))
+
+(define generator-map `(("play" . ,make-start)
+                        ("stop" . ,make-stop)
+                        ("pause" . ,make-pause)
+                        ("tickle" . ,make-tickle)))
+
+(define (cmd->generator cmd)
+  (let ((rv (assoc cmd generator-map)))
+    (and rv (cdr rv))))
+
+(define (usage)
+  (format #t "usage: cli COMMAND~%")
+  (format #t "Available commands: ~a~%"
+          (string-join (map car generator-map) ", ")))
+
+(unless (= 2 (length (command-line)))
+  (usage)
+  (quit 0))
+
+(define generator (cmd->generator (cadr (command-line))))
+
+(unless generator
+  (usage)
+  (quit 0))
+
+(define server (make-xmms2-connection
+                (string-concatenate (list "unix:///tmp/xmms-ipc-"
+                                          (getlogin)
+                                          ".socat"))))
+(xmms2-connect server)
+(xmms2-send server (make-hello PROTOCOL-VERSION "example-sync-client"))
+(xmms2-recv server)
+(xmms2-send server (generator))
+(xmms2-recv server)
+(xmms2-disconnect server)
