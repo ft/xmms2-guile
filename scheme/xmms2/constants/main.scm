@@ -9,5 +9,5 @@
 (define-enum (<> xref-main-cmds)
   (CMD-HELLO FIRST-CMD-ID)
   CMD-QUIT
-  CMD-PLUGIN-LIST
-  CMD-STATS)
+  CMD-LIST-PLUGINS
+  CMD-STATISTICS)
