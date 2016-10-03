@@ -75,7 +75,12 @@
                           (case type
                             ((integer) `(integer? ,argument))
                             ((string) `(string? ,argument))
-                            (else (throw 'unknown-type type 'with argument))))
+                            (else
+                             ;; This should be fatal in the future.
+                             ;;(throw 'unknown-type type 'with argument)
+                             (format (current-error-port)
+                                     "WARNING: Unknown type `~a' with argument `~a'~%"
+                                     type argument))))
                         return-value)))))
 
     (define (generate-temporaries kw lst)
