@@ -92,6 +92,7 @@
                      (current-id . get-current-identifier)
                      (current-pos . get-position)
                      (get-id . get-identifier)
+                     (get-info . get-information)
                      (idlist-from-playlist . identifier-list-from-playlist)
                      (move-entry . update-entry-path)
                      (playtime . get-playtime)
