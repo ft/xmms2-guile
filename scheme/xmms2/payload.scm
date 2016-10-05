@@ -57,12 +57,14 @@
   (let loop ((rest (reverse lst))
              (acc '()))
     (if (null? rest)
-        (if (null? acc)
-            (list TAG-LIST (make-int64-payload* 0))
-            (if restricted
-                ;; TODO: This ‘restricted’ part doesn't look right.
-                (cons* restricted (make-int64-payload* (length lst)) acc)
-                (cons* TAG-LIST (make-int64-payload* (length lst)) acc)))
+        (let* ((size-offset (* 2 *payload-tag-size*))
+               (length-size 4)
+               (tag (make-bytevector (+ size-offset length-size))))
+          (bytevector-copy! TAG-LIST 0 tag 0 *payload-tag-size*)
+          (bytevector-copy! (or restricted TAG-NONE) 0
+                            tag *payload-tag-size* *payload-tag-size*)
+          (uint32-set! tag size-offset (length lst))
+          (cons tag acc))
         (let ((cur (car rest)))
           (loop (cdr rest)
                 (cond ((integer? cur)

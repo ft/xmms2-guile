@@ -7,6 +7,7 @@
 (use-modules (test tap)
              (srfi srfi-1)
              (rnrs bytevectors)
+             (xmms2 constants)
              (xmms2 payload))
 
 (primitive-load "tests/test-tap-cfg.scm")
@@ -22,7 +23,7 @@
    (else (throw 'tests:xmms2/unknown-data data))))
 
 (with-fs-test-bundle
- (plan 9)
+ (plan 10)
  (define-test "int64 payload 0 looks good"
    (pass-if-equal? (maybe-collapse (make-int64-payload 0))
                    #vu8(0 0 0 2 0 0 0 0 0 0 0 0)))
@@ -51,4 +52,9 @@
  (define-test "List payload '(23 \"cmc\") looks good"
    (pass-if-equal? (maybe-collapse (make-list-payload '(23 "cmc")))
                    #vu8(0 0 0 6 0 0 0 0 0 0 0 2 0 0 0 2 0 0 0 0 0 0 0 23
-                          0 0 0 3 0 0 0 4 99 109 99 0))))
+                          0 0 0 3 0 0 0 4 99 109 99 0)))
+ (define-test "Restricted (int) list payload '(23 42 666) looks good"
+   (pass-if-equal? (maybe-collapse (make-list-payload '(23 42 666)
+                                                      #:restricted TAG-INT64))
+                   #vu8(0 0 0 6 0 0 0 2 0 0 0 3 0 0 0 2 0 0 0 0 0 0 0 23
+                          0 0 0 2 0 0 0 0 0 0 0 42 0 0 0 2 0 0 0 0 0 0 2 154))))
