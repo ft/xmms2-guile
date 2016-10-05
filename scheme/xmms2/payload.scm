@@ -34,13 +34,13 @@
 
 (define (make-int64-payload* value)
   (let ((rv (make-bytevector 8 0)))
-    (uint64-set! rv 0 value)
+    (int64-set! rv 0 value)
     rv))
 
 (define (make-int64-payload value)
   (let ((rv (make-bytevector (+ *integer-size* *payload-tag-size*) 0)))
     (bytevector-copy! TAG-INT64 0 rv 0 *payload-tag-size*)
-    (uint64-set! rv *payload-tag-size* value)
+    (int64-set! rv *payload-tag-size* value)
     rv))
 
 (define (make-string-payload value)
