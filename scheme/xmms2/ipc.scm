@@ -3,6 +3,7 @@
 ;; Terms for redistribution and use can be found in LICENCE.
 
 (define-module (xmms2 ipc)
+  #:use-module (ice-9 optargs)
   #:use-module (srfi srfi-1)
   #:use-module (srfi srfi-9)
   #:use-module (xmms2 constants)
@@ -85,17 +86,17 @@
 
     (syntax-case ctx (public private)
       ((kw ipc private object identifier (type name) ...)
-       #'(kw define ipc object identifier "Documentation missing." (type name) ...))
+       #'(kw define* ipc object identifier "Documentation missing." (type name) ...))
       ((kw ipc public object identifier (type name) ...)
-       #'(kw define-public ipc object identifier "Documentation missing." (type name) ...))
+       #'(kw define*-public ipc object identifier "Documentation missing." (type name) ...))
       ((kw ipc private object identifier documentation (type name) ...)
-       #'(kw define ipc object identifier documentation (type name) ...))
+       #'(kw define* ipc object identifier documentation (type name) ...))
       ((kw ipc public object identifier documentation (type name) ...)
-       #'(kw define-public ipc object identifier documentation (type name) ...))
+       #'(kw define*-public ipc object identifier documentation (type name) ...))
       ((kw definer ipc object identifier documentation (type name) ...)
        (with-syntax (((payload types arguments acc)
                       (generate-temporaries '(payload types arguments acc))))
-         #`(definer (ipc name ...)
+         #`(definer (ipc name ... #:key (cookie 0))
              documentation
              (if (not (and #,@(generate-predicate-checks #'kw #'((type name) ...))))
                  (apply throw 'xmms2/type-error
@@ -111,7 +112,7 @@
                                                (car arguments))
                                          acc)))))
                  (let ((payload (make-list-payload (list name ...))))
-                   (cons (make-protocol-header object identifier
+                   (cons (make-protocol-header object identifier cookie
                                                (payload-length payload))
                          payload)))))))))
 

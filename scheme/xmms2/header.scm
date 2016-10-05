@@ -38,11 +38,12 @@ header. The return value is an unsigned integer."
 protocol header. The return value is an unsigned integer."
   (uint32-ref header *offset-payload-length*))
 
-(define (make-protocol-header type cmd-id pl-length)
+(define (make-protocol-header type cmd-id cookie pl-length)
   "Return an XMMS2 protocol header, using TYPE, CMD-ID and PL-LENGTH to fill
 the type, command-identifier and payload-length information."
   (let ((bv (make-bytevector 16 0)))
     (uint32-set! bv *offset-object-type* type)
     (uint32-set! bv *offset-command-id* cmd-id)
+    (uint32-set! bv *offset-cookie* cookie)
     (uint32-set! bv *offset-payload-length* pl-length)
     bv))
