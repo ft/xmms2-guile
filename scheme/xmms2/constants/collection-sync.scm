@@ -7,4 +7,4 @@
   #:use-module (xmms2 enumeration))
 
 (define-enum (<> xref-collection-sync-cmds)
-  (CMD-COLLECTION-SYNC FIRST-CMD-ID))
+  (CMD-SYNC FIRST-CMD-ID))

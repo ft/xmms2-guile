@@ -8,7 +8,7 @@
 
 (define-enum (<> xref-courier-cmds)
   (CMD-SEND-MESSAGE FIRST-CMD-ID)
-  CMD-REPLY-MESSAGE
+  CMD-SEND-REPLY
   CMD-GET-CONNECTED-CLIENTS)
 
 (define-enum (<> xref-client2client-codes)
