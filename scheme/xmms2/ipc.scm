@@ -83,81 +83,6 @@
                                      type argument))))
                         return-value)))))
 
-    (define (generate-temporaries kw lst)
-      (let loop ((rest lst) (return-value '()))
-        (if (null? rest)
-            (datum->syntax kw (reverse return-value))
-            (loop (cdr rest)
-                  (cons (let ((type (syntax->datum (caar rest)))
-                              (argument (syntax->datum (cadar rest))))
-                          (list (symbol-append 'payload: argument)
-                                (list
-                                 (symbol-append
-                                  'make-
-                                  (cond
-                                   ((eq? type 'integer) 'int64)
-                                   ((symbol? type) type)
-                                   (else
-                                    ;; This should be fatal, too.
-                                    (format (current-error-port)
-                                            "WARNING: ~a: Unknown type structure: ~a~%"
-                                            "generate-temporaries"
-                                            type)
-                                    'unknown))
-                                  '-payload)
-                                 argument)))
-                        return-value)))))
-
-    (define (generate-lengths kw lst)
-      (let loop ((rest lst) (return-value '()))
-        (if (null? rest)
-            (cond ((null? return-value) (datum->syntax kw (list (+ *payload-tag-size*
-                                                                   *integer-size*))))
-                  ((< (length return-value) 2)
-                   (datum->syntax kw (reverse return-value)))
-                  (else (datum->syntax
-                         kw (list (cons* '+
-                                         '*integer-size*
-                                         '*payload-tag-size*
-                                         (reverse return-value))))))
-            (loop (cdr rest)
-                  (cons (list 'payload-length*
-                              (symbol-append 'payload:
-                                             (syntax->datum (car rest))))
-                        return-value)))))
-
-    (define (generate-payload-list kw lst)
-      (let loop ((rest lst) (return-value '()))
-        (if (null? rest)
-            (datum->syntax kw
-                           (let ((n (ash (length return-value) -1)))
-                             (cond
-                              ((null? return-value) (list 'TAG-LIST
-                                                          '(make-int64-payload 0)))
-                              ((= n 1) (reverse return-value))
-                              (else (cons* 'TAG-LIST
-                                           `(make-int64-payload ,n)
-                                           (reverse return-value))))))
-            (let ((name (syntax->datum (cadar rest)))
-                  (type (syntax->datum (caar rest))))
-              (loop (cdr rest)
-                    (cons* (symbol-append 'payload: name)
-                           (cond
-                            ((eq? type 'integer) 'TAG-INT64)
-                            ((symbol? type)
-                             (symbol-append 'TAG-
-                                            (string->symbol
-                                             (string-upcase
-                                              (symbol->string type)))))
-                            (else
-                             ;; This should be fatal in the future as well.
-                             (format (current-error-port)
-                                     "WARNING: ~a: Unknown type structure: ~a~%"
-                                     "generate-payload-list"
-                                     type)
-                             'TAG-NONE))
-                           return-value))))))
-
     (syntax-case ctx (public private)
       ((kw ipc private object identifier (type name) ...)
        #'(kw define ipc object identifier "Documentation missing." (type name) ...))
@@ -168,26 +93,27 @@
       ((kw ipc public object identifier documentation (type name) ...)
        #'(kw define-public ipc object identifier documentation (type name) ...))
       ((kw definer ipc object identifier documentation (type name) ...)
-       #`(definer (ipc name ...)
-           documentation
-           (if (not (and #,@(generate-predicate-checks #'kw #'((type name) ...))))
-               (apply throw 'xmms2/type-error
-                      (let zip ((types '(type ...))
-                                (arguments (list name ...))
-                                (acc '()))
-                        (if (or (null? types)
-                                (null? arguments))
-                            (reverse acc)
-                            (zip (cdr types)
-                                 (cdr arguments)
-                                 (cons (cons (car types)
-                                             (car arguments))
-                                       acc)))))
-               (let (#,@(generate-temporaries #'kw #'((type name) ...)))
-                 (list (make-protocol-header object identifier
-                                             #,@(generate-lengths #'kw
-                                                                  #'(name ...)))
-                       #,@(generate-payload-list #'kw #'((type name) ...))))))))))
+       (with-syntax (((payload types arguments acc)
+                      (generate-temporaries '(payload types arguments acc))))
+         #`(definer (ipc name ...)
+             documentation
+             (if (not (and #,@(generate-predicate-checks #'kw #'((type name) ...))))
+                 (apply throw 'xmms2/type-error
+                        (let zip ((types '(type ...))
+                                  (arguments (list name ...))
+                                  (acc '()))
+                          (if (or (null? types)
+                                  (null? arguments))
+                              (reverse acc)
+                              (zip (cdr types)
+                                   (cdr arguments)
+                                   (cons (cons (car types)
+                                               (car arguments))
+                                         acc)))))
+                 (let ((payload (make-list-payload (list name ...))))
+                   (cons (make-protocol-header object identifier
+                                               (payload-length payload))
+                         payload)))))))))
 
 ;; The record types are used to pass around methods, broadcasts and signals
 ;; with all the available information for full introspection.
