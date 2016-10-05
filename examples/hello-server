@@ -9,7 +9,7 @@
 (use-modules (ice-9 format)
              (rnrs bytevectors)
              (xmms2 io)
-             (xmms2 messages)
+             (xmms2 ipc main)
              (xmms2 jump-table)
              (xmms2 header)
              (xmms2 data-conversion)
@@ -36,7 +36,7 @@
                                           (getlogin)
                                           ".socat"))))
 (xmms2-connect server)
-(xmms2-send server (make-hello "example-hello-server"))
+(xmms2-send server (make-hello PROTOCOL-VERSION "example-hello-server"))
 
 ;; Get the response from the server:
 (define response (xmms2-recv server))
