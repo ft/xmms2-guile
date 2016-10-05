@@ -5,12 +5,15 @@
              (xmms2 constants)
              (xmms2 io)
              (xmms2 ipc main)
+             (xmms2 ipc playlist)
              (xmms2 ipc playback))
 
 (define generator-map `(("play" . ,make-start)
                         ("stop" . ,make-stop)
                         ("pause" . ,make-pause)
-                        ("tickle" . ,make-kill-decoder)))
+                        ("tickle" . ,make-kill-decoder)
+                        ("next" . ,(lambda () (make-set-next/relative 1)))
+                        ("prev" . ,(lambda () (make-set-next/relative -1)))))
 
 (define (cmd->generator cmd)
   (let ((rv (assoc cmd generator-map)))
@@ -25,7 +28,8 @@
   (usage)
   (quit 0))
 
-(define generator (cmd->generator (cadr (command-line))))
+(define command (cadr (command-line)))
+(define generator (cmd->generator command))
 
 (unless generator
   (usage)
@@ -40,4 +44,8 @@
 (xmms2-recv server)
 (xmms2-send server (generator))
 (xmms2-recv server)
+(when (or (string=? command "next")
+          (string=? command "prev"))
+  (xmms2-send server (make-kill-decoder))
+  (xmms2-recv server))
 (xmms2-disconnect server)
