@@ -1,8 +1,6 @@
 ;; -*- scheme-*-
 
-(use-modules (ice-9 format)
-             (rnrs bytevectors)
-             (xmms2 constants)
+(use-modules (xmms2 constants)
              (xmms2 io)
              (xmms2 ipc main)
              (xmms2 ipc playlist)
