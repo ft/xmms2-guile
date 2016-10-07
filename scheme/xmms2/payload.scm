@@ -32,10 +32,10 @@
                (xmms2 ipc) module. Please report this bug!)))
 
 (define *payload-tag-size* 4)
-(define *integer-size* 8)
+(define *payload-integer-size* 8)
 
 (define (make-int64-payload value)
-  (let ((rv (make-bytevector (+ *integer-size* *payload-tag-size*) 0)))
+  (let ((rv (make-bytevector (+ *payload-integer-size* *payload-tag-size*) 0)))
     (bytevector-copy! TAG-INT64 0 rv 0 *payload-tag-size*)
     (int64-set! rv *payload-tag-size* value)
     rv))
