@@ -4,7 +4,9 @@
 
 (define-module (xmms2 data-conversion)
   #:use-module (rnrs bytevectors)
-  #:export (uint32-ref
+  #:export (int32-ref
+            int32-set!
+            uint32-ref
             uint32-set!
             int64-ref
             int64-set!
@@ -43,3 +45,12 @@ to DATA, which is that source unsigned integer."
 "Set an 64 bit integer in a byte-vector starting at the byte at OFFSET to DATA,
 which is that source integer."
   (bytevector-s64-set! bv offset data *endianness*))
+
+(define (int32-ref bv offset)
+  "Return an 32 bit integer from a byte-vector starting at the byte at OFFSET."
+  (bytevector-s32-ref bv offset *endianness*))
+
+(define (int32-set! bv offset data)
+  "Set an 32 bit integer in a byte-vector starting at the byte at OFFSET to DATA,
+which is that source integer."
+  (bytevector-s32-set! bv offset data *endianness*))
