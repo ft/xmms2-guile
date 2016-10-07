@@ -8,7 +8,6 @@
   #:use-module (xmms2 constants)
   #:use-module (xmms2 data-conversion)
   #:export (make-int64-payload
-            make-int64-payload*
             make-string-payload
             make-list-payload
             payload-length
@@ -34,11 +33,6 @@
 
 (define *payload-tag-size* 4)
 (define *integer-size* 8)
-
-(define (make-int64-payload* value)
-  (let ((rv (make-bytevector 8 0)))
-    (int64-set! rv 0 value)
-    rv))
 
 (define (make-int64-payload value)
   (let ((rv (make-bytevector (+ *integer-size* *payload-tag-size*) 0)))
