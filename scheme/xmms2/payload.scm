@@ -20,6 +20,9 @@
 
 (missing-generator make-binary-payload data)
 (missing-generator make-collection-payload data)
+(missing-generator make-dictionary-payload data)
+(missing-generator make-error-payload data)
+(missing-generator make-float-payload data)
 
 (define-public (make-unknown-payload data)
   (throw 'xmms2/incomplete-library-code
