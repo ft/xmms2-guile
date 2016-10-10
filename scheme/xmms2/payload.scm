@@ -10,8 +10,7 @@
   #:export (make-int64-payload
             make-string-payload
             make-list-payload
-            payload-length
-            payload-length*))
+            payload-length))
 
 (define-syntax-rule (missing-generator name args ...)
   (define-public (name args ...)
@@ -74,6 +73,3 @@
   (if (bytevector? p)
       (bytevector-length p)
       (apply + (map bytevector-length p))))
-
-(define (payload-length* p)
-  (+ *payload-tag-size* (payload-length p)))
