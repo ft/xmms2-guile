@@ -7,10 +7,12 @@
   #:use-module (rnrs bytevectors)
   #:use-module (xmms2 constants)
   #:use-module (xmms2 data-conversion)
-  #:export (make-int64-payload
+  #:export (make-float-payload
+            make-int64-payload
             make-string-payload
             make-list-payload
-            payload-length))
+            payload-length
+            payload->float))
 
 (define-syntax-rule (missing-generator name args ...)
   (define-public (name args ...)
@@ -20,7 +22,6 @@
 (missing-generator make-collection-payload data)
 (missing-generator make-dictionary-payload data)
 (missing-generator make-error-payload data)
-(missing-generator make-float-payload data)
 
 (define-public (make-unknown-payload data)
   (throw 'xmms2/incomplete-library-code
@@ -32,12 +33,56 @@
 
 (define *payload-tag-size* 4)
 (define *payload-integer-size* 8)
+(define *payload-float-size* 8)
 
 (define (make-int64-payload value)
   (let ((rv (make-bytevector (+ *payload-integer-size* *payload-tag-size*) 0)))
     (bytevector-copy! TAG-INT64 0 rv 0 *payload-tag-size*)
     (int64-set! rv *payload-tag-size* value)
     rv))
+
+(define (log2 value)
+  (/ (log10 value) (log10 2)))
+
+(define (frexp value)
+  "Converts floating-point number to fractional and integral parts and returns
+a pair containing the two: (fractional . exponent)"
+  (if (zero? value)
+      (cons 0 0)
+      (let* ((value* (abs value))
+             (exponent (inexact->exact (ceiling (log2 value*))))
+             (divisor (if (< value* 1)
+                          (/ 1 (ash 1 (* -1 exponent)))
+                          (ash 1 exponent)))
+             (fractional (exact->inexact (/ value divisor))))
+        (if (>= (abs fractional) 1.0)
+            (cons (/ fractional 2) (+ exponent 1))
+            (cons fractional exponent)))))
+
+(define INT32_MAX (- (ash 1 31) 1))
+(define INT32_MIN (* -1 (ash 1 31)))
+
+(define (make-float-payload value)
+  (let* ((fe (frexp value))
+         (fractional (car fe))
+         (exponent (cdr fe))
+         (mantissa (inexact->exact (truncate
+                                    (if (positive? fractional)
+                                        (* fractional INT32_MAX)
+                                        (* -1 fractional INT32_MIN)))))
+         (rv (make-bytevector (+ *payload-tag-size* *payload-float-size*))))
+    (bytevector-copy! TAG-FLOAT 0 rv 0 *payload-tag-size*)
+    (int32-set! rv 4 mantissa)
+    (int32-set! rv 8 exponent)
+    rv))
+
+(define (payload->float bv offset)
+  (let* ((m (int32-ref bv offset))
+         (e (int32-ref bv (+ 4 offset)))
+         (sign (if (>= m 0) 1 -1))
+         (fractional (/ m (if (>= m 0) INT32_MAX INT32_MIN)))
+         (factor (if (>= e 0) (ash 1 e) (/ (ash 1 (* -1 e))))))
+    (exact->inexact (* sign fractional factor))))
 
 (define (make-string-payload value)
   (let* ((str (string->utf8 value))
