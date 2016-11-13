@@ -164,13 +164,14 @@ the previous section. Like with general messages the payload part is optional.
 
 ### BINARY
 
-There is no such type, I have no idea where I got this from. Binary data is
-probably handled by BITBUFFER (see below). There *is* a “.bin” entry in xmms2's
-value type, which doesn't really seem to be used — unless I am missing
-something. There is a “bindata” object though, that suggests, binary data needs
-to be handled. I guess we will cross that particular bridge, what we get there.
+This data type is used for transfering binary data such as album art.
 
 ### BITBUFFER
+
+The bit-buffer type is used by XMMS2's C library internally for tasks such as
+serializing the other data types and for building protocol messages. There are
+no protocol messages that use the BITBUFFER type as payload or cause the server
+to send return values containing this type.
 
 ## Complex Types
 
