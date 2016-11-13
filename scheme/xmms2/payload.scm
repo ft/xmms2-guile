@@ -32,6 +32,7 @@
                (xmms2 ipc) module. Please report this bug!)))
 
 (define *payload-tag-size* 4)
+(define *payload-size-size* 4)
 (define *payload-integer-size* 8)
 (define *payload-float-size* 8)
 
@@ -87,7 +88,7 @@ a pair containing the two: (fractional . exponent)"
 (define (make-string-payload value)
   (let* ((str (string->utf8 value))
          (len (bytevector-length str))
-         (data-offset (+ *payload-tag-size* 4))
+         (data-offset (+ *payload-tag-size* *payload-size-size*))
          (rv (make-bytevector (+ data-offset 1 len) 0)))
     (uint32-set! rv *payload-tag-size* (+ 1 len))
     (bytevector-copy! TAG-STRING 0 rv 0 *payload-tag-size*)
@@ -99,8 +100,7 @@ a pair containing the two: (fractional . exponent)"
              (acc '()))
     (if (null? rest)
         (let* ((size-offset (* 2 *payload-tag-size*))
-               (length-size 4)
-               (tag (make-bytevector (+ size-offset length-size))))
+               (tag (make-bytevector (+ size-offset *payload-size-size*))))
           (bytevector-copy! TAG-LIST 0 tag 0 *payload-tag-size*)
           (bytevector-copy! (or restricted TAG-NONE) 0
                             tag *payload-tag-size* *payload-tag-size*)
