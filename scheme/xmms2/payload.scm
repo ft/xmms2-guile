@@ -60,17 +60,14 @@ a pair containing the two: (fractional . exponent)"
             (cons (/ fractional 2) (+ exponent 1))
             (cons fractional exponent)))))
 
-(define INT32_MAX (- (ash 1 31) 1))
-(define INT32_MIN (* -1 (ash 1 31)))
-
 (define (make-float-payload value)
   (let* ((fe (frexp value))
          (fractional (car fe))
          (exponent (cdr fe))
          (mantissa (inexact->exact (truncate
                                     (if (positive? fractional)
-                                        (* fractional INT32_MAX)
-                                        (* -1 fractional INT32_MIN)))))
+                                        (* fractional *int32-max*)
+                                        (* -1 fractional *int32-min*)))))
          (rv (make-bytevector (+ *payload-tag-size* *payload-float-size*))))
     (bytevector-copy! TAG-FLOAT 0 rv 0 *payload-tag-size*)
     (int32-set! rv 4 mantissa)
@@ -81,7 +78,7 @@ a pair containing the two: (fractional . exponent)"
   (let* ((m (int32-ref bv offset))
          (e (int32-ref bv (+ 4 offset)))
          (sign (if (>= m 0) 1 -1))
-         (fractional (/ m (if (>= m 0) INT32_MAX INT32_MIN)))
+         (fractional (/ m (if (>= m 0) *int32-max* *int32-min*)))
          (factor (if (>= e 0) (ash 1 e) (/ (ash 1 (* -1 e))))))
     (exact->inexact (* sign fractional factor))))
 
