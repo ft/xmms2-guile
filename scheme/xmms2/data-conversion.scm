@@ -30,6 +30,7 @@
 ;; uint32_t
 
 (define *uint32-max* (- (ash 1 32) 1))
+(define *uint32-size* 4)
 
 (define (uint32? data)
   (and (exact-integer? data)
@@ -48,6 +49,7 @@ to DATA, which is that source unsigned integer."
 ;; uint64_t
 
 (define *uint64-max* (- (ash 1 64) 1))
+(define *uint64-size* 8)
 
 (define (uint64? data)
   (and (exact-integer? data)
@@ -67,6 +69,7 @@ to DATA, which is that source unsigned integer."
 
 (define *int32-max* (- (ash 1 31) 1))
 (define *int32-min* (* -1 (ash 1 31)))
+(define *int32-size* 4)
 
 (define (int32? data)
   (and (exact-integer? data)
@@ -86,6 +89,7 @@ which is that source integer."
 
 (define *int64-max* (- (ash 1 63) 1))
 (define *int64-min* (* -1 (ash 1 63)))
+(define *int64-size* 8)
 
 (define (int64? data)
   (and (exact-integer? data)
