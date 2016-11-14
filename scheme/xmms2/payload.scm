@@ -36,6 +36,16 @@
 (define *payload-integer-size* 8)
 (define *payload-float-size* 8)
 
+(define (non-complex-number? data)
+  (and (number? data) (not (complex? data))))
+
+(define (make-value-payload data)
+  (cond ((uint64? data) (make-int64-payload data))
+        ((non-complex-number? data) (make-float-payload data))
+        ((string? data) (make-string-payload data))
+        ((list? data) (make-list-payload data))
+        (else (throw 'xmms2/unknown-data-type data))))
+
 (define (make-int64-payload value)
   (let ((rv (make-bytevector (+ *payload-integer-size* *payload-tag-size*) 0)))
     (bytevector-copy! TAG-INT64 0 rv 0 *payload-tag-size*)
@@ -106,12 +116,7 @@ a pair containing the two: (fractional . exponent)"
           (uint32-set! tag size-offset (length lst))
           (cons tag acc))
         (let ((cur (car rest)))
-          (loop (cdr rest)
-                (cond ((integer? cur)
-                       (cons (make-int64-payload cur) acc))
-                      ((string? cur)
-                       (cons (make-string-payload cur) acc))
-                      (else (throw 'xmms2/unknown-data-type cur))))))))
+          (loop (cdr rest) (cons (make-value-payload cur) acc))))))
 
 (define (payload-length p)
   (if (bytevector? p)
