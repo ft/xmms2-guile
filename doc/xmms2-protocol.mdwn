@@ -154,13 +154,28 @@ the previous section. Like with general messages the payload part is optional.
 
 ### NONE
 
+This data type connotes the lack of a data type. This is useful, for example,
+to express — say — a list of elements of arbitrary data.
+
 ### INT64
+
+This is the basic integral number type used in XMMS2. It is a signed integer
+and is eight octets wide.
 
 ### STRING
 
+Strings are another basic data type. Strings in XMMS2 are always encoded in
+UTF-8.
+
 ### FLOAT
 
+In addition to exact integers, XMMS2 has a second number type to express
+non-integers as non-exact floating point numbers.
+
 ### ERROR
+
+At the time of writing, errors are strings that are specially tagged and are
+thus interpreted as error messages. I don't know if this is subject to change.
 
 ### BINARY
 
@@ -176,6 +191,11 @@ to send return values containing this type.
 ## Complex Types
 
 ### LIST
+
+Lists are obviously important in an application such as XMMS2, which have to
+play track after track after track. In XMMS2, lists may nest to arbitrary depth
+and each entry in a list may be any of the supported types — unless a
+restriction is put into place.
 
 The first 32 Bits of a list payload is an id, telling whether we're dealing
 with a restricted type list[^notypelist]. The next 32 Bits contain an unsigned
@@ -201,7 +221,27 @@ Then the individual entries are listed:
 
 ### DICTIONARY
 
+Dictionaries are *key-value* stores. XMMS2's implementation uses strings as
+keys and uses hashing to speed up accesses. The hashing however, is not part of
+the serializing into a protocol packet: Only keys and values are inserted.
+
+Unlike lists, dictionaries do *not* feature a type-restriction field (even
+though the XML IPC description sometimes mentions return values of a dictionary
+of a specific type).
+
+
 ### COLLECTION
+
+The media library, stores within an XMMS2 server, is essentially a set of audio
+tracks along with all sorts of meta information for them. Collections are a way
+to express sub-sets of that full media library. To do that, they provide ways
+to compose arbitrarily complex expressions, that can be used to match parts of
+the media library. As such, searching the library can be done using
+collections, for example. The server allows the user to store collections next
+to playlists as well. That makes it possible to re-use them at will, across the
+boundary of server restarts. Applying operators onto collections makes it
+possible to turn a collection or combinations of multiple collections into a
+playlist.
 
 
 # Requests
