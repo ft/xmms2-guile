@@ -45,7 +45,7 @@
   (and (number? data) (not (complex? data))))
 
 (define (make-value-payload data)
-  (cond ((uint64? data) (make-int64-payload data))
+  (cond ((int64? data) (make-int64-payload data))
         ((non-complex-number? data) (make-float-payload data))
         ((string? data) (make-string-payload data))
         ((dictionary? data) (make-dictionary-payload data))
