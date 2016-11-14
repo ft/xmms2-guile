@@ -11,6 +11,7 @@
             make-int64-payload
             make-string-payload
             make-list-payload
+            make-dictionary-payload
             payload-length
             payload->float))
 
