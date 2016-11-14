@@ -47,8 +47,8 @@
   (cond ((uint64? data) (make-int64-payload data))
         ((non-complex-number? data) (make-float-payload data))
         ((string? data) (make-string-payload data))
-        ((list? data) (make-list-payload data))
         ((dictionary? data) (make-dictionary-payload data))
+        ((list? data) (make-list-payload data))
         (else (throw 'xmms2/unknown-data-type data))))
 
 (define (make-int64-payload value)
