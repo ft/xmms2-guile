@@ -13,6 +13,7 @@
             make-list-payload
             make-dictionary-payload
             payload-length
+            payload->float*
             payload->float))
 
 (define-syntax-rule (missing-generator name args ...)
@@ -90,13 +91,16 @@ a pair containing the two: (fractional . exponent)"
     (int32-set! rv 8 exponent)
     rv))
 
-(define (payload->float bv offset)
+(define (payload->float* bv offset)
   (let* ((m (int32-ref bv offset))
          (e (int32-ref bv (+ 4 offset)))
          (sign (if (>= m 0) 1 -1))
          (fractional (/ m (if (>= m 0) *int32-max* *int32-min*)))
          (factor (if (>= e 0) (ash 1 e) (/ (ash 1 (* -1 e))))))
     (exact->inexact (* sign fractional factor))))
+
+(define (payload->float bv)
+  (payload->float* bv *payload-tag-size*))
 
 (define (make-string-payload value)
   (let* ((str (string->utf8 value))
