@@ -93,6 +93,8 @@ a pair containing the two: (fractional . exponent)"
     rv))
 
 (define* (make-list-payload lst #:key (restricted #f))
+  ;; Restricted list payload should filter the input list for the desired type
+  ;; elements first.
   (let loop ((rest (reverse lst))
              (acc '()))
     (if (null? rest)
