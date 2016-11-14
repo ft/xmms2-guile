@@ -73,15 +73,26 @@
             (loop (cdr rest)
                   (cons (let ((type (syntax->datum (caar rest)))
                               (argument (syntax->datum (cadar rest))))
-                          (case type
-                            ((integer) `(integer? ,argument))
-                            ((string) `(string? ,argument))
-                            (else
-                             ;; This should be fatal in the future.
-                             ;;(throw 'xmms2/unknown-type type 'with argument)
-                             (format (current-error-port)
-                                     "WARNING: Unknown type `~a' with argument `~a'~%"
-                                     type argument))))
+                          (cond
+                           ((eq? type 'integer) `(integer? ,argument))
+                           ((eq? type 'string) `(string? ,argument))
+                           ;; We could perform much stricter tests with lists
+                           ;; and dicts here, but that would impact performance
+                           ;; with large data structures. Maybe we could make
+                           ;; this optional via a #:keyword flag, similar to
+                           ;; #:cookie.
+                           ((and (list? type) (eq? 'dictionary (car type)))
+                            `(and (list? ,argument)
+                                  (pair? (car ,argument))
+                                  (string? (caar ,argument))))
+                           ((and (list? type) (eq? 'list (car type)))
+                            `(list? ,argument))
+                           (else
+                            ;; This should be fatal in the future.
+                            ;;(throw 'xmms2/unknown-type type 'with argument)
+                            (format (current-error-port)
+                                    "WARNING: Unknown type `~a' with argument `~a'~%"
+                                    type argument))))
                         return-value)))))
 
     (syntax-case ctx (public private)
