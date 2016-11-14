@@ -20,7 +20,6 @@
 
 (missing-generator make-binary-payload data)
 (missing-generator make-collection-payload data)
-(missing-generator make-dictionary-payload data)
 (missing-generator make-error-payload data)
 
 (define-public (make-unknown-payload data)
@@ -36,6 +35,11 @@
 (define *payload-integer-size* 8)
 (define *payload-float-size* 8)
 
+(define (dictionary? data)
+  (and (list? data)
+       (pair? (car data))
+       (string? (caar data))))
+
 (define (non-complex-number? data)
   (and (number? data) (not (complex? data))))
 
@@ -44,6 +48,7 @@
         ((non-complex-number? data) (make-float-payload data))
         ((string? data) (make-string-payload data))
         ((list? data) (make-list-payload data))
+        ((dictionary? data) (make-dictionary-payload data))
         (else (throw 'xmms2/unknown-data-type data))))
 
 (define (make-int64-payload value)
@@ -118,6 +123,23 @@ a pair containing the two: (fractional . exponent)"
     (if (null? rest)
         (cons (make-list-header (length lst) (or restricted TAG-NONE)) acc)
         (loop (cdr rest) (cons (make-value-payload (car rest)) acc)))))
+
+(define (make-dictionary-header len)
+  (let* ((header (make-bytevector (+ *payload-tag-size* *payload-size-size*))))
+    (bytevector-copy! TAG-DICTIONARY 0 header 0 *payload-tag-size*)
+    (uint32-set! header *payload-tag-size* len)
+    header))
+
+(define* (make-dictionary-payload alist #:key (restricted #f))
+  ;; There is no restricted tag in xmms2's dictionary implementation, but lets
+  ;; just give the serializer the same API as the list type, for symmetry.
+  (let loop ((rest (reverse alist)) (acc '()))
+    (if (null? rest)
+        (cons (make-dictionary-header (length alist)) acc)
+        (let* ((key (caar rest))
+               (value (cdar rest)))
+          (loop (cdr rest) (cons (make-string-payload key)
+                                 (cons (make-value-payload value) acc)))))))
 
 (define (payload-length p)
   (if (bytevector? p)
