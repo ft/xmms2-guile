@@ -102,21 +102,22 @@ a pair containing the two: (fractional . exponent)"
     (bytevector-copy! str 0 rv data-offset len)
     rv))
 
+(define (make-list-header len type)
+  (let* ((size-offset (* 2 *payload-tag-size*))
+         (header (make-bytevector (+ size-offset *payload-size-size*))))
+    (bytevector-copy! TAG-LIST 0 header 0 *payload-tag-size*)
+    (bytevector-copy! (or type TAG-NONE) 0
+                      header *payload-tag-size* *payload-tag-size*)
+    (uint32-set! header size-offset len)
+    header))
+
 (define* (make-list-payload lst #:key (restricted #f))
   ;; Restricted list payload should filter the input list for the desired type
   ;; elements first.
-  (let loop ((rest (reverse lst))
-             (acc '()))
+  (let loop ((rest (reverse lst)) (acc '()))
     (if (null? rest)
-        (let* ((size-offset (* 2 *payload-tag-size*))
-               (tag (make-bytevector (+ size-offset *payload-size-size*))))
-          (bytevector-copy! TAG-LIST 0 tag 0 *payload-tag-size*)
-          (bytevector-copy! (or restricted TAG-NONE) 0
-                            tag *payload-tag-size* *payload-tag-size*)
-          (uint32-set! tag size-offset (length lst))
-          (cons tag acc))
-        (let ((cur (car rest)))
-          (loop (cdr rest) (cons (make-value-payload cur) acc))))))
+        (cons (make-list-header (length lst) (or restricted TAG-NONE)) acc)
+        (loop (cdr rest) (cons (make-value-payload (car rest)) acc)))))
 
 (define (payload-length p)
   (if (bytevector? p)
