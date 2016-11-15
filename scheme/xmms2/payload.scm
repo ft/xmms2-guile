@@ -16,6 +16,8 @@
             payload-length
             payload->float*
             payload->float
+            payload->int64*
+            payload->int64
             payload->string*
             payload->string))
 
@@ -61,6 +63,11 @@
     (bytevector-copy! TAG-INT64 0 rv 0 *payload-tag-size*)
     (int64-set! rv *payload-tag-size* value)
     rv))
+
+(define payload->int64* uint64-ref)
+
+(define (payload->int64 bv)
+  (payload->int64* bv *payload-tag-size*))
 
 (define (log2 value)
   (/ (log10 value) (log10 2)))
