@@ -34,8 +34,8 @@
          (mantissa-ex (int32-ref expected 4))
          (exp-is (int32-ref data 8))
          (exp-ex (int32-ref expected 8))
-         (back-is (payload->float data 4))
-         (back-ex (payload->float expected 4))
+         (back-is (payload->float data))
+         (back-ex (payload->float expected))
          (error-is (abs (- n back-is)))
          (error-ex (abs (- n back-ex))))
     ;; The tag should trivially be correct.
