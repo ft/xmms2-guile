@@ -1,6 +1,7 @@
 ;; -*- scheme-*-
 
-(use-modules (xmms2 constants)
+(use-modules (ice-9 format)
+             (xmms2 constants)
              (xmms2 io)
              (xmms2 ipc main)
              (xmms2 ipc playlist)
@@ -13,7 +14,8 @@
                         ("tickle" . ,make-kill-decoder)
                         ("next" . ,(lambda () (make-set-next/relative 1)))
                         ("prev" . ,(lambda () (make-set-next/relative -1)))
-                        ("active-playlist" . ,make-get-currently-active)))
+                        ("active-playlist" . ,make-get-currently-active)
+                        ("time" . ,make-get-playtime)))
 
 (define (cmd->generator cmd)
   (let ((rv (assoc cmd generator-map)))
@@ -44,8 +46,17 @@
 (xmms2-recv server)
 (xmms2-send server (generator))
 (let ((reply (xmms2-recv server)))
-  (when (string=? command "active-playlist")
-    (format #t "Active Playlist: ~a~%" (payload->string (caddr reply)))))
+  (cond
+   ((string=? command "active-playlist")
+    (format #t "Active Playlist: ~a~%" (payload->string (caddr reply))))
+   ((string=? command "time")
+    (let* ((time-ms (payload->int64 (caddr reply)))
+           (ms (modulo time-ms 1000))
+           (time (truncate (/ time-ms 1000)))
+           (min (truncate (/ time 60)))
+           (sec (modulo time 60)))
+      (format #t "Current playtime:  ~d:~2,'0d.~3,'0d~%" min sec ms)))
+   (else #t)))
 (when (or (string=? command "next")
           (string=? command "prev"))
   (xmms2-send server (make-kill-decoder))
