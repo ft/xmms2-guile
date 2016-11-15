@@ -4,6 +4,7 @@
 
 (define-module (xmms2 payload)
   #:use-module (ice-9 optargs)
+  #:use-module (srfi srfi-1)
   #:use-module (rnrs bytevectors)
   #:use-module (xmms2 constants)
   #:use-module (xmms2 data-conversion)
@@ -14,7 +15,9 @@
             make-dictionary-payload
             payload-length
             payload->float*
-            payload->float))
+            payload->float
+            payload->string*
+            payload->string))
 
 (define-syntax-rule (missing-generator name args ...)
   (define-public (name args ...)
@@ -111,6 +114,18 @@ a pair containing the two: (fractional . exponent)"
     (bytevector-copy! TAG-STRING 0 rv 0 *payload-tag-size*)
     (bytevector-copy! str 0 rv data-offset len)
     rv))
+
+(define (payload->string* bv offset)
+  (let ((len (- (uint32-ref bv offset) 1)))
+    (if (<= len 0)
+        ""
+        (let ((lst (take (drop (bytevector->u8-list bv)
+                               (+ *payload-size-size* offset))
+                         len)))
+          (utf8->string (u8-list->bytevector lst))))))
+
+(define (payload->string bv)
+  (payload->string* bv *payload-tag-size*))
 
 (define (make-list-header len type)
   (let* ((size-offset (* 2 *payload-tag-size*))
