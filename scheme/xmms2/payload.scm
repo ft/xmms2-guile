@@ -100,7 +100,7 @@ a pair containing the two: (fractional . exponent)"
   (let* ((fe (frexp value))
          (fractional (car fe))
          (exponent (cdr fe))
-         (mantissa (inexact->exact (truncate
+         (mantissa (inexact->exact (round
                                     (if (positive? fractional)
                                         (* fractional *int32-max*)
                                         (* -1 fractional *int32-min*)))))
