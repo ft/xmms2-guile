@@ -4,7 +4,8 @@
 
 (define-module (xmms2 data-conversion)
   #:use-module (rnrs bytevectors)
-  #:export (int32-ref
+  #:export (bytevector-ref
+            int32-ref
             int32-set!
             int32?
             uint32-ref
@@ -104,3 +105,12 @@ which is that source integer."
 "Set an 64 bit integer in a byte-vector starting at the byte at OFFSET to DATA,
 which is that source integer."
   (bytevector-s64-set! bv offset data *endianness*))
+
+(define (bytevector-ref bv offset len)
+  (let* ((bl (bytevector-length bv))
+         (final-length (if (<= bl offset)
+                           0
+                           (min (- bl offset) len)))
+         (value (make-bytevector final-length)))
+    (bytevector-copy! bv offset value 0 final-length)
+    value))
