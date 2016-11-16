@@ -18,11 +18,15 @@
             uint64-set!
             uint64?
             *uint32-max*
+            *uint32-size*
             *uint64-max*
+            *uint64-size*
             *int32-max*
             *int32-min*
+            *int32-size*
             *int64-max*
-            *int64-min*))
+            *int64-min*
+            *int64-size*))
 
 ;; The octet order in XMMS2's protocol is big-endian. If it matters, all
 ;; procedures from this module will indeed use that particular order.
