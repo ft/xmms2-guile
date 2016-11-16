@@ -49,7 +49,7 @@
        (string? (caar data))))
 
 (define (non-complex-number? data)
-  (and (number? data) (not (complex? data))))
+  (and (number? data) (zero? (imag-part data))))
 
 (define (make-value-payload data)
   (cond ((int64? data) (make-int64-payload data))
