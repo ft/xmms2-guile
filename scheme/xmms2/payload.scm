@@ -136,6 +136,14 @@ a pair containing the two: (fractional . exponent)"
         value)
       0.0))
 
+(define (make-dict-key-payload value)
+  (let* ((str (string->utf8 value))
+         (len (bytevector-length str))
+         (rv (make-bytevector (+ *payload-size-size* 1 len) 0)))
+    (uint32-set! rv 0 (+ 1 len))
+    (bytevector-copy! str 0 rv *payload-size-size* len)
+    rv))
+
 (define (make-string-payload value)
   (let* ((str (string->utf8 value))
          (len (bytevector-length str))
@@ -145,6 +153,14 @@ a pair containing the two: (fractional . exponent)"
     (bytevector-copy! TAG-STRING 0 rv 0 *payload-tag-size*)
     (bytevector-copy! str 0 rv data-offset len)
     rv))
+
+(define (payload->dict-key bv offset)
+  (let* ((pl (uint32-ref bv offset))
+         (len (- pl 1)))
+    (values
+     (if (<= len 0) ""
+         (utf8->string (bytevector-ref bv (+ *payload-size-size* offset) len)))
+     (+ *payload-size-size* pl))))
 
 (define (payload->string* bv offset)
   (let* ((offset (+ *payload-tag-size* offset))
@@ -219,7 +235,7 @@ a pair containing the two: (fractional . exponent)"
         (let* ((key (caar rest))
                (value (cdar rest)))
           (loop (cdr rest)
-                (cons (make-string-payload key)
+                (cons (make-dict-key-payload key)
                       (cons-or-append! (make-value-payload value) acc)))))))
 
 (define (payload->dictionary* bv offset)
@@ -231,7 +247,7 @@ a pair containing the two: (fractional . exponent)"
       (if (or (zero? left) (>= (+ offset consumed) bl))
           (values (reverse acc) (+ *payload-tag-size* consumed))
           (let-values (((key key-bytes)
-                        (payload->value* bv (+ consumed offset))))
+                        (payload->dict-key bv (+ consumed offset))))
             (let-values (((value value-bytes)
                           (payload->value* bv (+ consumed key-bytes offset))))
               (loop (- left 1)
