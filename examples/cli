@@ -15,7 +15,8 @@
                         ("next" . ,(lambda () (make-set-next/relative 1)))
                         ("prev" . ,(lambda () (make-set-next/relative -1)))
                         ("active-playlist" . ,make-get-currently-active)
-                        ("time" . ,make-get-playtime)))
+                        ("time" . ,make-get-playtime)
+                        ("statistics" . ,make-statistics)))
 
 (define (cmd->generator cmd)
   (let ((rv (assoc cmd generator-map)))
@@ -47,6 +48,12 @@
 (xmms2-send server (generator))
 (let ((reply (xmms2-recv server)))
   (cond
+   ((string=? command "statistics")
+    (for-each (lambda (x)
+                (let ((name (car x))
+                      (value (cdr x)))
+                  (format #t "~10,,,@a: ~a~%" name value)))
+              (payload->value (caddr reply))))
    ((string=? command "active-playlist")
     (format #t "Active Playlist: ~a~%" (payload->string (caddr reply))))
    ((string=? command "time")
