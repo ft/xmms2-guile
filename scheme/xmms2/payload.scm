@@ -266,8 +266,8 @@ a pair containing the two: (fractional . exponent)"
                           (TYPE-STRING payload->string*)
                           (TYPE-DICTIONARY payload->dictionary*)
                           (TYPE-LIST payload->list*))
-                   #:others (lambda (a b) #f)
-                   #:out-of-range (lambda (a b) #f)))
+                   #:others (lambda (a b) (values #f 1))
+                   #:out-of-range (lambda (a b) (values #f 1))))
 
 (define (payload->value* data offset)
   (let ((type (uint32-ref data offset)))
