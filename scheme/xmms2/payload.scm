@@ -49,6 +49,11 @@
 (define *payload-integer-size* 8)
 (define *payload-float-size* 8)
 
+(define (bytevector-looks-reasonable? bv min expected-type)
+  (and (>= (bytevector-length bv) (+ *payload-tag-size* min))
+       (let ((actual-type (uint32-ref bv 0)))
+         (= actual-type expected-type))))
+
 (define (dictionary? data)
   (and (list? data)
        (pair? (car data))
@@ -76,7 +81,10 @@
           (+ *payload-tag-size* *uint64-size*)))
 
 (define (payload->int64 bv)
-  (payload->int64* bv 0))
+  (if (bytevector-looks-reasonable? bv *int64-size* TYPE-INT64)
+      (let-values (((value . rest) (payload->int64* bv 0)))
+        value)
+      0))
 
 (define (log2 value)
   (/ (log10 value) (log10 2)))
@@ -121,7 +129,10 @@ a pair containing the two: (fractional . exponent)"
             (+ *payload-tag-size* *payload-float-size*))))
 
 (define (payload->float bv)
-  (payload->float* bv 0))
+  (if (bytevector-looks-reasonable? bv (+ *int32-size* *int64-size*) TYPE-FLOAT)
+      (let-values (((value . rest) (payload->float* bv 0)))
+        value)
+      0.0))
 
 (define (make-string-payload value)
   (let* ((str (string->utf8 value))
@@ -143,7 +154,10 @@ a pair containing the two: (fractional . exponent)"
      (+ *payload-tag-size* *payload-size-size* pl))))
 
 (define (payload->string bv)
-  (payload->string* bv 0))
+  (if (bytevector-looks-reasonable? bv (+ *payload-size-size* 1) TYPE-STRING)
+      (let-values (((value . rest) (payload->string* bv 0)))
+        value)
+      ""))
 
 (define (make-list-header len type)
   (let* ((size-offset (* 2 *payload-tag-size*))
@@ -181,9 +195,12 @@ a pair containing the two: (fractional . exponent)"
             (loop (- left 1) (+ consumed consumed-bytes) (cons value acc)))))))
 
 (define (payload->list bv)
-  (if (< (bytevector-length bv) 12)
-      '()
-      (payload->list* bv 0)))
+  (if (bytevector-looks-reasonable? bv
+                                    (+ *payload-tag-size* *payload-size-size*)
+                                    TYPE-LIST)
+      (let-values (((value . rest) (payload->list* bv 0)))
+        value)
+      '()))
 
 (define (make-dictionary-header len)
   (let* ((header (make-bytevector (+ *payload-tag-size* *payload-size-size*))))
