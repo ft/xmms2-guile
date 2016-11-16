@@ -5,6 +5,7 @@
 (define-module (xmms2 payload)
   #:use-module (ice-9 optargs)
   #:use-module (srfi srfi-1)
+  #:use-module (srfi srfi-11)
   #:use-module (rnrs bytevectors)
   #:use-module (xmms2 constants)
   #:use-module (xmms2 data-conversion)
@@ -65,10 +66,12 @@
     (int64-set! rv *payload-tag-size* value)
     rv))
 
-(define payload->int64* uint64-ref)
+(define (payload->int64* bv offset)
+  (values (uint64-ref bv (+ *payload-tag-size* offset))
+          (+ *payload-tag-size* *uint64-size*)))
 
 (define (payload->int64 bv)
-  (payload->int64* bv *payload-tag-size*))
+  (payload->int64* bv 0))
 
 (define (log2 value)
   (/ (log10 value) (log10 2)))
@@ -103,15 +106,17 @@ a pair containing the two: (fractional . exponent)"
     rv))
 
 (define (payload->float* bv offset)
-  (let* ((m (int32-ref bv offset))
+  (let* ((offset (+ *payload-tag-size* offset))
+         (m (int32-ref bv offset))
          (e (int32-ref bv (+ 4 offset)))
          (sign (if (>= m 0) 1 -1))
          (fractional (/ m (if (>= m 0) *int32-max* *int32-min*)))
          (factor (if (>= e 0) (ash 1 e) (/ (ash 1 (* -1 e))))))
-    (exact->inexact (* sign fractional factor))))
+    (values (exact->inexact (* sign fractional factor))
+            (+ *payload-tag-size* *payload-float-size*))))
 
 (define (payload->float bv)
-  (payload->float* bv *payload-tag-size*))
+  (payload->float* bv 0))
 
 (define (make-string-payload value)
   (let* ((str (string->utf8 value))
@@ -124,16 +129,16 @@ a pair containing the two: (fractional . exponent)"
     rv))
 
 (define (payload->string* bv offset)
-  (let ((len (- (uint32-ref bv offset) 1)))
-    (if (<= len 0)
-        ""
-        (let ((lst (take (drop (bytevector->u8-list bv)
-                               (+ *payload-size-size* offset))
-                         len)))
-          (utf8->string (u8-list->bytevector lst))))))
+  (let* ((offset (+ *payload-tag-size* offset))
+         (pl (uint32-ref bv offset))
+         (len (- pl 1)))
+    (values
+     (if (<= len 0) ""
+         (utf8->string (bytevector-ref bv (+ *payload-size-size* offset) len)))
+     (+ *payload-tag-size* *payload-size-size* pl))))
 
 (define (payload->string bv)
-  (payload->string* bv *payload-tag-size*))
+  (payload->string* bv 0))
 
 (define (make-list-header len type)
   (let* ((size-offset (* 2 *payload-tag-size*))
