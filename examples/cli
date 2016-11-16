@@ -4,6 +4,7 @@
              (xmms2 constants)
              (xmms2 io)
              (xmms2 ipc main)
+             (xmms2 ipc media-library)
              (xmms2 ipc playlist)
              (xmms2 ipc playback)
              (xmms2 payload))
@@ -16,7 +17,12 @@
                         ("prev" . ,(lambda () (make-set-next/relative -1)))
                         ("active-playlist" . ,make-get-currently-active)
                         ("time" . ,make-get-playtime)
-                        ("statistics" . ,make-statistics)))
+                        ("statistics" . ,make-statistics)
+                        ("list" . ,(lambda ()
+                                     (xmms2-send server (make-get-currently-active))
+                                     (let ((cur (payload->value
+                                                 (caddr (xmms2-recv server)))))
+                                       (make-list-entries cur))))))
 
 (define (cmd->generator cmd)
   (let ((rv (assoc cmd generator-map)))
@@ -46,6 +52,26 @@
 (xmms2-send server (make-hello PROTOCOL-VERSION "example-sync-client"))
 (xmms2-recv server)
 (xmms2-send server (generator))
+
+(define (fetch-info id)
+  (xmms2-send server (make-get-information id))
+  (payload->value (caddr (xmms2-recv server))))
+
+(define (get-info info default)
+  (if (not info) default
+      (cdadr info)))
+
+(define (format-track info)
+  (let ((artist (assoc "artist" info))
+        (album (assoc "album" info))
+        (title (assoc "title" info))
+        (tracknr (assoc "tracknr" info)))
+    (format #t "~a - ~a - ~2,'0d. ~a~%"
+            (get-info artist "<NoArtist>")
+            (get-info album "<NoAlbum>")
+            (get-info tracknr 0)
+            (get-info title "<NoTitle>"))))
+
 (let ((reply (xmms2-recv server)))
   (cond
    ((string=? command "statistics")
@@ -53,6 +79,9 @@
                 (let ((name (car x))
                       (value (cdr x)))
                   (format #t "~10,,,@a: ~a~%" name value)))
+              (payload->value (caddr reply))))
+   ((string=? command "list")
+    (for-each (lambda (x) (format-track (fetch-info x)))
               (payload->value (caddr reply))))
    ((string=? command "active-playlist")
     (format #t "Active Playlist: ~a~%" (payload->string (caddr reply))))
