@@ -19,6 +19,8 @@
             payload-length
             payload->value*
             payload->value
+            payload->dictionary*
+            payload->dictionary
             payload->float*
             payload->float
             payload->int64*
@@ -220,6 +222,28 @@ a pair containing the two: (fractional . exponent)"
                 (cons (make-string-payload key)
                       (cons-or-append! (make-value-payload value) acc)))))))
 
+(define (payload->dictionary* bv offset)
+  (let ((offset (+ *payload-tag-size* offset))
+        (bl (bytevector-length bv)))
+    (let loop ((left (uint32-ref bv offset))
+               (consumed *payload-size-size*)
+               (acc '()))
+      (if (or (zero? left) (>= (+ offset consumed) bl))
+          (values (reverse acc) (+ *payload-tag-size* consumed))
+          (let-values (((key key-bytes)
+                        (payload->value* bv (+ consumed offset))))
+            (let-values (((value value-bytes)
+                          (payload->value* bv (+ consumed key-bytes offset))))
+              (loop (- left 1)
+                    (+ consumed key-bytes value-bytes)
+                    (cons (cons key value) acc))))))))
+
+(define (payload->dictionary bv)
+  (if (bytevector-looks-reasonable? bv *payload-size-size* TYPE-LIST)
+      (let-values (((value . rest) (payload->dictionary* bv 0)))
+        value)
+      '()))
+
 (define (payload-length p)
   (if (bytevector? p)
       (bytevector-length p)
@@ -240,6 +264,7 @@ a pair containing the two: (fractional . exponent)"
   (make-jump-table (table (TYPE-INT64 payload->int64*)
                           (TYPE-FLOAT payload->float*)
                           (TYPE-STRING payload->string*)
+                          (TYPE-DICTIONARY payload->dictionary*)
                           (TYPE-LIST payload->list*))
                    #:others (lambda (a b) #f)
                    #:out-of-range (lambda (a b) #f)))
