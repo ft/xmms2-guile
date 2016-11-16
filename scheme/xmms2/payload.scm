@@ -9,6 +9,7 @@
   #:use-module (rnrs bytevectors)
   #:use-module (xmms2 constants)
   #:use-module (xmms2 data-conversion)
+  #:use-module (xmms2 jump-table)
   #:export (make-float-payload
             make-int64-payload
             make-string-payload
@@ -16,6 +17,8 @@
             make-dictionary-payload
             payload-combine
             payload-length
+            payload->value*
+            payload->value
             payload->float*
             payload->float
             payload->int64*
@@ -196,3 +199,19 @@ a pair containing the two: (fractional . exponent)"
                      (bl (bytevector-length this)))
                 (bytevector-copy! this 0 value offset bl)
                 (loop (cdr rest) (+ offset bl))))))))
+
+(define deserializer-table
+  (make-jump-table (table (TYPE-INT64 payload->int64*)
+                          (TYPE-FLOAT payload->float*)
+                          (TYPE-STRING payload->string*)
+                          (TYPE-LIST payload->list*))
+                   #:others (lambda (a b) #f)
+                   #:out-of-range (lambda (a b) #f)))
+
+(define (payload->value* data offset)
+  (let ((type (uint32-ref data offset)))
+    (apply-jump-table deserializer-table
+                      type data offset)))
+
+(define (payload->value data)
+  (payload->value* data 0))
