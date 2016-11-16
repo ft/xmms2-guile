@@ -16,16 +16,6 @@
 (force-import (xmms2 payload) log2)
 (force-import (xmms2 payload) frexp)
 
-;; The payload generators may produce byte-vectors, or lists of byte-vectors.
-;; The following turns both those structures into into a single byte-vector.
-;; This allows the generator to produce either form without the test failing.
-(define (maybe-collapse data)
-  (cond
-   ((bytevector? data) data)
-   ((and (list? data) (bytevector? (car data)))
-    (u8-list->bytevector (concatenate (map bytevector->u8-list data))))
-   (else (throw 'tests:xmms2/unknown-data data))))
-
 (define (test-float-payload n expected)
   (let* ((data (make-float-payload n))
          (name (format #f "(make-float-payload ~a)" n))
@@ -58,36 +48,36 @@
           ;; ‘test-float-payload’ emitted tests:
           (* 18 4)))
  (define-test "int64 payload 0 looks good"
-   (pass-if-equal? (maybe-collapse (make-int64-payload 0))
+   (pass-if-equal? (payload-combine (make-int64-payload 0))
                    #vu8(0 0 0 2 0 0 0 0 0 0 0 0)))
  (define-test "int64 payload 255 looks good"
-   (pass-if-equal? (maybe-collapse (make-int64-payload 255))
+   (pass-if-equal? (payload-combine (make-int64-payload 255))
                    #vu8(0 0 0 2 0 0 0 0 0 0 0 255)))
  (define-test "int64 payload 256 looks good"
-   (pass-if-equal? (maybe-collapse (make-int64-payload 256))
+   (pass-if-equal? (payload-combine (make-int64-payload 256))
                    #vu8(0 0 0 2 0 0 0 0 0 0 1 0)))
  (define-test "empty string payload looks good"
-   (pass-if-equal? (maybe-collapse (make-string-payload ""))
+   (pass-if-equal? (payload-combine (make-string-payload ""))
                    #vu8(0 0 0 3 0 0 0 1 0)))
  (define-test "Short string \"A\" payload looks good"
-   (pass-if-equal? (maybe-collapse (make-string-payload "A"))
+   (pass-if-equal? (payload-combine (make-string-payload "A"))
                    #vu8(0 0 0 3 0 0 0 2 65 0)))
  (define-test "String payload \"Hello World.\" looks good"
-   (pass-if-equal? (maybe-collapse (make-string-payload "Hello World."))
+   (pass-if-equal? (payload-combine (make-string-payload "Hello World."))
                    #vu8(0 0 0 3 0 0 0 13 72 101 108 108 111
                           32 87 111 114 108 100 46 0)))
  (define-test "List payload '() looks good"
-   (pass-if-equal? (maybe-collapse (make-list-payload '()))
+   (pass-if-equal? (payload-combine (make-list-payload '()))
                    #vu8(0 0 0 6 0 0 0 0 0 0 0 0)))
  (define-test "List payload '(23) looks good"
-   (pass-if-equal? (maybe-collapse (make-list-payload '(23)))
+   (pass-if-equal? (payload-combine (make-list-payload '(23)))
                    #vu8(0 0 0 6 0 0 0 0 0 0 0 1 0 0 0 2 0 0 0 0 0 0 0 23)))
  (define-test "List payload '(23 \"cmc\") looks good"
-   (pass-if-equal? (maybe-collapse (make-list-payload '(23 "cmc")))
+   (pass-if-equal? (payload-combine (make-list-payload '(23 "cmc")))
                    #vu8(0 0 0 6 0 0 0 0 0 0 0 2 0 0 0 2 0 0 0 0 0 0 0 23
                           0 0 0 3 0 0 0 4 99 109 99 0)))
  (define-test "Restricted (int) list payload '(23 42 666) looks good"
-   (pass-if-equal? (maybe-collapse (make-list-payload '(23 42 666)
+   (pass-if-equal? (payload-combine (make-list-payload '(23 42 666)
                                                       #:restricted TAG-INT64))
                    #vu8(0 0 0 6 0 0 0 2 0 0 0 3 0 0 0 2 0 0 0 0 0 0 0 23
                           0 0 0 2 0 0 0 0 0 0 0 42 0 0 0 2 0 0 0 0 0 0 2 154)))

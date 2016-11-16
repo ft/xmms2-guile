@@ -13,6 +13,7 @@
             make-string-payload
             make-list-payload
             make-dictionary-payload
+            payload-combine
             payload-length
             payload->float*
             payload->float
@@ -179,3 +180,14 @@ a pair containing the two: (fractional . exponent)"
   (if (bytevector? p)
       (bytevector-length p)
       (apply + (map bytevector-length p))))
+
+(define (payload-combine p)
+  (if (bytevector? p) p
+      (let ((value (make-bytevector (payload-length p))))
+        (let loop ((rest p) (offset 0))
+          (if (null? rest)
+              value
+              (let* ((this (car rest))
+                     (bl (bytevector-length this)))
+                (bytevector-copy! this 0 value offset bl)
+                (loop (cdr rest) (+ offset bl))))))))
