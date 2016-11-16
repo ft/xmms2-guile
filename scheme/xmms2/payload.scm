@@ -24,7 +24,9 @@
             payload->int64*
             payload->int64
             payload->string*
-            payload->string))
+            payload->string
+            payload->list*
+            payload->list))
 
 (define-syntax-rule (missing-generator name args ...)
   (define-public (name args ...)
@@ -165,6 +167,23 @@ a pair containing the two: (fractional . exponent)"
         (cons (make-list-header (length lst) (or restricted TAG-NONE)) acc)
         (loop (cdr rest)
               (cons-or-append! (make-value-payload (car rest)) acc)))))
+
+(define (payload->list* bv offset)
+  (let ((offset (+ *payload-tag-size* offset))
+        (bl (bytevector-length bv)))
+    (let loop ((left (uint32-ref bv (+ offset *payload-size-size*)))
+               (consumed (+ *payload-tag-size* *payload-size-size*))
+               (acc '()))
+      (if (or (zero? left) (>= (+ offset consumed) bl))
+          (values (reverse acc) (+ *payload-tag-size* consumed))
+          (let-values (((value consumed-bytes)
+                        (payload->value* bv (+ consumed offset))))
+            (loop (- left 1) (+ consumed consumed-bytes) (cons value acc)))))))
+
+(define (payload->list bv)
+  (if (< (bytevector-length bv) 12)
+      '()
+      (payload->list* bv 0)))
 
 (define (make-dictionary-header len)
   (let* ((header (make-bytevector (+ *payload-tag-size* *payload-size-size*))))
