@@ -162,6 +162,7 @@
     ((xmms::name ,name) `((name ,(adjust-name/arg name))))
     ((xmms::type ,type) `((type ,@(adjust-type type))))
     ((xmms::documentation ,doc) `((documentation ,(cleanup-documentation doc))))
+    ((xmms::default-hint ,hint) `((default-hint ,hint)))
     (,otherwise (begin (handle-unknown-xml 'method-arg->sexp otherwise)
                        (list arg)))))
 
