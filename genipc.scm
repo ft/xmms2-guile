@@ -241,9 +241,9 @@
     (,otherwise (begin (handle-unknown-xml 'sxml->sexp otherwise)
                        (list tree)))))
 
-(pretty-print *source-xml*)
+;;(pretty-print *source-xml*)
 (define *sexp-stage-1* (sxml->sexp *source-xml*))
-(pretty-print *sexp-stage-1*)
+;;(pretty-print *sexp-stage-1*)
 
 ;; By now, the XML document is converted to an s-expression tree, that looks
 ;; like this:
