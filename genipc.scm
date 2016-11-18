@@ -293,6 +293,12 @@
 (define (handle-signal forms)
   forms)
 
+(define (handle-constants forms)
+  forms)
+
+(define (handle-enumerations forms)
+  forms)
+
 (define (handle-object forms)
   (let loop ((rest forms)
              (meta '())
@@ -326,30 +332,35 @@
 (define *sexp-stage-2*
   (let loop ((rest *sexp-stage-1*)
              (meta '())
-             (objects '()))
+             (objects '())
+             (constants '())
+             (enums '()))
     (if (null? rest)
         (list (cons 'meta meta)
               (cons 'objects objects))
         (let ((this (car rest))
               (rest (cdr rest)))
           (match this
-            ('xmms2-ipc-description (loop rest meta objects))
+            ('xmms2-ipc-description (loop rest meta objects constants enums))
             (('version version)
              (loop rest
                    (append meta
                            (list (list 'version
                                        (map string->number
                                             (string-split version #\.)))))
-                   objects))
+                   objects
+                   constants
+                   enums))
             (('object forms ...) (loop rest meta
                                        (append objects
-                                               (handle-object forms))))
-            (('enum forms ...)
-             (begin (handle-unknown-sexp 'stage-2-loop 'enum)
-                    (loop rest meta objects)))
-            (('constant forms ...)
-             (begin (handle-unknown-sexp 'stage-2-loop 'constant)
-                    (loop rest meta objects)))
+                                               (handle-object forms))
+                                       constants
+                                       enums))
+            (('constant forms ...) (loop rest meta objects
+                                         (append constants (handle-constants forms))
+                                         enums))
+            (('enum forms ...) (loop rest meta objects constants
+                                     (append enums (handle-enumerations forms))))
             ((xxx ...) (begin (handle-unknown-sexp 'stage-2-loop rest)
                               (loop rest meta objects))))))))
 
