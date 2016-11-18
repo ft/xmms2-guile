@@ -337,7 +337,9 @@
              (enums '()))
     (if (null? rest)
         (list (cons 'meta meta)
-              (cons 'objects objects))
+              (cons 'objects objects)
+              (cons 'constants constants)
+              (cons 'enumerations enums))
         (let ((this (car rest))
               (rest (cdr rest)))
           (match this
