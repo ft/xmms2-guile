@@ -294,7 +294,10 @@
   forms)
 
 (define (handle-constants forms)
-  forms)
+  (match forms
+    (((('name name) ('value value))) (list (list name value)))
+    ((xxx ...) (begin (handle-unknown-sexp 'handle-constants xxx)
+                      xxx))))
 
 (define (handle-enumerations forms)
   forms)
