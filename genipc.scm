@@ -153,6 +153,7 @@
     ((xmms::unknown) '(unknown))
     ((xmms::list ,rest ...) `((list ,@(am adjust-type rest))))
     ((xmms::dictionary ,rest ...) `((dictionary ,@(am adjust-type rest))))
+    ((xmms::enum-value (@ (name ,n))) `((enumeration ,(adjust-name/enum n))))
     (,otherwise (begin (handle-unknown-xml 'adjust-type otherwise)
                        (list type)))))
 
