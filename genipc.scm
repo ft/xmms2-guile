@@ -120,13 +120,28 @@
                      (unindexed . unresolved-entries)))
   (adjust-name name-map name))
 
+(define (adjust-name/enum name)
+  (define name-map '((current-id . identifier-changed)
+                     (current-pos . position-changed)))
+  (adjust-name name-map name))
+
+(define (adjust-name/member name)
+  (define name-map '((current-id . identifier-changed)
+                     (current-pos . position-changed)))
+  (adjust-name name-map name))
+
+(define (adjust-name/namespace-hint name)
+  (define name-map '((current-id . identifier-changed)
+                     (current-pos . position-changed)))
+  (adjust-name name-map name))
+
 (define (adjust-name/arg name)
   (define name-map '((client . client-name)
                      (offset-milliseconds . offset/ms)))
   (adjust-name name-map name))
 
-(define (handle-unknown name data)
-  (format #t "~a: Cannot handle XML clause: ~a~%" name data))
+(define (handle-unknown-xml name data)
+  (notify "~a: Cannot handle XML entry: ~a~%" name data))
 
 (define (adjust-type type)
   ;;(notify "type: ~a~%" type)
@@ -138,7 +153,7 @@
     ((xmms::unknown) '(unknown))
     ((xmms::list ,rest ...) `((list ,@(am adjust-type rest))))
     ((xmms::dictionary ,rest ...) `((dictionary ,@(am adjust-type rest))))
-    (,otherwise (begin (handle-unknown 'adjust-type otherwise)
+    (,otherwise (begin (handle-unknown-xml 'adjust-type otherwise)
                        (list type)))))
 
 (define (method-arg->sexp arg)
@@ -147,7 +162,7 @@
     ((xmms::name ,name) `((name ,(adjust-name/arg name))))
     ((xmms::type ,type) `((type ,@(adjust-type type))))
     ((xmms::documentation ,doc) `((documentation ,(cleanup-documentation doc))))
-    (,otherwise (begin (handle-unknown 'method-arg->sexp otherwise)
+    (,otherwise (begin (handle-unknown-xml 'method-arg->sexp otherwise)
                        (list arg)))))
 
 (define (return-value->sexp return-value)
@@ -155,7 +170,7 @@
   (sxml-match return-value
     ((xmms::type ,type) `((type ,@(adjust-type type))))
     ((xmms::documentation ,doc) `((documentation ,(cleanup-documentation doc))))
-    (,otherwise (begin (handle-unknown 'return-value->sexp otherwise)
+    (,otherwise (begin (handle-unknown-xml 'return-value->sexp otherwise)
                        (list return-value)))))
 
 (define (method->sexp method)
@@ -166,7 +181,7 @@
     ((xmms::argument ,rest ...) `((argument ,@(am method-arg->sexp rest))))
     ((xmms::return_value ,rest ...) `((return-value
                                        ,@(am return-value->sexp rest))))
-    (,otherwise (begin (handle-unknown 'method->sexp otherwise)
+    (,otherwise (begin (handle-unknown-xml 'method->sexp otherwise)
                        (list method)))))
 
 (define (broadcast-or-signal->sexp bs)
@@ -177,8 +192,38 @@
     ((xmms::documentation ,doc) `((documentation ,(cleanup-documentation doc))))
     ((xmms::return_value ,rest ...) `((return-value
                                        ,@(am return-value->sexp rest))))
-    (,otherwise (begin (handle-unknown 'broadcast-or-signal->sexp otherwise)
+    (,otherwise (begin (handle-unknown-xml 'broadcast-or-signal->sexp otherwise)
                        (list bs)))))
+
+(define (enum->sexp elst)
+  ;;(notify "elst: ~a~%" elst)
+  (sxml-match elst
+    ((xmms::name ,name) `((name ,(adjust-name/enum name))))
+    ((xmms::member ,member) `((name ,(adjust-name/member member))))
+    ((xmms::namespace-hint ,nsh)
+     `((namespace-hint ,(adjust-name/namespace-hint nsh))))
+    (,otherwise (begin (handle-unknown-xml 'enum->sexp otherwise)
+                       (list elst)))))
+
+(define (transform-value type value)
+  (let* ((transformers `((integer . ,string->number)))
+         (type (if (string? type)
+                   (string->symbol type)
+                   type))
+         (transformer* (assq-ref transformers type))
+         (transformer (or transformer* (lambda (x)
+                                         (notify "transform-value: Unknown type: ~a (~a)~%"
+                                                 type x)
+                                         x))))
+    (transformer value)))
+
+(define (constant->sexp clst)
+  (notify "clst: ~a~%" clst)
+  (sxml-match clst
+    ((xmms::name ,name) `((name ,(adjust-name '() name))))
+    ((xmms::value (@ (type ,t)) ,v) (list `(value ,(transform-value t v))))
+    (,otherwise (begin (handle-unknown-xml 'enum->sexp otherwise)
+                       (list clst)))))
 
 (define (sxml->sexp tree)
   ;;(notify "tree: ~a~%" tree)
@@ -191,7 +236,9 @@
     ((xmms::method ,rest ...) `((method ,@(am method->sexp rest))))
     ((xmms::broadcast ,rest ...) `((broadcast ,@(am broadcast-or-signal->sexp rest))))
     ((xmms::signal ,rest ...) `((signal ,@(am broadcast-or-signal->sexp rest))))
-    (,otherwise (begin (handle-unknown 'sxml->sexp otherwise)
+    ((xmms::enum ,rest ...) `((enum ,@(am enum->sexp rest))))
+    ((xmms::constant ,rest ...) `((constant ,@(am constant->sexp rest))))
+    (,otherwise (begin (handle-unknown-xml 'sxml->sexp otherwise)
                        (list tree)))))
 
 (pretty-print *source-xml*)
@@ -219,6 +266,9 @@
 ;; The latter three of these need to be turned into scheme code. We will do
 ;; this by looping into the structure, accumulating data, rearranging it so it
 ;; will be easy to work with in a final generation step.
+
+(define (handle-unknown-sexp name data)
+  (notify "~a: Cannot handle S-Expression: ~a~%" name data))
 
 (define (build-argument arg)
   arg)
@@ -267,7 +317,9 @@
                    broadcasts))
             (('broadcast forms ...)
              (loop rest meta methods signals
-                   (append broadcasts (list (handle-broadcast forms))))))))))
+                   (append broadcasts (list (handle-broadcast forms)))))
+            ((xxx ...) (begin (handle-unknown-sexp 'handle-object rest)
+                              (loop rest meta methods signals broadcasts))))))))
 
 (define *sexp-stage-2*
   (let loop ((rest *sexp-stage-1*)
@@ -289,7 +341,15 @@
                    objects))
             (('object forms ...) (loop rest meta
                                        (append objects
-                                               (handle-object forms)))))))))
+                                               (handle-object forms))))
+            (('enum forms ...)
+             (begin (handle-unknown-sexp 'stage-2-loop 'enum)
+                    (loop rest meta objects)))
+            (('constant forms ...)
+             (begin (handle-unknown-sexp 'stage-2-loop 'constant)
+                    (loop rest meta objects)))
+            ((xxx ...) (begin (handle-unknown-sexp 'stage-2-loop rest)
+                              (loop rest meta objects))))))))
 
 ;;(pretty-print *sexp-stage-2*)
 
