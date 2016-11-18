@@ -201,7 +201,7 @@
   ;;(notify "elst: ~a~%" elst)
   (sxml-match elst
     ((xmms::name ,name) `((name ,(adjust-name/enum name))))
-    ((xmms::member ,member) `((name ,(adjust-name/member member))))
+    ((xmms::member ,member) `((member ,(adjust-name/member member))))
     ((xmms::namespace-hint ,nsh)
      `((namespace-hint ,(adjust-name/namespace-hint nsh))))
     (,otherwise (begin (handle-unknown-xml 'enum->sexp otherwise)
