@@ -218,7 +218,7 @@
     (transformer value)))
 
 (define (constant->sexp clst)
-  (notify "clst: ~a~%" clst)
+  ;;(notify "clst: ~a~%" clst)
   (sxml-match clst
     ((xmms::name ,name) `((name ,(adjust-name '() name))))
     ((xmms::value (@ (type ,t)) ,v) (list `(value ,(transform-value t v))))
