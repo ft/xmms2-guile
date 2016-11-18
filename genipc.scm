@@ -238,8 +238,8 @@
     ((xmms::method ,rest ...) `((method ,@(am method->sexp rest))))
     ((xmms::broadcast ,rest ...) `((broadcast ,@(am broadcast-or-signal->sexp rest))))
     ((xmms::signal ,rest ...) `((signal ,@(am broadcast-or-signal->sexp rest))))
-    ((xmms::enum ,rest ...) `((enum ,@(am enum->sexp rest))))
-    ((xmms::constant ,rest ...) `((constant ,@(am constant->sexp rest))))
+    ((xmms::enum ,rest ...) `((enum ,(am enum->sexp rest))))
+    ((xmms::constant ,rest ...) `((constant ,(am constant->sexp rest))))
     (,otherwise (begin (handle-unknown-xml 'sxml->sexp otherwise)
                        (list tree)))))
 
