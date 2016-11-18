@@ -125,6 +125,9 @@
                      (offset-milliseconds . offset/ms)))
   (adjust-name name-map name))
 
+(define (handle-unknown name data)
+  (format #t "~a: Cannot handle XML clause: ~a~%" name data))
+
 (define (adjust-type type)
   ;;(notify "type: ~a~%" type)
   (sxml-match type
@@ -134,20 +137,26 @@
     ((xmms::string) '(string))
     ((xmms::unknown) '(unknown))
     ((xmms::list ,rest ...) `((list ,@(am adjust-type rest))))
-    ((xmms::dictionary ,rest ...) `((dictionary ,@(am adjust-type rest))))))
+    ((xmms::dictionary ,rest ...) `((dictionary ,@(am adjust-type rest))))
+    (,otherwise (begin (handle-unknown 'adjust-type otherwise)
+                       (list type)))))
 
 (define (method-arg->sexp arg)
   ;;(notify "arg: ~a~%" arg)
   (sxml-match arg
     ((xmms::name ,name) `((name ,(adjust-name/arg name))))
     ((xmms::type ,type) `((type ,@(adjust-type type))))
-    ((xmms::documentation ,doc) `((documentation ,(cleanup-documentation doc))))))
+    ((xmms::documentation ,doc) `((documentation ,(cleanup-documentation doc))))
+    (,otherwise (begin (handle-unknown 'method-arg->sexp otherwise)
+                       (list arg)))))
 
 (define (return-value->sexp return-value)
   ;;(notify "return-value: ~a~%" return-value)
   (sxml-match return-value
     ((xmms::type ,type) `((type ,@(adjust-type type))))
-    ((xmms::documentation ,doc) `((documentation ,(cleanup-documentation doc))))))
+    ((xmms::documentation ,doc) `((documentation ,(cleanup-documentation doc))))
+    (,otherwise (begin (handle-unknown 'return-value->sexp otherwise)
+                       (list return-value)))))
 
 (define (method->sexp method)
   ;;(notify "method: ~a~%" method)
@@ -156,7 +165,9 @@
     ((xmms::documentation ,doc) `((documentation ,(cleanup-documentation doc))))
     ((xmms::argument ,rest ...) `((argument ,@(am method-arg->sexp rest))))
     ((xmms::return_value ,rest ...) `((return-value
-                                       ,@(am return-value->sexp rest))))))
+                                       ,@(am return-value->sexp rest))))
+    (,otherwise (begin (handle-unknown 'method->sexp otherwise)
+                       (list method)))))
 
 (define (broadcast-or-signal->sexp bs)
   ;;(notify "bs: ~a~%" bs)
@@ -165,7 +176,9 @@
     ((xmms::name ,name) `((name ,(adjust-name/b-or-s name))))
     ((xmms::documentation ,doc) `((documentation ,(cleanup-documentation doc))))
     ((xmms::return_value ,rest ...) `((return-value
-                                       ,@(am return-value->sexp rest))))))
+                                       ,@(am return-value->sexp rest))))
+    (,otherwise (begin (handle-unknown 'broadcast-or-signal->sexp otherwise)
+                       (list bs)))))
 
 (define (sxml->sexp tree)
   ;;(notify "tree: ~a~%" tree)
@@ -177,11 +190,13 @@
      `((object (name ,(adjust-name/object name)) ,@(am sxml->sexp things))))
     ((xmms::method ,rest ...) `((method ,@(am method->sexp rest))))
     ((xmms::broadcast ,rest ...) `((broadcast ,@(am broadcast-or-signal->sexp rest))))
-    ((xmms::signal ,rest ...) `((signal ,@(am broadcast-or-signal->sexp rest))))))
+    ((xmms::signal ,rest ...) `((signal ,@(am broadcast-or-signal->sexp rest))))
+    (,otherwise (begin (handle-unknown 'sxml->sexp otherwise)
+                       (list tree)))))
 
-;;(pretty-print *source-xml*)
+(pretty-print *source-xml*)
 (define *sexp-stage-1* (sxml->sexp *source-xml*))
-;;(pretty-print *sexp-stage-1*)
+(pretty-print *sexp-stage-1*)
 
 ;; By now, the XML document is converted to an s-expression tree, that looks
 ;; like this:
