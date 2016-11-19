@@ -558,14 +558,35 @@
            (lambda () (generate-ipc/object this)))
           (loop (cdr rest))))))
 
+(define (generate-ipc/method-table name methods)
+  (define (xref x)
+    (symbol-append 'xref- name '-cmds))
+  (define (cname x)
+    (symbol-append 'CMD-
+                   (string->symbol (string-upcase (symbol->string x)))))
+  (define (first-cmd x)
+    `(,x FIRST-CMD-ID))
+  (newline)
+  (if (null? methods)
+      (begin (ipc/comment (cat "The (xmms2 ipc " (symbol->string name)
+                               ") module has no methods."))
+             (ipc/comment "Therefore there is no command table."))
+      (let ((names (map (lambda (x) (cname (car (assq-ref x 'name)))) methods)))
+        (ipc/comment "Command table:")
+        (pp (append `(define-enum (<> ,(xref name)))
+                    (cons (first-cmd (car names))
+                          (cdr names)))))))
+
 (define (generate-ipc/constant object stage-2)
   (ipc/copyright)
   (let* ((meta (assq-ref object 'meta))
          (name (car (assq-ref meta 'name)))
+         (methods (assq-ref object 'methods))
+         (mod `(xmms2 constants ,name))
          (std-libraries '((xmms2 constants)
                           (xmms2 enumeration))))
-    (apply ipc/module (cons* `(xmms2 constants ,name)
-                             std-libraries))))
+    (apply ipc/module (cons mod std-libraries))
+    (generate-ipc/method-table name methods)))
 
 ;; Constants are fun: We need to look at all methods, all broadcasts and
 ;; signals to generate numbers to match names. Then the explicit constants from
