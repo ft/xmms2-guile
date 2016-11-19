@@ -239,7 +239,7 @@
     ((xmms::broadcast ,rest ...) `((broadcast ,@(am broadcast-or-signal->sexp rest))))
     ((xmms::signal ,rest ...) `((signal ,@(am broadcast-or-signal->sexp rest))))
     ((xmms::enum ,rest ...) `((enum ,@(am enum->sexp rest))))
-    ((xmms::constant ,rest ...) `((constant ,(am constant->sexp rest))))
+    ((xmms::constant ,rest ...) `((constant ,@(am constant->sexp rest))))
     (,otherwise (begin (handle-unknown-xml 'sxml->sexp otherwise)
                        (list tree)))))
 
@@ -295,7 +295,7 @@
 
 (define (handle-constants forms)
   (match forms
-    (((('name name) ('value value))) (list (list name value)))
+    ((('name name) ('value value)) (list (list name value)))
     ((xxx ...) (begin (handle-unknown-sexp 'handle-constants xxx)
                       xxx))))
 
