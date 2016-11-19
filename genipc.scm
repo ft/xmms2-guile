@@ -79,6 +79,10 @@
   (maybe-replace (string->symbol (regexp-substitute/global
                                   #f "_" name 'pre "-" 'post))))
 
+(define (adjust-name/constant name)
+  (define name-map '((IPC-COMMAND-FIRST . FIRST-COMMAND-ID)))
+  (adjust-name name-map name))
+
 (define (adjust-name/object name)
   (define name-map '((bindata . binary-data)
                      (coll-sync . collection-sync)
@@ -201,7 +205,9 @@
   ;;(notify "elst: ~a~%" elst)
   (sxml-match elst
     ((xmms::name ,name) `((name ,(adjust-name/enum name))))
-    ((xmms::member ,member) `((member ,(adjust-name/member member))))
+    ((xmms::member (@ . ,attr) ,member) (if (null? attr)
+                                            `((member ,(adjust-name/member member)))
+                                            `((member ,attr ,(adjust-name/member member)))))
     ((xmms::namespace-hint ,nsh)
      `((namespace-hint ,(adjust-name/namespace-hint nsh))))
     (,otherwise (begin (handle-unknown-xml 'enum->sexp otherwise)
@@ -302,6 +308,19 @@
                       xxx))))
 
 (define (handle-enumerations forms)
+  (define (with-attributes a m)
+    (cons m (map (lambda (x)
+                   (let ((key (car x))
+                         (value (cadr x)))
+                     (cons key
+                           (cond ((eq? key 'ref-value)
+                                  (adjust-name/constant value))
+                                 ((eq? key 'ref-type)
+                                  (string->symbol value))
+                                 ((eq? key 'value)
+                                  (string->number value))
+                                 (else value)))))
+                 a)))
   (let loop ((rest forms)
              (meta '())
              (members '()))
@@ -314,6 +333,10 @@
             (('name name) (loop rest (append meta (list this)) members))
             (('namespace-hint member) (loop rest (append meta (list this)) members))
             (('member member) (loop rest meta (append members (list member))))
+            (('member (attrs ...) member)
+             (loop rest meta
+                   (append members
+                           (list (with-attributes attrs member)))))
             ((xxx ...) (begin (handle-unknown-sexp 'handle-enumerations xxx)
                               (loop rest meta members))))))))
 
@@ -565,7 +588,7 @@
     (symbol-append 'CMD-
                    (string->symbol (string-upcase (symbol->string x)))))
   (define (first-cmd x)
-    `(,x FIRST-CMD-ID))
+    `(,x FIRST-COMMAND-ID))
   (newline)
   (if (null? methods)
       (begin (ipc/comment (cat "The (xmms2 ipc " (symbol->string name)
