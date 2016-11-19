@@ -256,6 +256,8 @@
 ;;
 ;;   - (version <STRING>)
 ;;   - (object ...)
+;;   - (constant ...)
+;;   - (enum ...)
 ;;
 ;; “object” describes one of XMMS2's IPC objects. It may contain the following
 ;; forms:
