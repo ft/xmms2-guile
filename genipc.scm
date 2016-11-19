@@ -559,7 +559,13 @@
           (loop (cdr rest))))))
 
 (define (generate-ipc/constant object stage-2)
-  (ipc/copyright))
+  (ipc/copyright)
+  (let* ((meta (assq-ref object 'meta))
+         (name (car (assq-ref meta 'name)))
+         (std-libraries '((xmms2 constants)
+                          (xmms2 enumeration))))
+    (apply ipc/module (cons* `(xmms2 constants ,name)
+                             std-libraries))))
 
 ;; Constants are fun: We need to look at all methods, all broadcasts and
 ;; signals to generate numbers to match names. Then the explicit constants from
