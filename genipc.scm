@@ -387,7 +387,7 @@
 ;;(pretty-print *sexp-stage-2*)
 
 (define (ipc/module name . imports)
-  (pp (let loop ((forms (list 'define-module (list 'xmms2 'ipc name)))
+  (pp (let loop ((forms (list 'define-module name))
                  (rest imports))
         (if (null? rest)
             forms
@@ -416,14 +416,15 @@
 (define (generate-ipc/module-name data)
   (let* ((meta (assq-ref data 'meta))
          (name (car (assq-ref meta 'name))))
-    (list 'xmms2 'ipc name)))
+    (list `(xmms2 constants ,name)
+          `(xmms2 ipc ,name))))
 
 (define (generate-ipc/meta data)
   (let* ((meta (assq-ref data 'meta))
          (version (car (assq-ref meta 'version)))
          (objects (assq-ref data 'objects)))
     (bend-output
-     (module->file-name '(xmms2 ipc meta))
+     (module->file-name '(xmms2 constants meta))
      (lambda ()
        (ipc/copyright)
        (ipc/comment "This module contains meta information taken from xmms2's IPC definition,")
@@ -431,7 +432,7 @@
        (ipc/comment "definitions for the server's IPC objects reside in sub-modules named after")
        (ipc/comment "the respective object.")
        (newline)
-       (ipc/module 'meta)
+       (ipc/module '(xmms2 constants meta))
        (newline)
        (ipc/define-public 'ipc-version
                           (if (= (length version) 1)
@@ -445,14 +446,14 @@
         (list 'quote
               (let loop ((rest objects) (acc '()))
                 (if (null? rest)
-                    (sort (cons '(xmms2 ipc meta) acc)
+                    (sort (cons '(xmms2 constants meta) acc)
                           (lambda (a b)
                             (let ((a3 (symbol->string (caddr a)))
                                   (b3 (symbol->string (caddr b))))
                               (string< a3 b3))))
                     (loop (cdr rest)
-                          (cons (generate-ipc/module-name (car rest))
-                                acc))))))))))
+                          (append (generate-ipc/module-name (car rest))
+                                  acc))))))))))
 
 (define (module->object module)
   (string->symbol (cat "OBJECT-"
@@ -539,10 +540,9 @@
                           (xmms2 header)
                           (xmms2 ipc)
                           (xmms2 payload))))
-    (apply ipc/module (cons name (if (file-exists? (name->constants name))
-                                     (cons `(xmms2 constants ,name)
-                                           std-libraries)
-                                     std-libraries)))
+    (apply ipc/module (cons* `(xmms2 ipc ,name)
+                             `(xmms2 constants ,name)
+                             std-libraries))
     (generate-ipc/things "method" methods generate-ipc/method name)
     (generate-ipc/things "broadcast" broadcasts generate-ipc/broadcast name)
     (generate-ipc/things "signal" signals generate-ipc/signal name)))
@@ -558,13 +558,33 @@
            (lambda () (generate-ipc/object this)))
           (loop (cdr rest))))))
 
-(if create-files?
-    (for-each (lambda (dir)
-                (or (directory-exists? dir)
-                    (mkdir dir)))
-              '("scheme"
-                "scheme/xmms2"
-                "scheme/xmms2/ipc")))
+(define (generate-ipc/constant object stage-2)
+  (ipc/copyright))
+
+;; Constants are fun: We need to look at all methods, all broadcasts and
+;; signals to generate numbers to match names. Then the explicit constants from
+;; ipc.xml and finally handle the enumerations listed in that file as well.
+(define (generate-ipc/constants data)
+  (let loop ((rest (assq-ref data 'objects)))
+    (if (null? rest)
+        #t
+        (let ((this (car rest))
+              (rest (cdr rest)))
+          (bend-output
+           (module->file-name
+            `(xmms2 ipc ,(car (assq-ref (assq-ref this 'meta) 'name))))
+           (lambda () (generate-ipc/constant this data)))
+          (loop rest)))))
+
+(when create-files?
+  (for-each (lambda (dir)
+              (or (directory-exists? dir)
+                  (mkdir dir)))
+            '("scheme"
+              "scheme/xmms2"
+              "scheme/xmms2/constants"
+              "scheme/xmms2/ipc")))
 
 (generate-ipc/meta *sexp-stage-2*)
+(generate-ipc/constants *sexp-stage-2*)
 (generate-ipc/objects *sexp-stage-2*)
