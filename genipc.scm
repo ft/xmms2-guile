@@ -329,7 +329,7 @@
             (('broadcast forms ...)
              (loop rest meta methods signals
                    (append broadcasts (list (handle-broadcast forms)))))
-            ((xxx ...) (begin (handle-unknown-sexp 'handle-object rest)
+            ((xxx ...) (begin (handle-unknown-sexp 'handle-object xxx)
                               (loop rest meta methods signals broadcasts))))))))
 
 (define *sexp-stage-2*
@@ -366,7 +366,7 @@
                                          enums))
             (('enum forms ...) (loop rest meta objects constants
                                      (append enums (handle-enumerations forms))))
-            ((xxx ...) (begin (handle-unknown-sexp 'stage-2-loop rest)
+            ((xxx ...) (begin (handle-unknown-sexp 'stage-2-loop xxx)
                               (loop rest meta objects))))))))
 
 ;;(pretty-print *sexp-stage-2*)
