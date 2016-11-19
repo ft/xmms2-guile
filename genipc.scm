@@ -405,7 +405,7 @@
             (('enum forms ...) (loop rest meta objects constants
                                      (append enums (handle-enumerations forms))))
             ((xxx ...) (begin (handle-unknown-sexp 'stage-2-loop xxx)
-                              (loop rest meta objects))))))))
+                              (loop rest meta objects constants enums))))))))
 
 ;;(pretty-print *sexp-stage-2*)
 
