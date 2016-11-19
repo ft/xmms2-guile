@@ -572,7 +572,7 @@
               (rest (cdr rest)))
           (bend-output
            (module->file-name
-            `(xmms2 ipc ,(car (assq-ref (assq-ref this 'meta) 'name))))
+            `(xmms2 constants ,(car (assq-ref (assq-ref this 'meta) 'name))))
            (lambda () (generate-ipc/constant this data)))
           (loop rest)))))
 
