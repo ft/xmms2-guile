@@ -135,9 +135,7 @@
   (adjust-name name-map name))
 
 (define (adjust-name/namespace-hint name)
-  (define name-map '((current-id . identifier-changed)
-                     (current-pos . position-changed)))
-  (adjust-name name-map name))
+  (map string->symbol (map string-downcase (string-split name #\_))))
 
 (define (adjust-name/arg name)
   (define name-map '((client . client-name)
