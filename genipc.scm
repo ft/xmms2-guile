@@ -226,7 +226,7 @@
 (define (constant->sexp clst)
   ;;(notify "clst: ~a~%" clst)
   (sxml-match clst
-    ((xmms::name ,name) `((name ,(adjust-name '() name))))
+    ((xmms::name ,name) `((name ,(adjust-name/constant name))))
     ((xmms::value (@ (type ,t)) ,v) (list `(value ,(transform-value t v))))
     (,otherwise (begin (handle-unknown-xml 'enum->sexp otherwise)
                        (list clst)))))
@@ -319,11 +319,17 @@
                                   (string->number value))
                                  (else value)))))
                  a)))
+  (define (name-split data)
+    (let ((name (car (assq-ref data 'name))))
+      (map string->symbol (string-split (symbol->string name) #\-))))
   (let loop ((rest forms)
              (meta '())
              (members '()))
     (if (null? rest)
-        (list (list (cons 'meta (cons (list 'claimed? #f) meta))
+        (list (list (cons* 'meta
+                           (cons 'claimed? #f)
+                           (cons 'name-words (name-split meta))
+                           meta)
                     (cons 'members members)))
         (let ((this (car rest))
               (rest (cdr rest)))
@@ -443,7 +449,9 @@
 (define (generate-ipc/meta data)
   (let* ((meta (assq-ref data 'meta))
          (version (car (assq-ref meta 'version)))
-         (objects (assq-ref data 'objects)))
+         (objects (assq-ref data 'objects))
+         (enums (assq-ref data 'enumerations))
+         (constants (assq-ref data 'constants)))
     (bend-output
      (module->file-name '(xmms2 constants meta))
      (lambda ()
@@ -453,7 +461,7 @@
        (ipc/comment "definitions for the server's IPC objects reside in sub-modules named after")
        (ipc/comment "the respective object.")
        (newline)
-       (ipc/module '(xmms2 constants meta))
+       (ipc/module '(xmms2 constants meta) '(xmms2 enumeration))
        (newline)
        (ipc/define-public 'ipc-version
                           (if (= (length version) 1)
@@ -461,6 +469,26 @@
                               (list 'quote version)))
        (newline)
        (ipc/define-public 'ipc-name (quote 'xmms2-server-client-ipc))
+       (newline)
+       (ipc/comment "Enumerations:")
+       (let loop ((rest constants))
+         (if (null? rest)
+             #t
+             (let ((this (car rest)))
+               (newline)
+               (pp (cons 'define-public this))
+               (loop (cdr rest)))))
+       (newline)
+       (ipc/comment "Enumerations:")
+       (let loop ((rest enums))
+         (if (null? rest)
+             #t
+             (let ((this (car rest)))
+               (unless (claimed-enum? this)
+                 (notify "  Including unclaimed enumeration: ~a~%"
+                         (enum->name this))
+                 (generate-ipc/enumeration this))
+               (loop (cdr rest)))))
        (newline)
        (ipc/define-public
         'ipc-generated-modules
@@ -579,9 +607,16 @@
            (lambda () (generate-ipc/object this)))
           (loop (cdr rest))))))
 
+(define (claimed-enum? enum)
+  (not (not (assq-ref (assq-ref enum 'meta) 'claimed?))))
+
+(define (claim-enum! enum module)
+  (let ((claim (assq 'claimed? (assq-ref enum 'meta))))
+    (when claim (set-cdr! claim module))))
+
 (define (generate-ipc/method-table name methods)
   (define (xref x)
-    (symbol-append 'xref- name '-cmds))
+    (symbol-append 'xref- x '-cmds))
   (define (cname x)
     (symbol-append 'CMD-
                    (string->symbol (string-upcase (symbol->string x)))))
@@ -598,16 +633,96 @@
                     (cons (first-cmd (car names))
                           (cdr names)))))))
 
+(define (enum->thing enum thing)
+  (assq-ref (assq-ref enum 'meta) thing))
+
+(define (enum->name enum)
+  (let ((value (enum->thing enum 'name)))
+    (and value (car value))))
+
+(define (enum->name-words enum)
+  (enum->thing enum 'name-words))
+
+(define (enum->namespace-hint enum)
+  (let ((value (enum->thing enum 'namespace-hint)))
+    (and value (car value))))
+
+(define (does-enum-belong? enum obj-name)
+  (if (claimed-enum? enum)
+      #f
+      (let ((name (enum->name enum))
+            (nsh (enum->namespace-hint enum))
+            (nw (enum->name-words enum)))
+        (cond
+         ;; If the first word in the namespace hint matches the object name,
+         ;; this enum belongs to it.
+         (nsh (cond ((eq? obj-name (car nsh)) #t)
+                    (else #f)))
+         ;; Similarly, if the first word of the name of the enumeration matches
+         ;; the object name, the two belong together as well. After that, match
+         ;; a few specific ones.
+         (nw (cond ((eq? obj-name (car nw)) #t)
+                   ((and (eq? obj-name 'courier)
+                         (eq? (car nw) 'c2c)))
+                   ((and (eq? obj-name 'media-library)
+                         (eq? (car nw) 'medialib)))
+                   ((and (eq? obj-name 'media-info-reader)
+                         (eq? (car nw) 'mediainfo)))
+                   (else #f)))
+         (else #f)))))
+
+(define (symbol-upcase sym)
+  (string->symbol (string-upcase (symbol->string sym))))
+
+(define (generate-ipc/enum-member prefix data)
+  (define (prefixed-name prefix name)
+    (symbol-append (symbol-upcase prefix) '- name))
+  (if (symbol? data)
+      (prefixed-name prefix data)
+      (let* ((name (car data))
+             (meta (cdr data))
+             (ref-value (assq-ref meta 'ref-value))
+             (ref-type (assq-ref meta 'ref-type))
+             (value (assq-ref meta 'value)))
+        (cond (ref-value (list (prefixed-name prefix name)
+                               (if (and ref-type (eq? ref-type 'constant))
+                                   ref-value
+                                   (prefixed-name prefix ref-value))))
+              (value (list (prefixed-name prefix name) value))
+              (else name)))))
+
+(define (generate-ipc/enumeration enum)
+  (define (xref x)
+    (symbol-append 'xref- x 's))
+  (let* ((name (enum->name enum))
+         (members (assq-ref enum 'members))
+         (transformer (lambda (x) (generate-ipc/enum-member name x))))
+    (newline)
+    (pp (append `(define-enum (<> ,(xref name)))
+                (map transformer members)))))
+
 (define (generate-ipc/constant object stage-2)
   (ipc/copyright)
   (let* ((meta (assq-ref object 'meta))
          (name (car (assq-ref meta 'name)))
          (methods (assq-ref object 'methods))
+         (enums (assq-ref stage-2 'enumerations))
          (mod `(xmms2 constants ,name))
          (std-libraries '((xmms2 constants)
+                          (xmms2 constants meta)
                           (xmms2 enumeration))))
     (apply ipc/module (cons mod std-libraries))
-    (generate-ipc/method-table name methods)))
+    (generate-ipc/method-table name methods)
+    (newline)
+    (ipc/comment "Enumerations:")
+    (let loop ((rest enums))
+      (if (null? rest)
+          #t
+          (let ((this (car rest)))
+            (when (does-enum-belong? this name)
+              (claim-enum! this name)
+              (generate-ipc/enumeration this))
+            (loop (cdr rest)))))))
 
 ;; Constants are fun: We need to look at all methods, all broadcasts and
 ;; signals to generate numbers to match names. Then the explicit constants from
