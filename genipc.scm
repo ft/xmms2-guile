@@ -323,7 +323,7 @@
              (meta '())
              (members '()))
     (if (null? rest)
-        (list (list (cons 'meta meta)
+        (list (list (cons 'meta (cons (list 'claimed? #f) meta))
                     (cons 'members members)))
         (let ((this (car rest))
               (rest (cdr rest)))
