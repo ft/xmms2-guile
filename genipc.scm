@@ -633,6 +633,6 @@
               "scheme/xmms2/constants"
               "scheme/xmms2/ipc")))
 
-(generate-ipc/meta *sexp-stage-2*)
 (generate-ipc/constants *sexp-stage-2*)
+(generate-ipc/meta *sexp-stage-2*)
 (generate-ipc/objects *sexp-stage-2*)
