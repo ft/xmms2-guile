@@ -28,7 +28,7 @@
   (access? name F_OK))
 
 (define (directory-exists? name)
-  "Return #t if a file (of any kind) named NAME exist."
+  "Return #t if a directory named NAME exist."
   (let ((data (stat name #f)))
     (if (not data)
         #f
