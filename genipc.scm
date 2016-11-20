@@ -145,7 +145,7 @@
 (define (handle-unknown-xml name data)
   (notify "~a: Cannot handle XML entry: ~a~%" name data))
 
-(define (adjust-type type)
+(define (type->sexp type)
   ;;(notify "type: ~a~%" type)
   (sxml-match type
     ((xmms::binary) '(binary))
@@ -153,17 +153,17 @@
     ((xmms::int) '(integer))
     ((xmms::string) '(string))
     ((xmms::unknown) '(unknown))
-    ((xmms::list ,rest ...) `((list ,@(am adjust-type rest))))
-    ((xmms::dictionary ,rest ...) `((dictionary ,@(am adjust-type rest))))
+    ((xmms::list ,rest ...) `((list ,@(am type->sexp rest))))
+    ((xmms::dictionary ,rest ...) `((dictionary ,@(am type->sexp rest))))
     ((xmms::enum-value (@ (name ,n))) `((enumeration ,(adjust-name/enum n))))
-    (,otherwise (begin (handle-unknown-xml 'adjust-type otherwise)
+    (,otherwise (begin (handle-unknown-xml 'type->sexp otherwise)
                        (list type)))))
 
 (define (method-arg->sexp arg)
   ;;(notify "arg: ~a~%" arg)
   (sxml-match arg
     ((xmms::name ,name) `((name ,(adjust-name/arg name))))
-    ((xmms::type ,type) `((type ,@(adjust-type type))))
+    ((xmms::type ,type) `((type ,@(type->sexp type))))
     ((xmms::documentation ,doc) `((documentation ,(cleanup-documentation doc))))
     ((xmms::default-hint ,hint) `((default-hint ,hint)))
     (,otherwise (begin (handle-unknown-xml 'method-arg->sexp otherwise)
@@ -172,7 +172,7 @@
 (define (return-value->sexp return-value)
   ;;(notify "return-value: ~a~%" return-value)
   (sxml-match return-value
-    ((xmms::type ,type) `((type ,@(adjust-type type))))
+    ((xmms::type ,type) `((type ,@(type->sexp type))))
     ((xmms::documentation ,doc) `((documentation ,(cleanup-documentation doc))))
     (,otherwise (begin (handle-unknown-xml 'return-value->sexp otherwise)
                        (list return-value)))))
