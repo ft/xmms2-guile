@@ -48,6 +48,7 @@
                 (string-concatenate (list "unix:///tmp/xmms-ipc-"
                                           (getlogin)
                                           ".socat"))))
+(setlocale LC_ALL "")
 (xmms2-connect server)
 (xmms2-send server (make-hello PROTOCOL-VERSION "example-sync-client"))
 (xmms2-recv server)
