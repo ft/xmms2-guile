@@ -463,14 +463,14 @@
        (newline)
        (ipc/module '(xmms2 constants meta) '(xmms2 enumeration))
        (newline)
-       (ipc/define-public 'ipc-version
+       (ipc/define-public 'PROTOCOL-VERSION
                           (if (= (length version) 1)
                               (car version)
                               (list 'quote version)))
        (newline)
        (ipc/define-public 'ipc-name (quote 'xmms2-server-client-ipc))
        (newline)
-       (ipc/comment "Enumerations:")
+       (ipc/comment "Constants:")
        (let loop ((rest constants))
          (if (null? rest)
              #t
@@ -480,6 +480,8 @@
                (loop (cdr rest)))))
        (newline)
        (ipc/comment "Enumerations:")
+       (newline)
+       (generate-ipc/object-table objects)
        (let loop ((rest enums))
          (if (null? rest)
              #t
@@ -576,6 +578,19 @@
 
 (define (name->constants name)
   (cat "scheme/xmms2/constants/" (symbol->string name) ".scm"))
+
+(define (generate-ipc/object-table objects)
+  (define (get-name x)
+    (car (assq-ref (assq-ref x 'meta) 'name)))
+  (define (prefix-name x)
+    (symbol-append 'OBJECT- x))
+  (pp (append `(define-enum (<> xref-objects))
+              ;; The SIGNAL object isn't mentioned in ipc.xml, but that doesn't
+              ;; mean we can leave it out.
+              (cons 'OBJECT-SIGNAL
+                    (map prefix-name
+                         (map symbol-upcase
+                              (map get-name objects)))))))
 
 (define (generate-ipc/object data)
   (ipc/copyright)

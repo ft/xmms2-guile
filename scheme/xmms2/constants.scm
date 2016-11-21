@@ -36,7 +36,6 @@
 
 ;; Constant definitions below:
 
-(define-public PROTOCOL-VERSION 23)
 (define-public XMMS2-HEADER-SIZE 16)
 (define-public XMMS2-DEFAULT-PORT 9667)
 (define-public COLLECTION_NAMESPACE_ALL "*")
@@ -68,22 +67,6 @@
         (value-name-pair TYPE-BITBUFFER)
         (value-name-pair TYPE-FLOAT)))
 
-(define-enum (<> xref-objects)
-  OBJECT-SIGNAL
-  OBJECT-MAIN
-  OBJECT-PLAYLIST
-  OBJECT-CONFIGURATION
-  OBJECT-PLAYBACK
-  OBJECT-MEDIA-LIBRARY
-  OBJECT-COLLECTION
-  OBJECT-VISUALIZATION
-  OBJECT-MEDIAINFO-READER
-  OBJECT-XFORM
-  OBJECT-BINARY-DATA
-  OBJECT-COLLECTION-SYNC
-  OBJECT-COURIER
-  OBJECT-IPC-MANAGER)
-
 (define-enum (<> xref-signals)
   SIGNAL-PLAYLIST-CHANGED
   SIGNAL-CONFIGVALUE-CHANGED
@@ -103,32 +86,3 @@
   SIGNAL-COURIER-MESSAGE
   SIGNAL-IPC-MANAGER-CLIENT-CONNECTED
   SIGNAL-IPC-MANAGER-CLIENT-DISCONNECTED)
-
-;; There are FIRST-CMD-ID command identifiers, that are reserved for special
-;; use. For now only two are used.
-(define-public FIRST-CMD-ID #x20)
-
-(define-enum (<> xref-special-cmds)
-  CMD-REPLY
-  CMD-ERROR)
-
-(define-enum (<> xref-server-messages)
-  ;; These are messages initiated by the server, rather than being replies to a
-  ;; command.
-  (CMD-SIGNAL FIRST-CMD-ID)
-  CMD-BROADCAST)
-
-(define-enum (<> xref-plugin-types)
-  PLUGIN-TYPE-ALL
-  PLUGIN-TYPE-OUTPUT
-  PLUGIN-TYPE-XFORM)
-
-(define-enum (<> xref-log-levels)
-  LOG-LEVEL-UNKNOWN
-  LOG-LEVEL-FATAL
-  LOG-LEVEL-FAIL
-  LOG-LEVEL-ERROR
-  LOG-LEVEL-INFO
-  LOG-LEVEL-DEBUG
-  ;; This has to be the last log level value:
-  LOG-LEVEL-COUNT)
