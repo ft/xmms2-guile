@@ -601,6 +601,7 @@
          (signals (assq-ref data 'signals))
          (std-libraries '((ice-9 optargs)
                           (xmms2 constants)
+                          (xmms2 constants meta)
                           (xmms2 header)
                           (xmms2 ipc)
                           (xmms2 payload))))
