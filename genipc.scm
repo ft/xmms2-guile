@@ -34,6 +34,9 @@
         #f
         (eq? (stat:type data) 'directory))))
 
+(define (symbol-upcase sym)
+  (string->symbol (string-upcase (symbol->string sym))))
+
 (define (notify . args)
   (apply format (cons (current-error-port) args)))
 
@@ -384,7 +387,51 @@
         (list (cons 'meta meta)
               (cons 'objects objects)
               (cons 'constants constants)
-              (cons 'enumerations enums))
+              (cons 'enumerations enums)
+              ;; Maybe I shouldn't do it like this, but it was so much fun
+              ;; writing it. Deconstructs *sexp-stage-1* into a list of symbols
+              ;; representing the different broadcasts and signals known to
+              ;; XMMS2 in a <TYPE>-<OBJECT>-<NAME> format and in the correct
+              ;; order, so an enumeration can be derived from it. All in one
+              ;; go. :)
+              (cons 'broadcasts-and-signals
+                    (map (lambda (x)
+                           (match x
+                             ((object type name)
+                              (symbol-upcase (symbol-append type
+                                                            '- object
+                                                            '- name)))
+                             ((xxx ...)
+                              (begin (handle-unknown-sexp 'handle-object xxx)
+                                     (quit 1)))))
+                         (concatenate
+                          ((lambda (data)
+                             (map (lambda (lst)
+                                    (let ((prefix (car lst)))
+                                      (map (lambda (x) (cons prefix x))
+                                           (cdr lst))))
+                                  data))
+                           (filter (lambda (x)
+                                     (and (list? x)
+                                          (> (length x)
+                                             1)))
+                                   (map (lambda (x)
+                                          (cons (car (assq-ref (cdr x)
+                                                               'name))
+                                                (map (lambda (bs)
+                                                       (cons (car bs)
+                                                             (assq-ref (cdr bs)
+                                                                       'name)))
+                                                     (filter (lambda (item)
+                                                               (and (list? item)
+                                                                    (let ((key (car item)))
+                                                                      (or (eq? key 'signal)
+                                                                          (eq? key 'broadcast)))))
+                                                             x))))
+                                        (filter (lambda (x)
+                                                  (and (list? x)
+                                                       (eq? 'object (car x))))
+                                                *sexp-stage-1*))))))))
         (let ((this (car rest))
               (rest (cdr rest)))
           (match this
@@ -451,7 +498,8 @@
          (version (car (assq-ref meta 'version)))
          (objects (assq-ref data 'objects))
          (enums (assq-ref data 'enumerations))
-         (constants (assq-ref data 'constants)))
+         (constants (assq-ref data 'constants))
+         (bs (assq-ref data 'broadcasts-and-signals)))
     (bend-output
      (module->file-name '(xmms2 constants meta))
      (lambda ()
@@ -482,6 +530,8 @@
        (ipc/comment "Enumerations:")
        (newline)
        (generate-ipc/object-table objects)
+       (newline)
+       (generate-ipc/broadcast&signal-table bs)
        (let loop ((rest enums))
          (if (null? rest)
              #t
@@ -592,6 +642,9 @@
                          (map symbol-upcase
                               (map get-name objects)))))))
 
+(define (generate-ipc/broadcast&signal-table lst)
+  (pp (append `(define-enum (<> xref-broadcasts-and-signals)) lst)))
+
 (define (generate-ipc/object data)
   (ipc/copyright)
   (let* ((meta (assq-ref data 'meta))
@@ -686,9 +739,6 @@
                          (eq? (car nw) 'mediainfo)))
                    (else #f)))
          (else #f)))))
-
-(define (symbol-upcase sym)
-  (string->symbol (string-upcase (symbol->string sym))))
 
 (define (generate-ipc/enum-member prefix data)
   (define (prefixed-name prefix name)
