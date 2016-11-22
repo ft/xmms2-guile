@@ -779,8 +779,6 @@
                           (xmms2 enumeration))))
     (apply ipc/module (cons mod std-libraries))
     (generate-ipc/method-table name methods)
-    (newline)
-    (ipc/comment "Enumerations:")
     (let loop ((rest enums))
       (if (null? rest)
           #t
