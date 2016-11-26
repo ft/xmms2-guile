@@ -1,1 +1,72 @@
 XMMS2 client library for GNU guile
+----------------------------------
+
+This is  a native implementation  of the control  protocol for the  XMMS2 audio
+playback server application. The library  is written in Scheme and specifically
+targets the GNU Guile implementation of the language.
+
+The  actual command  set for  the protocol  is generated  from XMMS2's  ipc.xml
+definition file. The code in ‘scheme/constants’ and in ‘scheme/ipc’ is directly
+generated from said definition.
+
+
+Documentation
+-------------
+
+At this  point in  time, the  library lacks documentation  other than  the doc-
+strings from  its source code.  The ‘doc’  sub-directory, thus far,  contains a
+document,  that  basically  reflects  a  couple of  notes  about  the  protocol
+implemented by the  library, that were taken during development.  It is neither
+complete  nor does  it claim  to  be any  sort  of an  authoritative source  of
+information about the protocol. And it was never proof-read by anyone who knows
+the protocol,  so bugs are likely.  Hence the subtitle “An  Unreliable Hacker’s
+Guide”.
+
+
+Dependencies
+------------
+
+The library requires the use of an XMMS2 snapshot (0.8DrO_o-947-g3bd868a at the
+time of writing), as well as GNU  Guile 2.0. The documentation inside the ‘doc’
+sub-directory is generated from markdown  sources to their target formats using
+pandoc. Generating  PDF versions  of the documentation  will require  a working
+LaTeX installation.
+
+Moreover, running the test-suite required the ‘scm-tap-test’ package from:
+
+    https://github.com/ft/scm-tap-test
+
+
+Installation
+------------
+
+% ./generate-ipc-from-xml ~/src/xmms2/src/ipc.xml
+% make doc
+% make byte-compile
+% make test
+(…and as root…)
+# ./install
+
+
+Examples
+--------
+
+The ‘examples’ sub-directory  contains a couple of programs  using the library,
+that were and are written as experiments  to test the library against an actual
+XMMS2 server.
+
+Because they  are mainly used during  development, they do not  necessarily use
+the most elegant solution to a  given problem, but rather something that worked
+at the time. This may improve in the future.
+
+Also note,  that because of  their development-aiding purpose, the  examples do
+not connect the  default XMMS2 server socket,  but instead use a  version of it
+that  is piped  through socat.  In order  to get  such a  socat session  up and
+running, use the following command in a separate terminal:
+
+  % socat -t100 -x -v \
+      UNIX-LISTEN:/tmp/xmms-ipc-"$USER".socat,mode=700,reuseaddr \
+      fork \
+      UNIX-CONNECT:/tmp/xmms-ipc-"$USER"
+
+Note that piping through socat significantly impacts performance.
