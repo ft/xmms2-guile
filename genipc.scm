@@ -13,12 +13,23 @@
 ;; directory. If set to #f, all generated code goes to stdout.
 (define create-files? #t)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Output control: Depends on ‘create-files?’. The ‘notify’ helper can be used
+;; like ‘format’ without the first argument to produce output indenpendently of
+;; the value of said parameter.
+
 (define (bend-output file thunk)
   (if create-files?
       (begin
         (format #t "Generating ~a...~%" file)
         (with-output-to-file file thunk))
       (thunk)))
+
+(define (notify . args)
+  (apply format (cons (current-error-port) args)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; File system related helpers:
 
 (define (module->file-name module)
   (cat (string-join (cons "scheme" (map symbol->string module)) "/") ".scm"))
@@ -34,17 +45,11 @@
         #f
         (eq? (stat:type data) 'directory))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Miscellaneous utilities:
+
 (define (symbol-upcase sym)
   (string->symbol (string-upcase (symbol->string sym))))
-
-(define (notify . args)
-  (apply format (cons (current-error-port) args)))
-
-(define *source-file* (cadr (command-line)))
-
-(unless (file-exists? *source-file*)
-  (notify "Source XML file does not exist: ~a~%" *source-file*)
-  (quit 1))
 
 (define (cat . lst)
   (string-concatenate lst))
@@ -56,6 +61,22 @@
                 #:width 79
                 #:max-expr-width 60))
 
+;; Like append-map, but makes it possible to emit debugging messages.
+(define (am f clist1 . rest)
+  ;;(notify "clist1: ~a, rest: ~a~%" clist1 rest)
+  (let ((rc (apply map f clist1 rest)))
+    ;;(notify "rc: ~a~%" rc)
+    (concatenate rc)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Stage 0: Read XML definition into a SXML structure.
+
+(define *source-file* (cadr (command-line)))
+
+(unless (file-exists? *source-file*)
+  (notify "Source XML file does not exist: ~a~%" *source-file*)
+  (quit 1))
+
 (define *source-xml*
   (with-input-from-file *source-file*
     (lambda ()
@@ -63,12 +84,13 @@
                  #:trim-whitespace? #t
                  #:namespaces '((xmms: . "https://xmms2.org/ipc.xsd"))))))
 
-;; Like append-map, but makes it possible to emit debugging messages.
-(define (am f clist1 . rest)
-  ;;(notify "clist1: ~a, rest: ~a~%" clist1 rest)
-  (let ((rc (apply map f clist1 rest)))
-    ;;(notify "rc: ~a~%" rc)
-    (concatenate rc)))
+;;(pp *source-xml*)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Stage 1: Destructure SXML into s-expressions. This massages the data from
+;; XML into something that the following stages can work with easier. This also
+;; does most of the name adjustments (it really should to all of them). This
+;; stage makes heavy use of ‘sxml-match’.
 
 (define (cleanup-documentation string)
   (filter (lambda (x)
@@ -250,9 +272,7 @@
     (,otherwise (begin (handle-unknown-xml 'sxml->sexp otherwise)
                        (list tree)))))
 
-;;(pretty-print *source-xml*)
 (define *sexp-stage-1* (sxml->sexp *source-xml*))
-;;(pretty-print *sexp-stage-1*)
 
 ;; By now, the XML document is converted to an s-expression tree, that looks
 ;; like this:
@@ -277,6 +297,12 @@
 ;; The latter three of these need to be turned into scheme code. We will do
 ;; this by looping into the structure, accumulating data, rearranging it so it
 ;; will be easy to work with in a final generation step.
+
+;;(pp *sexp-stage-1*)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Stage 2: Transform stage-1 data into s-expressions directly suitable for
+;; compiling into ‘define-ipc-packet-generator’ and ‘make-ipc-*’ calls.
 
 (define (handle-unknown-sexp name data)
   (notify "~a: Cannot handle S-Expression: ~a~%" name data))
@@ -395,6 +421,9 @@
               ;; order, so an enumeration can be derived from it. All in one
               ;; go. :)
               (cons 'broadcasts-and-signals
+                    ;; 9: This map produces a list of symbols, named
+                    ;; appropriately to be used in a ‘define-enum’ call in the
+                    ;; generated library code.
                     (map (lambda (x)
                            (match x
                              ((object type name)
@@ -404,30 +433,63 @@
                              ((xxx ...)
                               (begin (handle-unknown-sexp 'handle-object xxx)
                                      (quit 1)))))
+                         ;; 8: Collapse all (object-name type name) tuples into
+                         ;; one list, that looks like this:
+                         ;;   ((object-name type name) ...)
+                         ;; Note, that this now contains all signals and
+                         ;; broadcasts, defined across the different objects.
                          (concatenate
+                          ;; 7: This function performs step 6 for all objects
+                          ;; that define signals or broadcasts (because that is
+                          ;; what the ‘filter’ from step 5 puts into ‘data’.
                           ((lambda (data)
                              (map (lambda (lst)
+                                    ;; 6: The inner map does this:
+                                    ;;   (object-name (type name) ...)
+                                    ;; ->
+                                    ;;   ((object-name type name) ...)
                                     (let ((prefix (car lst)))
                                       (map (lambda (x) (cons prefix x))
                                            (cdr lst))))
                                   data))
+                           ;; 5: Some objects don't define neither signals nor
+                           ;; broadcasts. This weeds out all the empty lists
+                           ;; (only an object name in it) that result from
+                           ;; those objects.
                            (filter (lambda (x)
                                      (and (list? x)
                                           (> (length x)
                                              1)))
+                                   ;; 4: This prefixes the (type name) lists
+                                   ;; with the name of the object that is being
+                                   ;; processed: (object-name (type name) ...)
                                    (map (lambda (x)
                                           (cons (car (assq-ref (cdr x)
                                                                'name))
+                                                ;; 3: The ‘car’ here, is either
+                                                ;; ‘signal’ or ‘broadcast’. So
+                                                ;; this map returns a lists of
+                                                ;; lists: (type name)
                                                 (map (lambda (bs)
                                                        (cons (car bs)
                                                              (assq-ref (cdr bs)
                                                                        'name)))
+                                                     ;; 2: Fetch all signal and
+                                                     ;; broadcast entries from
+                                                     ;; an object entry.
                                                      (filter (lambda (item)
                                                                (and (list? item)
                                                                     (let ((key (car item)))
                                                                       (or (eq? key 'signal)
                                                                           (eq? key 'broadcast)))))
                                                              x))))
+                                        ;; 1: Here is the entry-point for the
+                                        ;; whole expression: The map call this
+                                        ;; is an argument to operates on object
+                                        ;; entries in the stage-2 data. So this
+                                        ;; gets those out of there; filters out
+                                        ;; enumerations and constants for
+                                        ;; examples.
                                         (filter (lambda (x)
                                                   (and (list? x)
                                                        (eq? 'object (car x))))
@@ -458,7 +520,10 @@
             ((xxx ...) (begin (handle-unknown-sexp 'stage-2-loop xxx)
                               (loop rest meta objects constants enums))))))))
 
-;;(pretty-print *sexp-stage-2*)
+;;(pp *sexp-stage-2*)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Stage 3: Generate ‘scheme/constants/*.scm’ as well as ‘scheme/ipc/*.sch’.
 
 (define (ipc/module name . imports)
   (pp (let loop ((forms (list 'define-module name))
