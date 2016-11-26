@@ -604,6 +604,15 @@
 (define (generate-ipc/signal module data)
   #t)
 
+(define (generate-ipc/introspection/method module data)
+  #t)
+
+(define (generate-ipc/introspection/broadcast module data)
+  #t)
+
+(define (generate-ipc/introspection/signal module data)
+  #t)
+
 (define (sort-thing lst)
   (sort lst
         (lambda (a b)
@@ -611,7 +620,7 @@
                 (name-b (symbol->string (car (assq-ref b 'name)))))
             (string< name-a name-b)))))
 
-(define (generate-ipc/things what lst gen name)
+(define (generate-ipc/things what lst gen introspec name)
   (if (null? lst)
       (begin (newline)
              (ipc/comment (cat "There are no "
@@ -623,8 +632,12 @@
              (let loop ((rest (sort-thing lst)))
                (if (null? rest)
                    #t
-                   (begin (gen `(xmms2 ipc ,name) (car rest))
-                          (loop (cdr rest))))))))
+                   (let ((modname `(xmms2 ipc ,name))
+                         (this (car rest))
+                         (rest (cdr rest)))
+                     (gen modname this)
+                     (introspec modname this)
+                     (loop rest)))))))
 
 (define (name->constants name)
   (cat "scheme/xmms2/constants/" (symbol->string name) ".scm"))
@@ -661,9 +674,18 @@
     (apply ipc/module (cons* `(xmms2 ipc ,name)
                              `(xmms2 constants ,name)
                              std-libraries))
-    (generate-ipc/things "method" methods generate-ipc/method name)
-    (generate-ipc/things "broadcast" broadcasts generate-ipc/broadcast name)
-    (generate-ipc/things "signal" signals generate-ipc/signal name)))
+    (generate-ipc/things "method" methods
+                         generate-ipc/method
+                         generate-ipc/introspection/method
+                         name)
+    (generate-ipc/things "broadcast" broadcasts
+                         generate-ipc/broadcast
+                         generate-ipc/introspection/broadcast
+                         name)
+    (generate-ipc/things "signal" signals
+                         generate-ipc/signal
+                         generate-ipc/introspection/signal
+                         name)))
 
 (define (generate-ipc/objects data)
   (let loop ((rest (assq-ref data 'objects)))
