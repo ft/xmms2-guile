@@ -131,7 +131,7 @@
 ;; with all the available information for full introspection.
 
 (define-record-type <ipc-broadcast>
-  (make-ipc-broadcast name object identifier documentation return-value generator)
+  (make-ipc-broadcast* name object identifier documentation return-value generator)
   ipc-broadcast?
   (name broadcast-name)
   (object broadcast-object)
@@ -139,6 +139,16 @@
   (documentation broadcast-documentation)
   (return-value broadcast-return-value)
   (generator broadcast-generator))
+
+(define* (make-ipc-broadcast name
+                             #:key
+                             (object (throw 'xmms2/required-arg))
+                             (identifier (throw 'xmms2/required-arg))
+                             (generator (throw 'xmms2/required-arg))
+                             (documentation '("No documentation yet"))
+                             (return-value '()))
+  (make-ipc-broadcast*
+   name object identifier documentation return-value generator))
 
 (define-record-type <ipc-method>
   (make-ipc-method* name object identifier documentation arguments return-value generator)
@@ -163,7 +173,7 @@
    name object identifier documentation arguments return-value generator))
 
 (define-record-type <ipc-signal>
-  (make-ipc-signal name object identifier documentation return-value generator)
+  (make-ipc-signal* name object identifier documentation return-value generator)
   ipc-signal?
   (name signal-name)
   (object signal-object)
@@ -171,3 +181,13 @@
   (documentation signal-documentation)
   (return-value signal-return-value)
   (generator signal-generator))
+
+(define* (make-ipc-signal name
+                          #:key
+                          (object (throw 'xmms2/required-arg))
+                          (identifier (throw 'xmms2/required-arg))
+                          (generator (throw 'xmms2/required-arg))
+                          (documentation '("No documentation yet"))
+                          (return-value '()))
+  (make-ipc-signal*
+   name object identifier documentation return-value generator))
