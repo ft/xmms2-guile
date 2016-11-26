@@ -141,7 +141,7 @@
   (generator broadcast-generator))
 
 (define-record-type <ipc-method>
-  (make-ipc-method name object identifier documentation arguments return-value generator)
+  (make-ipc-method* name object identifier documentation arguments return-value generator)
   ipc-method?
   (name method-name)
   (object method-object)
@@ -150,6 +150,17 @@
   (arguments method-arguments)
   (return-value method-return-value)
   (generator method-generator))
+
+(define* (make-ipc-method name
+                          #:key
+                          (object (throw 'xmms2/required-arg))
+                          (identifier (throw 'xmms2/required-arg))
+                          (generator (throw 'xmms2/required-arg))
+                          (documentation '("No documentation yet"))
+                          (arguments '())
+                          (return-value '()))
+  (make-ipc-method*
+   name object identifier documentation arguments return-value generator))
 
 (define-record-type <ipc-signal>
   (make-ipc-signal name object identifier documentation return-value generator)
