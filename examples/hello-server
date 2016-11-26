@@ -8,6 +8,7 @@
 
 (use-modules (ice-9 format)
              (rnrs bytevectors)
+             (xmms2 constants meta)
              (xmms2 io)
              (xmms2 ipc main)
              (xmms2 jump-table)
