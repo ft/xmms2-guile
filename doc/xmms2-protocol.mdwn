@@ -116,15 +116,15 @@ Looking at a binary log of a message, it will look like this:
 The above is the message's header. If the message has payload, the header is
 followed by this:
 
-- 32 Bits: Payload Type
-- 8·n (where ‘n’ is the length from the header) Bits: The Payload™.
+- 8·n (where ‘n’ is the length from the header) Bits: The Payload™, of which
+  the first four octets are the payload type.
 
 In short, XMMS2 messages:
 
 - Construct a binary protocol
 - with big-endian byte-order.
 - Consists of: Type, command, length of payload…
-- …and maybe the type of the payload and the *actual* payload.
+- …and maybe a couple of octets of payload.
 - at byte-offsets: `0`, `4`, `12`, `16` and `20`.
 - Message can contain an arbitrary payload from a fair set of types.
 
@@ -141,8 +141,8 @@ messages, they obviously look like messages:
 - 32 Bits: Command (`CMD-REPLY` and `CMD-ERROR`)
 - 32 Bits: Cookie (For example: `00 00 00 00`)
 - 32 Bits: Length of Payload Data in octets
-- (optional) 32 Bits: Payload Type
-- (optional) 8·n (where ‘n’ is the length from the header) Bits: The Payload™.
+- (optional) 8·n (where ‘n’ is the length from the header) Bits: The Payload™,
+  of which the first four octets are the payload type.
 
 This should look familiar, since you have *just* read it a few lines above in
 the previous section. Like with general messages the payload part is optional.
