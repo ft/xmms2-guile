@@ -68,6 +68,9 @@
     ;;(notify "rc: ~a~%" rc)
     (concatenate rc)))
 
+(define (assq-ref* alist key)
+  (car (assq-ref alist key)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Stage 0: Read XML definition into a SXML structure.
 
@@ -670,7 +673,23 @@
   #t)
 
 (define (generate-ipc/introspection/method module data)
-  #t)
+  (define (name->id name)
+    (symbol-append 'CMD- (symbol-upcase name)))
+  (define (name->generator name)
+    (symbol-append 'make- name))
+  (define (module->object module)
+    (caddr module))
+  (let ((name (assq-ref* data 'name))
+        (rv (or (assq-ref data 'return-value) '())))
+    (newline)
+    (pp `(define-public ,name
+           (make-ipc-method ',name
+                            #:object ',(module->object module)
+                            #:identifier ,(name->id name)
+                            #:documentation ',(assq-ref* data 'documentation)
+                            #:arguments ',(assq-ref data 'arguments)
+                            #:return-value ',rv
+                            #:generator ,(name->generator name))))))
 
 (define (generate-ipc/introspection/broadcast module data)
   #t)
