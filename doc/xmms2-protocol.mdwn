@@ -232,7 +232,7 @@ of a specific type).
 
 ### COLLECTION
 
-The media library, stores within an XMMS2 server, is essentially a set of audio
+The media library, stored within an XMMS2 server, is essentially a set of audio
 tracks along with all sorts of meta information for them. Collections are a way
 to express sub-sets of that full media library. To do that, they provide ways
 to compose arbitrarily complex expressions, that can be used to match parts of
