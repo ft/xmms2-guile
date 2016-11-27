@@ -5,9 +5,10 @@
 ;; Terms for redistribution and use can be found in LICENCE.
 
 (use-modules (test tap)
+             (test setup)
              (xmms2 jump-table))
 
-(primitive-load "tests/test-tap-cfg.scm")
+(init-test-tap!)
 
 (define simple (make-jump-table (table (0 car)
                                        (3 cadr))

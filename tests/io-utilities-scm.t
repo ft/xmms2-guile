@@ -5,10 +5,11 @@
 ;; Terms for redistribution and use can be found in LICENCE.
 
 (use-modules (test tap)
+             (test setup)
              (rnrs bytevectors)
              (xmms2 io))
 
-(primitive-load "tests/test-tap-cfg.scm")
+(init-test-tap!)
 
 (force-import (xmms2 io) packet->data)
 (define hello-world (string->utf8 "Hello World."))

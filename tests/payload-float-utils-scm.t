@@ -4,9 +4,10 @@
 ;;
 ;; Terms for redistribution and use can be found in LICENCE.
 
-(use-modules (test tap))
+(use-modules (test tap)
+             (test setup))
 
-(primitive-load "tests/test-tap-cfg.scm")
+(init-test-tap!)
 
 (force-import (xmms2 payload) log2)
 (force-import (xmms2 payload) frexp)

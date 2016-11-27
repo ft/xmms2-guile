@@ -5,11 +5,12 @@
 ;; Terms for redistribution and use can be found in LICENCE.
 
 (use-modules (test tap)
+             (test setup)
              (xmms2 constants)
              (xmms2 data-conversion)
              (xmms2 payload))
 
-(primitive-load "tests/test-tap-cfg.scm")
+(init-test-tap!)
 
 (define (test-float-payload n expected)
   (let* ((data (make-float-payload n))

@@ -6,10 +6,11 @@
 
 (use-modules (test tap)
              (test payload)
+             (test setup)
              (xmms2 payload)
              (xmms2 constants))
 
-(primitive-load "tests/test-tap-cfg.scm")
+(init-test-tap!)
 
 (with-fs-test-bundle
  (plan 4)
