@@ -44,18 +44,9 @@
       (pass-if-true (<= error-is error-ex)))))
 
 (with-fs-test-bundle
- (plan (+ 23
+ (plan (+ 20
           ;; ‘test-float-payload’ emitted tests:
           (* 18 4)))
- (define-test "int64 payload 0 looks good"
-   (pass-if-equal? (payload-combine (make-int64-payload 0))
-                   #vu8(0 0 0 2 0 0 0 0 0 0 0 0)))
- (define-test "int64 payload 255 looks good"
-   (pass-if-equal? (payload-combine (make-int64-payload 255))
-                   #vu8(0 0 0 2 0 0 0 0 0 0 0 255)))
- (define-test "int64 payload 256 looks good"
-   (pass-if-equal? (payload-combine (make-int64-payload 256))
-                   #vu8(0 0 0 2 0 0 0 0 0 0 1 0)))
  (define-test "empty string payload looks good"
    (pass-if-equal? (payload-combine (make-string-payload ""))
                    #vu8(0 0 0 3 0 0 0 1 0)))
