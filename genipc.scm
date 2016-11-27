@@ -667,10 +667,30 @@
                           #:documentation documentation)))
 
 (define (generate-ipc/broadcast module data)
-  #t)
+  (define (name->id module name)
+    (symbol-append 'BROADCAST-
+                   (symbol-upcase (caddr module)) '-
+                   (symbol-upcase name)))
+  (define (name->generator name)
+    (symbol-append 'make-broadcast- name))
+  (let ((name (assq-ref* data 'name))
+        (documentation (assq-ref data 'documentation)))
+    (newline)
+    (pp `(define-public (,(name->generator name))
+           (make-broadcast-generator ,(name->id module name))))))
 
 (define (generate-ipc/signal module data)
-  #t)
+  (define (name->id module name)
+    (symbol-append 'SIGNAL-
+                   (symbol-upcase (caddr module)) '-
+                   (symbol-upcase name)))
+  (define (name->generator name)
+    (symbol-append 'make-signal- name))
+  (let ((name (assq-ref* data 'name))
+        (documentation (assq-ref data 'documentation)))
+    (newline)
+    (pp `(define-public (,(name->generator name))
+           (make-signal-generator ,(name->id module name))))))
 
 (define (generate-ipc/introspection/method module data)
   (define (name->id name)
@@ -678,13 +698,13 @@
   (define (name->generator name)
     (symbol-append 'make- name))
   (define (module->object module)
-    (caddr module))
+    (symbol-append 'OBJECT- (symbol-upcase (caddr module))))
   (let ((name (assq-ref* data 'name))
         (rv (or (assq-ref data 'return-value) '())))
     (newline)
     (pp `(define-public ,name
            (make-ipc-method ',name
-                            #:object ',(module->object module)
+                            #:object ,(module->object module)
                             #:identifier ,(name->id name)
                             #:documentation ',(assq-ref* data 'documentation)
                             #:arguments ',(assq-ref data 'arguments)
@@ -692,10 +712,44 @@
                             #:generator ,(name->generator name))))))
 
 (define (generate-ipc/introspection/broadcast module data)
-  #t)
+  (define (name->id module name)
+    (symbol-append 'BROADCAST-
+                   (symbol-upcase (caddr module)) '-
+                   (symbol-upcase name)))
+  (define (module->object module)
+    (symbol-append 'OBJECT- (symbol-upcase (caddr module))))
+  (define (name->generator name)
+    (symbol-append 'make-broadcast- name))
+  (let ((name (assq-ref* data 'name))
+        (rv (or (assq-ref data 'return-value) '())))
+    (newline)
+    (pp `(define-public ,name
+           (make-ipc-broadcast ',name
+                               #:object ,(module->object module)
+                               #:identifier ,(name->id module name)
+                               #:documentation ',(assq-ref* data 'documentation)
+                               #:return-value ',rv
+                               #:generator ,(name->generator name))))))
 
 (define (generate-ipc/introspection/signal module data)
-  #t)
+  (define (name->id module name)
+    (symbol-append 'SIGNAL-
+                   (symbol-upcase (caddr module)) '-
+                   (symbol-upcase name)))
+  (define (module->object module)
+    (symbol-append 'OBJECT- (symbol-upcase (caddr module))))
+  (define (name->generator name)
+    (symbol-append 'make-signal- name))
+  (let ((name (assq-ref* data 'name))
+        (rv (or (assq-ref data 'return-value) '())))
+    (newline)
+    (pp `(define-public ,name
+           (make-ipc-signal ',name
+                            #:object ,(module->object module)
+                            #:identifier ,(name->id module name)
+                            #:documentation ',(assq-ref* data 'documentation)
+                            #:return-value ',rv
+                            #:generator ,(name->generator name))))))
 
 (define (sort-thing lst)
   (sort lst
