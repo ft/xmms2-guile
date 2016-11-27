@@ -44,19 +44,9 @@
       (pass-if-true (<= error-is error-ex)))))
 
 (with-fs-test-bundle
- (plan (+ 20
+ (plan (+ 17
           ;; ‘test-float-payload’ emitted tests:
           (* 18 4)))
- (define-test "empty string payload looks good"
-   (pass-if-equal? (payload-combine (make-string-payload ""))
-                   #vu8(0 0 0 3 0 0 0 1 0)))
- (define-test "Short string \"A\" payload looks good"
-   (pass-if-equal? (payload-combine (make-string-payload "A"))
-                   #vu8(0 0 0 3 0 0 0 2 65 0)))
- (define-test "String payload \"Hello World.\" looks good"
-   (pass-if-equal? (payload-combine (make-string-payload "Hello World."))
-                   #vu8(0 0 0 3 0 0 0 13 72 101 108 108 111
-                          32 87 111 114 108 100 46 0)))
  (define-test "List payload '() looks good"
    (pass-if-equal? (payload-combine (make-list-payload '()))
                    #vu8(0 0 0 6 0 0 0 0 0 0 0 0)))
