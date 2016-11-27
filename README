@@ -10,6 +10,14 @@ definition file. The code in ‘scheme/constants’ and in ‘scheme/ipc’ is d
 generated from said definition.
 
 
+Quickstart
+----------
+
+% ./generate-ipc-from-xml ~/src/sys/xmms2/src/ipc.xml
+% make byte-compile
+% ./guile-in-here ./examples/cli play
+
+
 Documentation
 -------------
 
