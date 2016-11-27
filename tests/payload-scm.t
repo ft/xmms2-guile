@@ -5,16 +5,11 @@
 ;; Terms for redistribution and use can be found in LICENCE.
 
 (use-modules (test tap)
-             (srfi srfi-1)
-             (rnrs bytevectors)
              (xmms2 constants)
              (xmms2 data-conversion)
              (xmms2 payload))
 
 (primitive-load "tests/test-tap-cfg.scm")
-
-(force-import (xmms2 payload) log2)
-(force-import (xmms2 payload) frexp)
 
 (define (test-float-payload n expected)
   (let* ((data (make-float-payload n))
@@ -43,8 +38,10 @@
                          name error-is error-ex)
       (pass-if-true (<= error-is error-ex)))))
 
+(define *tests-per-payload-test* 4)
+
 (with-fs-test-bundle
- (plan (* 18 4))
+ (plan (* 18 *tests-per-payload-test*))
  ;; The expected values come from a reference implementation in C that was
  ;; taken right out of xmms2's core. The code was compiled on an AMD64 machine
  ;; running Linux 4.x using frexp(3) from GNU libc 2.24 Compiled by GNU CC
