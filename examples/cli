@@ -129,6 +129,7 @@
                   (format-stat name value)))
               (payload->value (caddr reply))))
    ((string=? command "current-track")
+    (display "np: ")
     (format-track (fetch-info (payload->value (caddr reply)))))
    ((string=? command "list")
     (for-each (lambda (x) (format-track (fetch-info x)))
