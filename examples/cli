@@ -75,20 +75,22 @@
             (get-info tracknr 0)
             (get-info title "<NoTitle>"))))
 
-(define (time->pieces time-ms)
-  (define seconds-per-hour (* 60 60))
-  (define seconds-per-day (* seconds-per-hour 24))
-  (let* ((ms (modulo time-ms 1000))
-         (time (truncate (/ time-ms 1000)))
-         (days (truncate (/ time seconds-per-day)))
-         (hours (truncate (/ (- time (* days seconds-per-day))
-                             seconds-per-hour)))
-         (mins (truncate (/ (- time
-                               (* days seconds-per-day)
-                               (* hours seconds-per-hour))
-                            60)))
-         (secs (modulo time 60)))
-    (values days hours mins secs ms)))
+(define (time->pieces ms)
+  (define ms-per-second 1000)
+  (define ms-per-minute (* 60 ms-per-second))
+  (define ms-per-hour (* 60 ms-per-minute))
+  (define ms-per-day (* 24 ms-per-hour))
+  (define ms-per-year (round (* (inexact->exact 365.2425) ms-per-day)))
+  (let loop ((divs (list ms-per-year ms-per-day
+                         ms-per-hour ms-per-minute
+                         ms-per-second 1))
+             (rest ms)
+             (acc '()))
+    (if (null? divs)
+        (apply values (reverse acc))
+        (let* ((div (car divs))
+               (piece (truncate (/ rest div))))
+          (loop (cdr divs) (- rest (* div piece)) (cons piece acc))))))
 
 (define (size->pieces size)
   (let loop ((names '(t g m k b))
@@ -104,13 +106,13 @@
 (define (format-stat n v)
   (case n
     ((uptime)
-     (let-values (((d h m s ms) (time->pieces (* v 1000))))
-       (format #t "~10,,,@a: ~d day~p ~2,'0dh~2,'0dm~2,'0ds~%"
-               n d d h m s)))
+     (let-values (((y d h m s ms) (time->pieces (* v 1000))))
+       (format #t "~10,,,@a: ~d year~p ~d day~p ~2,'0dh~2,'0dm~2,'0ds~%"
+               n y y d d h m s)))
     ((duration playtime)
-     (let-values (((d h m s ms) (time->pieces v)))
-       (format #t "~10,,,@a: ~d day~p ~2,'0dh~2,'0dm~2,'0d.~3,'0ds~%"
-               n d d h m s ms)))
+     (let-values (((y d h m s ms) (time->pieces v)))
+       (format #t "~10,,,@a: ~d year~p ~d day~p ~2,'0dh~2,'0dm~2,'0d.~3,'0ds~%"
+               n y y d d h m s ms)))
     ((size)
      (let-values (((t g m k b) (size->pieces v)))
        (format #t "~10,,,@a: ~d TiB~p, ~d GiB~p, ~d MiB~p, ~d KiB~p, ~d Byte~p~%"
