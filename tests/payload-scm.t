@@ -44,37 +44,7 @@
       (pass-if-true (<= error-is error-ex)))))
 
 (with-fs-test-bundle
- (plan (+ 13
-          ;; ‘test-float-payload’ emitted tests:
-          (* 18 4)))
- ;; Test a bunch of utilities that are used to produce floating point numbers:
- (define-test "(log2 1) => 0"
-   (pass-if-= (log2 1) 0))
- (define-test "(log2 2) => 1"
-   (pass-if-= (log2 2) 1))
- (define-test "(log2 16) => 4"
-   (pass-if-= (log2 16) 4))
- (define-test "(log2 2.5) => 1.3219281"
-   (pass-if-~= (log2 2.5) 1.3219281 1e-5))
- (define-test "(log2 5690) => 12.47421294"
-   (pass-if-~= (log2 5690) 12.474212 1e-5))
- (define-test "(frexp 8), exponent: 4"
-   (pass-if-= (cdr (frexp 8)) 4))
- (define-test "(frexp 8), fractional => -0.5"
-   (pass-if-~= (car (frexp 8)) 0.5 1e-5))
- (define-test "(frexp 5690), exponent: 13"
-   (pass-if-= (cdr (frexp 5690)) 13))
- (define-test "(frexp 5690), fractional => 0.694580"
-   (pass-if-~= (car (frexp 5690)) 0.694578 1e-5))
- (define-test "(frexp -4), exponent: 3"
-   (pass-if-= (cdr (frexp -4)) 3))
- (define-test "(frexp -4), fractional => -0.5"
-   (pass-if-~= (car (frexp -4)) -0.5 1e-5))
- (define-test "(frexp 0), exponent: 0"
-   (pass-if-= (cdr (frexp 0)) 0))
- (define-test "(frexp 0), fractional: 0"
-   (pass-if-~= (car (frexp 0)) 0 1e-5))
-
+ (plan (* 18 4))
  ;; The expected values come from a reference implementation in C that was
  ;; taken right out of xmms2's core. The code was compiled on an AMD64 machine
  ;; running Linux 4.x using frexp(3) from GNU libc 2.24 Compiled by GNU CC
