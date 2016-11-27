@@ -1,6 +1,7 @@
 ;; -*- scheme-*-
 
 (use-modules (ice-9 format)
+             (srfi srfi-11)
              (xmms2 constants)
              (xmms2 constants meta)
              (xmms2 io)
@@ -74,13 +75,55 @@
             (get-info tracknr 0)
             (get-info title "<NoTitle>"))))
 
+(define (time->pieces time-ms)
+  (define seconds-per-hour (* 60 60))
+  (define seconds-per-day (* seconds-per-hour 24))
+  (let* ((ms (modulo time-ms 1000))
+         (time (truncate (/ time-ms 1000)))
+         (days (truncate (/ time seconds-per-day)))
+         (hours (truncate (/ (- time (* days seconds-per-day))
+                             seconds-per-hour)))
+         (mins (truncate (/ (- time
+                               (* days seconds-per-day)
+                               (* hours seconds-per-hour))
+                            60)))
+         (secs (modulo time 60)))
+    (values days hours mins secs ms)))
+
+(define (size->pieces size)
+  (let loop ((names '(t g m k b))
+             (div (* 1024 1024 1024 1024))
+             (rest size)
+             (acc '()))
+    (if (null? names)
+        (apply values (reverse (map cdr acc)))
+        (let ((piece (truncate (/ rest div))))
+          (loop (cdr names) (/ div 1024) (- rest (* div piece))
+                (cons (cons (car names) piece) acc))))))
+
+(define (format-stat n v)
+  (case n
+    ((uptime)
+     (let-values (((d h m s ms) (time->pieces (* v 1000))))
+       (format #t "~10,,,@a: ~d day~p ~2,'0dh~2,'0dm~2,'0ds~%"
+               n d d h m s)))
+    ((duration playtime)
+     (let-values (((d h m s ms) (time->pieces v)))
+       (format #t "~10,,,@a: ~d day~p ~2,'0dh~2,'0dm~2,'0d.~3,'0ds~%"
+               n d d h m s ms)))
+    ((size)
+     (let-values (((t g m k b) (size->pieces v)))
+       (format #t "~10,,,@a: ~d TiB~p, ~d GiB~p, ~d MiB~p, ~d KiB~p, ~d Byte~p~%"
+               n t t g g m m k k b b)))
+    (else (format #t "~10,,,@a: ~a~%" n v))))
+
 (let ((reply (xmms2-recv server)))
   (cond
    ((string=? command "statistics")
     (for-each (lambda (x)
                 (let ((name (car x))
                       (value (cdr x)))
-                  (format #t "~10,,,@a: ~a~%" name value)))
+                  (format-stat name value)))
               (payload->value (caddr reply))))
    ((string=? command "list")
     (for-each (lambda (x) (format-track (fetch-info x)))
