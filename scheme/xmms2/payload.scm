@@ -59,6 +59,7 @@
 
 (define (dictionary? data)
   (and (list? data)
+       (not (null? data))
        (pair? (car data))
        (string? (caar data))))
 
