@@ -702,7 +702,7 @@
   (let ((name (assq-ref* data 'name))
         (rv (or (assq-ref data 'return-value) '())))
     (newline)
-    (pp `(define-public ,name
+    (pp `(define-public ,(symbol-append 'm: name)
            (make-ipc-method ',name
                             #:object ,(module->object module)
                             #:identifier ,(name->id name)
@@ -723,7 +723,7 @@
   (let ((name (assq-ref* data 'name))
         (rv (or (assq-ref data 'return-value) '())))
     (newline)
-    (pp `(define-public ,name
+    (pp `(define-public ,(symbol-append 'b: name)
            (make-ipc-broadcast ',name
                                #:object ,(module->object module)
                                #:identifier ,(name->id module name)
@@ -743,7 +743,7 @@
   (let ((name (assq-ref* data 'name))
         (rv (or (assq-ref data 'return-value) '())))
     (newline)
-    (pp `(define-public ,name
+    (pp `(define-public ,(symbol-append 's: name)
            (make-ipc-signal ',name
                             #:object ,(module->object module)
                             #:identifier ,(name->id module name)
