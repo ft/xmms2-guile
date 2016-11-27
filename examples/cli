@@ -98,10 +98,10 @@
              (rest size)
              (acc '()))
     (if (null? names)
-        (apply values (reverse (map cdr acc)))
+        (apply values (reverse acc))
         (let ((piece (truncate (/ rest div))))
           (loop (cdr names) (/ div 1024) (- rest (* div piece))
-                (cons (cons (car names) piece) acc))))))
+                (cons piece acc))))))
 
 (define (format-stat n v)
   (case n
