@@ -24,7 +24,8 @@
                                      (xmms2-send server (make-get-currently-active))
                                      (let ((cur (payload->value
                                                  (caddr (xmms2-recv server)))))
-                                       (make-list-entries cur))))))
+                                       (make-list-entries cur))))
+                        ("current-track" . ,make-get-current-identifier)))
 
 (define (cmd->generator cmd)
   (let ((rv (assoc cmd generator-map)))
@@ -127,6 +128,8 @@
                       (value (cdr x)))
                   (format-stat name value)))
               (payload->value (caddr reply))))
+   ((string=? command "current-track")
+    (format-track (fetch-info (payload->value (caddr reply)))))
    ((string=? command "list")
     (for-each (lambda (x) (format-track (fetch-info x)))
               (payload->value (caddr reply))))
