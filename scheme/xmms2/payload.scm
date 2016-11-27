@@ -61,7 +61,7 @@
   (and (list? data)
        (not (null? data))
        (pair? (car data))
-       (string? (caar data))))
+       (symbol? (caar data))))
 
 (define (non-complex-number? data)
   (and (number? data) (zero? (imag-part data))))
@@ -139,7 +139,7 @@ a pair containing the two: (fractional . exponent)"
       0.0))
 
 (define (make-dict-key-payload value)
-  (let* ((str (string->utf8 value))
+  (let* ((str (string->utf8 (symbol->string value)))
          (len (bytevector-length str))
          (rv (make-bytevector (+ *payload-size-size* 1 len) 0)))
     (uint32-set! rv 0 (+ 1 len))
@@ -160,8 +160,10 @@ a pair containing the two: (fractional . exponent)"
   (let* ((pl (uint32-ref bv offset))
          (len (- pl 1)))
     (values
-     (if (<= len 0) ""
-         (utf8->string (bytevector-ref bv (+ *payload-size-size* offset) len)))
+     (if (<= len 0) #f
+         (string->symbol
+          (utf8->string
+           (bytevector-ref bv (+ *payload-size-size* offset) len))))
      (+ *payload-size-size* pl))))
 
 (define (payload->string* bv offset)
