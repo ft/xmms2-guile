@@ -65,10 +65,10 @@
       (cdadr info)))
 
 (define (format-track info)
-  (let ((artist (assoc "artist" info))
-        (album (assoc "album" info))
-        (title (assoc "title" info))
-        (tracknr (assoc "tracknr" info)))
+  (let ((artist (assq 'artist info))
+        (album (assq 'album info))
+        (title (assq 'title info))
+        (tracknr (assq 'tracknr info)))
     (format #t "~a - ~a - ~2,'0d. ~a~%"
             (get-info artist "<NoArtist>")
             (get-info album "<NoAlbum>")
