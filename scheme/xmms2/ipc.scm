@@ -140,6 +140,11 @@
   (return-value broadcast-return-value)
   (generator broadcast-generator))
 
+(define-ipc-packet-generator make-broadcast-generator
+  public OBJECT-SIGNAL IPC-COMMAND-SIGNAL-BROADCAST
+  "Generates a message that can be used to request a certain broadcast."
+  (integer identifer))
+
 (define* (make-ipc-broadcast name
                              #:key
                              (object (throw 'xmms2/required-arg))
@@ -181,6 +186,11 @@
   (documentation signal-documentation)
   (return-value signal-return-value)
   (generator signal-generator))
+
+(define-ipc-packet-generator make-signal-generator
+  public OBJECT-SIGNAL IPC-COMMAND-SIGNAL-SIGNAL
+  "Generates a message that can be used to request a certain signal."
+  (integer identifer))
 
 (define* (make-ipc-signal name
                           #:key
