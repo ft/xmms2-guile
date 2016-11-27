@@ -15,6 +15,7 @@
             make-string-payload
             make-list-payload
             make-dictionary-payload
+            make-value-payload
             payload-combine
             payload-length
             payload->value*
