@@ -107,7 +107,7 @@
   (case n
     ((uptime)
      (let-values (((y d h m s ms) (time->pieces (* v 1000))))
-       (format #t "~10,,,@a: ~d year~p ~d day~p ~2,'0d hour~p ~2,'0d minute~s ~2,'0d second~p~%"
+       (format #t "~10,,,@a: ~d year~p ~d day~p ~2,'0d hour~p ~2,'0d minute~p ~2,'0d second~p~%"
                n y y d d h h m m s s)))
     ((duration playtime)
      (let-values (((y d h m s ms) (time->pieces v)))
