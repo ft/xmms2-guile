@@ -32,9 +32,9 @@ sub-directory is generated from markdown  sources to their target formats using
 pandoc. Generating  PDF versions  of the documentation  will require  a working
 LaTeX installation.
 
-Moreover, running the test-suite required the ‘scm-tap-test’ package from:
+Moreover, running the test-suite required the ‘scm-test-tap’ package from:
 
-    https://github.com/ft/scm-tap-test
+    https://github.com/ft/scm-test-tap
 
 
 Installation
