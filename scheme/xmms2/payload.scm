@@ -132,7 +132,7 @@ a pair containing the two: (fractional . exponent)"
             (+ *payload-tag-size* *payload-float-size*))))
 
 (define (payload->float bv)
-  (if (bytevector-looks-reasonable? bv (+ *int32-size* *int64-size*) TYPE-FLOAT)
+  (if (bytevector-looks-reasonable? bv (* 2 *int32-size*) TYPE-FLOAT)
       (let-values (((value . rest) (payload->float* bv 0)))
         value)
       0.0))
