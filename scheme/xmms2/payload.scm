@@ -259,7 +259,7 @@ a pair containing the two: (fractional . exponent)"
                     (cons (cons key value) acc))))))))
 
 (define (payload->dictionary bv)
-  (if (bytevector-looks-reasonable? bv *payload-size-size* TYPE-LIST)
+  (if (bytevector-looks-reasonable? bv *payload-size-size* TYPE-DICTIONARY)
       (let-values (((value . rest) (payload->dictionary* bv 0)))
         value)
       '()))
