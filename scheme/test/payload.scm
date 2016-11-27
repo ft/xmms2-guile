@@ -8,10 +8,12 @@
   #:export (pass-if-payload-equal?
             pass-if-payload-not-equal?))
 
-(define-tap-test (pass-if-payload-equal? a b)
-  (equal? (payload-combine a)
-          (payload-combine b)))
+(define-syntax pass-if-payload-equal?
+  (syntax-rules ()
+    ((_ a b)
+     (pass-if-equal? (payload-combine a) (payload-combine b)))))
 
-(define-tap-test (pass-if-payload-not-equal? a b)
-  (not (equal? (payload-combine a)
-               (payload-combine b))))
+(define-syntax pass-if-payload-not-equal?
+  (syntax-rules ()
+    ((_ a b)
+     (pass-if-not-equal? (payload-combine a) (payload-combine b)))))
