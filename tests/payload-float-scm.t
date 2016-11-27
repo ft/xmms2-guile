@@ -5,12 +5,31 @@
 ;; Terms for redistribution and use can be found in LICENCE.
 
 (use-modules (test tap)
+             (test payload)
              (test setup)
              (xmms2 constants)
              (xmms2 data-conversion)
              (xmms2 payload))
 
 (init-test-tap!)
+
+(define-syntax test-><-float?
+  (syntax-rules ()
+    ((_ n eps)
+     (begin (perform-payload-><-test make-float-payload
+                                     payload->float
+                                     n pass-if-~= eps)
+            (perform-payload-><-test make-value-payload
+                                     payload->float
+                                     n pass-if-~= eps)
+            (perform-payload-><-test make-float-payload
+                                     payload->value
+                                     n pass-if-~= eps)
+            (perform-payload-><-test make-value-payload
+                                     payload->value
+                                     n pass-if-~= eps)))))
+
+(define *tests-per-back-and-forth* 4)
 
 (define (test-float-payload n expected)
   (let* ((data (make-float-payload n))
@@ -42,7 +61,8 @@
 (define *tests-per-payload-test* 4)
 
 (with-fs-test-bundle
- (plan (* 18 *tests-per-payload-test*))
+ (plan (+ (* 18 *tests-per-payload-test*)
+          (* 5 *tests-per-back-and-forth*)))
  ;; The expected values come from a reference implementation in C that was
  ;; taken right out of xmms2's core. The code was compiled on an AMD64 machine
  ;; running Linux 4.x using frexp(3) from GNU libc 2.24 Compiled by GNU CC
@@ -64,4 +84,10 @@
  (test-float-payload -1.000000e+09 #vu8(0 0 0 9 136 202 108 0 0 0 0 30))
  (test-float-payload -1.000000e-09 #vu8(0 0 0 9 187 71 208 128 255 255 255 227))
  (test-float-payload 1.200000e+22 #vu8(0 0 0 9 81 80 174 128 0 0 0 74))
- (test-float-payload -1.200000e-20 #vu8(0 0 0 9 142 169 200 0 255 255 255 190)))
+ (test-float-payload -1.200000e-20 #vu8(0 0 0 9 142 169 200 0 255 255 255 190))
+
+ (test-><-float? 0.0 1e-6)
+ (test-><-float? 0.5 1e-6)
+ (test-><-float? 1.0 1e-6)
+ (test-><-float? -2e20 1e11)
+ (test-><-float? 1e-4 1e-10))
