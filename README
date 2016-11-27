@@ -17,6 +17,8 @@ Quickstart
 % make byte-compile
 % ./guile-in-here ./examples/cli play
 
+(This assumes you followed the “Examples” section below.)
+
 
 Documentation
 -------------
