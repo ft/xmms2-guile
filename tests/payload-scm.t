@@ -44,25 +44,9 @@
       (pass-if-true (<= error-is error-ex)))))
 
 (with-fs-test-bundle
- (plan (+ 17
+ (plan (+ 13
           ;; ‘test-float-payload’ emitted tests:
           (* 18 4)))
- (define-test "List payload '() looks good"
-   (pass-if-equal? (payload-combine (make-list-payload '()))
-                   #vu8(0 0 0 6 0 0 0 0 0 0 0 0)))
- (define-test "List payload '(23) looks good"
-   (pass-if-equal? (payload-combine (make-list-payload '(23)))
-                   #vu8(0 0 0 6 0 0 0 0 0 0 0 1 0 0 0 2 0 0 0 0 0 0 0 23)))
- (define-test "List payload '(23 \"cmc\") looks good"
-   (pass-if-equal? (payload-combine (make-list-payload '(23 "cmc")))
-                   #vu8(0 0 0 6 0 0 0 0 0 0 0 2 0 0 0 2 0 0 0 0 0 0 0 23
-                          0 0 0 3 0 0 0 4 99 109 99 0)))
- (define-test "Restricted (int) list payload '(23 42 666) looks good"
-   (pass-if-equal? (payload-combine (make-list-payload '(23 42 666)
-                                                      #:restricted TAG-INT64))
-                   #vu8(0 0 0 6 0 0 0 2 0 0 0 3 0 0 0 2 0 0 0 0 0 0 0 23
-                          0 0 0 2 0 0 0 0 0 0 0 42 0 0 0 2 0 0 0 0 0 0 2 154)))
-
  ;; Test a bunch of utilities that are used to produce floating point numbers:
  (define-test "(log2 1) => 0"
    (pass-if-= (log2 1) 0))
