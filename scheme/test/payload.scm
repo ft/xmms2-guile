@@ -23,5 +23,5 @@
   (syntax-rules ()
     ((_ generator disector value tap-test rest* ...)
      (let ((v value))
-       (define-test (format #f "~a><~a: ~a" 'generator 'disector v)
+       (define-test (format #f "~a><~a: ~s" 'generator 'disector v)
          (tap-test (disector (payload-combine (generator v))) v rest* ...))))))
