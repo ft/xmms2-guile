@@ -15,6 +15,7 @@
             make-string-payload
             make-list-payload
             make-dictionary-payload
+            make-binary-payload
             make-value-payload
             payload-combine
             payload-length
@@ -22,6 +23,8 @@
             payload->value
             payload->dictionary*
             payload->dictionary
+            payload->binary*
+            payload->binary
             payload->float*
             payload->float
             payload->int64*
@@ -72,7 +75,28 @@
         ((string? data) (make-string-payload data))
         ((dictionary? data) (make-dictionary-payload data))
         ((list? data) (make-list-payload data))
+        ((bytevector? data) (make-binary-payload data))
         (else (throw 'xmms2/unknown-data-type data))))
+
+(define (make-binary-payload value)
+  (let ((hdr (make-bytevector (+ *payload-tag-size* *payload-size-size*)
+                              0)))
+    (bytevector-copy! TAG-BINARY 0 hdr 0 *payload-tag-size*)
+    (uint32-set! hdr *payload-tag-size* (bytevector-length value))
+    (list hdr value)))
+
+(define (payload->binary* bv offset)
+  (let* ((offset (+ *payload-tag-size* offset))
+         (size (uint32-ref bv offset))
+         (rv (make-bytevector size)))
+    (bytevector-copy! bv (+ offset *payload-size-size*) rv 0 size)
+    (values rv (+ *payload-tag-size* *payload-size-size* size))))
+
+(define (payload->binary bv)
+  (if (bytevector-looks-reasonable? bv *payload-size-size* TYPE-BINARY)
+      (let-values (((value . rest) (payload->binary* bv 0)))
+        value)
+      0))
 
 (define (make-int64-payload value)
   (let ((rv (make-bytevector (+ *payload-integer-size* *payload-tag-size*) 0)))
@@ -285,7 +309,8 @@ a pair containing the two: (fractional . exponent)"
                           (TYPE-FLOAT payload->float*)
                           (TYPE-STRING payload->string*)
                           (TYPE-DICTIONARY payload->dictionary*)
-                          (TYPE-LIST payload->list*))
+                          (TYPE-LIST payload->list*)
+                          (TYPE-BINARY payload->binary*))
                    #:others (lambda (a b) (values #f 1))
                    #:out-of-range (lambda (a b) (values #f 1))))
 
