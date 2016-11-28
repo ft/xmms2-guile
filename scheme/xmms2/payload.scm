@@ -38,7 +38,6 @@
   (define-public (name args ...)
     (throw 'xmms2/payload-generator-not-implemented 'name)))
 
-(missing-generator make-binary-payload data)
 (missing-generator make-collection-payload data)
 (missing-generator make-error-payload data)
 
