@@ -31,7 +31,7 @@
 (define *tests-per-back-and-forth* 4)
 
 (with-fs-test-bundle
- (plan (+ 2 4 (* 3 *tests-per-back-and-forth*)))
+ (plan (+ 3 (* 3 *tests-per-back-and-forth*)))
 
  (define-test "Binary payload #vu8() looks good"
    (pass-if-payload-equal? (make-binary-payload #vu8())
