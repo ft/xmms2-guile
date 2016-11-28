@@ -295,4 +295,5 @@ a pair containing the two: (fractional . exponent)"
                       type data offset)))
 
 (define (payload->value data)
-  (payload->value* data 0))
+  (let-values (((value . rest) (payload->value* data 0)))
+    value))
