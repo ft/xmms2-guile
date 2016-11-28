@@ -34,7 +34,7 @@
 (define *tests-per-back-and-forth* 4)
 
 (with-fs-test-bundle
- (plan (+ 2 4 (* 3 *tests-per-back-and-forth*)))
+ (plan (+ 2 4 (* 4 *tests-per-back-and-forth*)))
 
  (define-test "List payload '() looks good"
    (pass-if-payload-equal? (make-list-payload '())
@@ -62,6 +62,7 @@
  (test-><-list? '())
  (test-><-list? '(23))
  (test-><-list? '(23 "cmc"))
+ (test-><-list? '(23 (12 #vu8(88 77 66 55 44 33) 42) "cmc"))
  (perform-payload-><-test make-intlist-payload payload->list
                           '(1 2 3 4 5) pass-if-equal?)
  (perform-payload-><-test make-intlist-payload payload->value
