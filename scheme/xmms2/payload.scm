@@ -15,6 +15,7 @@
             make-string-payload
             make-list-payload
             make-dictionary-payload
+            make-error-payload
             make-binary-payload
             make-value-payload
             payload-combine
@@ -23,6 +24,8 @@
             payload->value
             payload->dictionary*
             payload->dictionary
+            payload->error*
+            payload->error
             payload->binary*
             payload->binary
             payload->float*
@@ -39,7 +42,6 @@
     (throw 'xmms2/payload-generator-not-implemented 'name)))
 
 (missing-generator make-collection-payload data)
-(missing-generator make-error-payload data)
 
 (define-public (make-unknown-payload data)
   (throw 'xmms2/incomplete-library-code
@@ -179,6 +181,11 @@ a pair containing the two: (fractional . exponent)"
     (bytevector-copy! str 0 rv data-offset len)
     rv))
 
+(define (make-error-payload value)
+  (let ((bv (make-string-payload value)))
+    (bytevector-copy! TAG-ERROR 0 bv 0 *payload-tag-size*)
+    bv))
+
 (define (payload->dict-key bv offset)
   (let* ((pl (uint32-ref bv offset))
          (len (- pl 1)))
@@ -201,6 +208,14 @@ a pair containing the two: (fractional . exponent)"
 (define (payload->string bv)
   (if (bytevector-looks-reasonable? bv (+ *payload-size-size* 1) TYPE-STRING)
       (let-values (((value . rest) (payload->string* bv 0)))
+        value)
+      ""))
+
+(define payload->error* payload->string*)
+
+(define (payload->error bv)
+  (if (bytevector-looks-reasonable? bv (+ *payload-size-size* 1) TYPE-ERROR)
+      (let-values (((value . rest) (payload->error* bv 0)))
         value)
       ""))
 
@@ -309,7 +324,8 @@ a pair containing the two: (fractional . exponent)"
                           (TYPE-STRING payload->string*)
                           (TYPE-DICTIONARY payload->dictionary*)
                           (TYPE-LIST payload->list*)
-                          (TYPE-BINARY payload->binary*))
+                          (TYPE-BINARY payload->binary*)
+                          (TYPE-ERROR payload->error*))
                    #:others (lambda (a b) (values #f 1))
                    #:out-of-range (lambda (a b) (values #f 1))))
 
