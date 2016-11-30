@@ -10,6 +10,7 @@
   #:use-module (xmms2 constants)
   #:use-module (xmms2 data-conversion)
   #:use-module (xmms2 jump-table)
+  #:use-module (xmms2 types)
   #:export (make-float-payload
             make-int64-payload
             make-string-payload
@@ -60,15 +61,6 @@
   (and (>= (bytevector-length bv) (+ *payload-tag-size* min))
        (let ((actual-type (uint32-ref bv 0)))
          (= actual-type expected-type))))
-
-(define (dictionary? data)
-  (and (list? data)
-       (not (null? data))
-       (pair? (car data))
-       (symbol? (caar data))))
-
-(define (non-complex-number? data)
-  (and (number? data) (zero? (imag-part data))))
 
 (define (make-value-payload data)
   (cond ((int64? data) (make-int64-payload data))
