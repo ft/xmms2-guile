@@ -1,5 +1,6 @@
 #!/bin/sh
 
+GUILD_BINARY=${GUILD_BINARY:-guild}
 GUILE_LOAD_PATH=$PWD/scheme
 export GUILE_LOAD_PATH
 rc=0
@@ -14,7 +15,7 @@ for dir in scheme/*/*/*/*/*/ scheme/*/*/*/*/ \
                       output="${input%.*}.go"
                       [ -e "$output" ] && [ "$output" -nt "$input" ] && continue
                       echo ">>> $input"
-                      guild compile -Wunsupported-warning \
+            "$GUILD_BINARY" compile -Wunsupported-warning \
                                     -Wunused-variable \
                                     -Wunused-toplevel \
                                     -Wunbound-variable \
