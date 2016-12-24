@@ -5,7 +5,15 @@
 (define-module (xmms2 types)
   #:use-module (srfi srfi-9)
   #:use-module (xmms2 constants collection)
-  #:export (dictionary?
+  #:export (collection
+            make-collection
+            make-universe
+            collection-operator
+            collection-attributes
+            collection-attribute
+            collection-idlist
+            collection-children
+            dictionary?
             non-complex-number?))
 
 (define (dictionary? data)
@@ -24,6 +32,12 @@
   (attributes collection-attributes)
   (idlist collection-idlist)
   (children collection-children))
+
+(define (collection-attribute c a)
+  (assq-ref (collection-attributes c) a))
+
+(define (make-universe)
+  (make-collection COLLECTION-TYPE-UNIVERSE '() '() '()))
 
 (define-syntax expand-collection-dsl
   (lambda (x)
@@ -72,8 +86,7 @@
 
     (define (process-source x)
       (let ((source (syntax->datum x)))
-        (cond ((eq? source 'universe)
-               #'(make-collection COLLECTION-TYPE-UNIVERSE '() '() '()))
+        (cond ((eq? source 'universe) #'(make-universe))
               (else x))))
 
     (syntax-case x (from universe)
@@ -85,7 +98,7 @@
        (with-syntax ((operator (process-operator #'op))
                      (arg-a (process-argument #'a))
                      (source (process-source #'s)))
-         #'(make-collection operator '(field . arg-a) '() (list source))))
+         #'(make-collection operator '((field . arg-a)) '() (list source))))
       ((_ (op a)) (unary-operator? #'op)
        (with-syntax ((operator (process-operator #'op))
                      (arg-a (process-argument #'a)))
@@ -99,6 +112,7 @@
                             (list source))))
       ((_ (a op b)) (binary-operator? #'op)
        #'(expand-collection-dsl (a op b from universe)))
+      ((_ exp) (identifier? #'exp) #'exp)
       ((_ exp ...) #'(syntax-error "Invalid collection expression:" exp ...)))))
 
 (define-syntax collection
