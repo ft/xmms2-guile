@@ -6,6 +6,7 @@
   #:use-module (srfi srfi-9)
   #:use-module (xmms2 constants collection)
   #:export (collection
+            collection?
             make-collection
             make-universe
             collection-operator
