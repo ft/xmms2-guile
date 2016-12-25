@@ -62,20 +62,23 @@
        (let ((actual-type (uint32-ref bv 0)))
          (= actual-type expected-type))))
 
-(define (make-value-payload data)
-  (cond ((int64? data) (make-int64-payload data))
-        ((non-complex-number? data) (make-float-payload data))
-        ((string? data) (make-string-payload data))
-        ((dictionary? data) (make-dictionary-payload data))
-        ((list? data) (make-list-payload data))
-        ((bytevector? data) (make-binary-payload data))
-        (else (throw 'xmms2/unknown-data-type data))))
+(define* (make-value-payload data #:key (tagged #t))
+  (cond ((int64? data) (make-int64-payload data #:tagged tagged))
+        ((non-complex-number? data) (make-float-payload data #:tagged tagged))
+        ((string? data) (make-string-payload data #:tagged tagged))
+        ((dictionary? data) (make-dictionary-payload data #:tagged tagged))
+        ((list? data) (make-list-payload data #:tagged tagged))
+        ((collection? data) (make-collection-payload data #:tagged tagged))
+        ((bytevector? data) (make-binary-payload data #:tagged tagged))
+        (else (throw 'xmms2/unknown-data-type data #:tagged tagged))))
 
-(define (make-binary-payload value)
-  (let ((hdr (make-bytevector (+ *payload-tag-size* *payload-size-size*)
-                              0)))
-    (bytevector-copy! TAG-BINARY 0 hdr 0 *payload-tag-size*)
-    (uint32-set! hdr *payload-tag-size* (bytevector-length value))
+(define* (make-binary-payload value #:key (tagged #t))
+  (let* ((offset (if tagged *payload-tag-size* 0))
+         (hdr (make-bytevector (+ offset *payload-size-size*)
+                               0)))
+    (when tagged
+      (bytevector-copy! TAG-BINARY 0 hdr 0 *payload-tag-size*))
+    (uint32-set! hdr offset (bytevector-length value))
     (list hdr value)))
 
 (define (payload-body->binary bv offset)
@@ -93,10 +96,12 @@
         value)
       0))
 
-(define (make-int64-payload value)
-  (let ((rv (make-bytevector (+ *payload-integer-size* *payload-tag-size*) 0)))
-    (bytevector-copy! TAG-INT64 0 rv 0 *payload-tag-size*)
-    (int64-set! rv *payload-tag-size* value)
+(define* (make-int64-payload value #:key (tagged #t))
+  (let* ((offset (if tagged *payload-tag-size* 0))
+         (rv (make-bytevector (+ *payload-integer-size* offset 0))))
+    (when tagged
+      (bytevector-copy! TAG-INT64 0 rv 0 *payload-tag-size*))
+    (int64-set! rv offset value)
     rv))
 
 (define (payload-body->int64 bv offset)
@@ -130,18 +135,20 @@ a pair containing the two: (fractional . exponent)"
             (cons (/ fractional 2) (+ exponent 1))
             (cons fractional exponent)))))
 
-(define (make-float-payload value)
-  (let* ((fe (frexp value))
+(define* (make-float-payload value #:key (tagged #t))
+  (let* ((offset (if tagged *payload-tag-size* 0))
+         (fe (frexp value))
          (fractional (car fe))
          (exponent (cdr fe))
          (mantissa (inexact->exact (round
                                     (if (positive? fractional)
                                         (* fractional *int32-max*)
                                         (* -1 fractional *int32-min*)))))
-         (rv (make-bytevector (+ *payload-tag-size* *payload-float-size*))))
-    (bytevector-copy! TAG-FLOAT 0 rv 0 *payload-tag-size*)
-    (int32-set! rv 4 mantissa)
-    (int32-set! rv 8 exponent)
+         (rv (make-bytevector (+ offset *payload-float-size*))))
+    (when tagged
+      (bytevector-copy! TAG-FLOAT 0 rv 0 *payload-tag-size*))
+    (int32-set! rv offset mantissa)
+    (int32-set! rv (+ offset *int32-size*) exponent)
     rv))
 
 (define (payload-body->float bv offset)
@@ -170,19 +177,22 @@ a pair containing the two: (fractional . exponent)"
     (bytevector-copy! str 0 rv *payload-size-size* len)
     rv))
 
-(define (make-string-payload value)
-  (let* ((str (string->utf8 value))
+(define* (make-string-payload value #:key (tagged #t))
+  (let* ((offset (if tagged *payload-tag-size* 0))
+         (str (string->utf8 value))
          (len (bytevector-length str))
-         (data-offset (+ *payload-tag-size* *payload-size-size*))
+         (data-offset (+ offset *payload-size-size*))
          (rv (make-bytevector (+ data-offset 1 len) 0)))
-    (uint32-set! rv *payload-tag-size* (+ 1 len))
-    (bytevector-copy! TAG-STRING 0 rv 0 *payload-tag-size*)
+    (if tagged
+        (bytevector-copy! TAG-STRING 0 rv 0 *payload-tag-size*))
+    (uint32-set! rv offset (+ 1 len))
     (bytevector-copy! str 0 rv data-offset len)
     rv))
 
-(define (make-error-payload value)
-  (let ((bv (make-string-payload value)))
-    (bytevector-copy! TAG-ERROR 0 bv 0 *payload-tag-size*)
+(define* (make-error-payload value #:key (tagged #t))
+  (let ((bv (make-string-payload value #:tagged tagged)))
+    (when tagged
+      (bytevector-copy! TAG-ERROR 0 bv 0 *payload-tag-size*))
     bv))
 
 (define (payload-body->string bv offset)
@@ -222,12 +232,15 @@ a pair containing the two: (fractional . exponent)"
         value)
       ""))
 
-(define (make-list-header len type)
-  (let* ((size-offset (* 2 *payload-tag-size*))
+(define (make-list-header len type tagged)
+  (let* ((size-offset (* (if tagged 2 1) *payload-tag-size*))
          (header (make-bytevector (+ size-offset *payload-size-size*))))
-    (bytevector-copy! TAG-LIST 0 header 0 *payload-tag-size*)
+    (when tagged
+      (bytevector-copy! TAG-LIST 0 header 0 *payload-tag-size*))
     (bytevector-copy! (or type TAG-NONE) 0
-                      header *payload-tag-size* *payload-tag-size*)
+                      header
+                      (if tagged *payload-tag-size* 0)
+                      *payload-tag-size*)
     (uint32-set! header size-offset len)
     header))
 
@@ -236,12 +249,13 @@ a pair containing the two: (fractional . exponent)"
       (append! a b)
       (cons a b)))
 
-(define* (make-list-payload lst #:key (restricted #f))
+(define* (make-list-payload lst #:key (restricted #f) (tagged #t))
   ;; Restricted list payload should filter the input list for the desired type
   ;; elements first.
   (let loop ((rest (reverse lst)) (acc '()))
     (if (null? rest)
-        (cons (make-list-header (length lst) (or restricted TAG-NONE)) acc)
+        (cons (make-list-header (length lst) (or restricted TAG-NONE) tagged)
+              acc)
         (loop (cdr rest)
               (cons-or-append! (make-value-payload (car rest)) acc)))))
 
@@ -267,18 +281,20 @@ a pair containing the two: (fractional . exponent)"
         value)
       '()))
 
-(define (make-dictionary-header len)
-  (let* ((header (make-bytevector (+ *payload-tag-size* *payload-size-size*))))
-    (bytevector-copy! TAG-DICTIONARY 0 header 0 *payload-tag-size*)
-    (uint32-set! header *payload-tag-size* len)
+(define (make-dictionary-header len tagged)
+  (let* ((offset (if tagged *payload-tag-size* 0))
+         (header (make-bytevector (+ offset *payload-size-size*))))
+    (if tagged
+        (bytevector-copy! TAG-DICTIONARY 0 header 0 *payload-tag-size*))
+    (uint32-set! header offset len)
     header))
 
-(define* (make-dictionary-payload alist #:key (restricted #f))
+(define* (make-dictionary-payload alist #:key (restricted #f) (tagged #t))
   ;; There is no restricted tag in xmms2's dictionary implementation, but lets
   ;; just give the serializer the same API as the list type, for symmetry.
   (let loop ((rest (reverse alist)) (acc '()))
     (if (null? rest)
-        (cons (make-dictionary-header (length alist)) acc)
+        (cons (make-dictionary-header (length alist) tagged) acc)
         (let* ((key (caar rest))
                (value (cdar rest)))
           (loop (cdr rest)
