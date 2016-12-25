@@ -57,6 +57,9 @@
 (define *payload-integer-size* 8)
 (define *payload-float-size* 8)
 
+(define-syntax-rule (adjust-consumed n exp)
+  (let-values (((v consumed) exp)) (values v (+ n consumed))))
+
 (define (bytevector-looks-reasonable? bv min expected-type)
   (and (>= (bytevector-length bv) (+ *payload-tag-size* min))
        (let ((actual-type (uint32-ref bv 0)))
@@ -85,10 +88,11 @@
   (let* ((size (uint32-ref bv offset))
          (rv (make-bytevector size)))
     (bytevector-copy! bv (+ offset *payload-size-size*) rv 0 size)
-    (values rv (+ *payload-tag-size* *payload-size-size* size))))
+    (values rv (+ *payload-size-size* size))))
 
 (define (payload->binary* bv offset)
-  (payload-body->binary bv (+ *payload-tag-size* offset)))
+  (adjust-consumed *payload-tag-size*
+                   (payload-body->binary bv (+ *payload-tag-size* offset))))
 
 (define (payload->binary bv)
   (if (bytevector-looks-reasonable? bv *payload-size-size* TYPE-BINARY)
@@ -105,11 +109,11 @@
     rv))
 
 (define (payload-body->int64 bv offset)
-  (values (uint64-ref bv offset)
-          (+ *payload-tag-size* *uint64-size*)))
+  (values (uint64-ref bv offset) *uint64-size*))
 
 (define (payload->int64* bv offset)
-  (payload-body->int64 bv (+ *payload-tag-size* offset)))
+  (adjust-consumed *payload-tag-size*
+                   (payload-body->int64 bv (+ *payload-tag-size* offset))))
 
 (define (payload->int64 bv)
   (if (bytevector-looks-reasonable? bv *int64-size* TYPE-INT64)
@@ -158,10 +162,11 @@ a pair containing the two: (fractional . exponent)"
          (fractional (/ m (if (>= m 0) *int32-max* *int32-min*)))
          (factor (if (>= e 0) (ash 1 e) (/ (ash 1 (* -1 e))))))
     (values (exact->inexact (* sign fractional factor))
-            (+ *payload-tag-size* *payload-float-size*))))
+            *payload-float-size*)))
 
 (define (payload->float* bv offset)
-  (payload-body->float bv (+ *payload-tag-size* offset)))
+  (adjust-consumed *payload-tag-size*
+                   (payload-body->float bv (+ *payload-tag-size* offset))))
 
 (define (payload->float bv)
   (if (bytevector-looks-reasonable? bv (* 2 *int32-size*) TYPE-FLOAT)
@@ -201,7 +206,7 @@ a pair containing the two: (fractional . exponent)"
     (values
      (if (<= len 0) ""
          (utf8->string (bytevector-ref bv (+ *payload-size-size* offset) len)))
-     (+ *payload-tag-size* *payload-size-size* pl))))
+     (+ *payload-size-size* pl))))
 
 (define (payload->dict-key bv offset)
   (let* ((pl (uint32-ref bv offset))
@@ -214,7 +219,8 @@ a pair containing the two: (fractional . exponent)"
      (+ *payload-size-size* pl))))
 
 (define (payload->string* bv offset)
-  (payload-body->string bv (+ *payload-tag-size* offset)))
+  (adjust-consumed *payload-tag-size*
+                   (payload-body->string bv (+ *payload-tag-size* offset))))
 
 (define (payload->string bv)
   (if (bytevector-looks-reasonable? bv (+ *payload-size-size* 1) TYPE-STRING)
@@ -265,13 +271,14 @@ a pair containing the two: (fractional . exponent)"
                (consumed (+ *payload-tag-size* *payload-size-size*))
                (acc '()))
       (if (or (zero? left) (>= (+ offset consumed) bl))
-          (values (reverse acc) (+ *payload-tag-size* consumed))
+          (values (reverse acc) consumed)
           (let-values (((value consumed-bytes)
                         (payload->value* bv (+ consumed offset))))
             (loop (- left 1) (+ consumed consumed-bytes) (cons value acc)))))))
 
 (define (payload->list* bv offset)
-  (payload-body->list bv (+ *payload-tag-size* offset)))
+  (adjust-consumed *payload-size-size*
+                   (payload-body->list bv (+ *payload-tag-size* offset))))
 
 (define (payload->list bv)
   (if (bytevector-looks-reasonable? bv
@@ -307,7 +314,7 @@ a pair containing the two: (fractional . exponent)"
                (consumed *payload-size-size*)
                (acc '()))
       (if (or (zero? left) (>= (+ offset consumed) bl))
-          (values (reverse acc) (+ *payload-tag-size* consumed))
+          (values (reverse acc) consumed)
           (let-values (((key key-bytes)
                         (payload->dict-key bv (+ consumed offset))))
             (let-values (((value value-bytes)
@@ -317,7 +324,8 @@ a pair containing the two: (fractional . exponent)"
                     (cons (cons key value) acc))))))))
 
 (define (payload->dictionary* bv offset)
-  (payload-body->dictionary bv (+ *payload-tag-size* offset)))
+  (adjust-consumed *payload-tag-size*
+                   (payload-body->dictionary bv (+ *payload-tag-size* offset))))
 
 (define (payload->dictionary bv)
   (if (bytevector-looks-reasonable? bv *payload-size-size* TYPE-DICTIONARY)
