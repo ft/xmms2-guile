@@ -16,6 +16,7 @@
             make-string-payload
             make-list-payload
             make-dictionary-payload
+            make-collection-payload
             make-error-payload
             make-binary-payload
             make-value-payload
@@ -23,6 +24,8 @@
             payload-length
             payload->value*
             payload->value
+            payload->collection*
+            payload->collection
             payload->dictionary*
             payload->dictionary
             payload->error*
@@ -37,12 +40,6 @@
             payload->string
             payload->list*
             payload->list))
-
-(define-syntax-rule (missing-generator name args ...)
-  (define-public (name args ...)
-    (throw 'xmms2/payload-generator-not-implemented 'name)))
-
-(missing-generator make-collection-payload data)
 
 (define-public (make-unknown-payload data)
   (throw 'xmms2/incomplete-library-code
@@ -340,6 +337,41 @@ a pair containing the two: (fractional . exponent)"
         value)
       '()))
 
+(define* (make-collection-payload value #:key (tagged #t))
+  (make-universe))
+
+(define (payload-body->collection bv offset)
+  (let ((op (uint32-ref bv offset)))
+    (let-values (((attributes attr-length)
+                  (payload-body->dictionary bv (+ offset *uint32-size*))))
+      (let-values (((idlist idlist-length)
+                    (payload-body->list bv (+ offset
+                                              *uint32-size*
+                                              attr-length))))
+        (let-values (((children ch-length)
+                      (payload-body->list bv (+ offset
+                                                *uint32-size*
+                                                attr-length
+                                                idlist-length))))
+          (values (make-collection op attributes idlist children)
+                  (+ *uint32-size* attr-length idlist-length ch-length)))))))
+
+(define (payload->collection* bv offset)
+  (adjust-consumed *payload-tag-size*
+                   (payload-body->collection bv (+ *payload-tag-size* offset))))
+
+(define (payload->collection bv)
+  (define min-size (+ *payload-tag-size*    ;; Collection Type
+                      *payload-size-size*   ;; Attrib. Dict Size
+                      *payload-tag-size*    ;; IDlist Type
+                      *payload-size-size*   ;; IDlist Size
+                      *payload-tag-size*    ;; List of Children
+                      *payload-size-size*)) ;; Number of Children
+  (if (bytevector-looks-reasonable? bv min-size TYPE-COLLECTION)
+      (let-values (((value . rest) (payload->collection* bv 0)))
+        value)
+      (make-universe)))
+
 (define (payload-length p)
   (if (bytevector? p)
       (bytevector-length p)
@@ -362,6 +394,7 @@ a pair containing the two: (fractional . exponent)"
                           (TYPE-STRING payload->string*)
                           (TYPE-DICTIONARY payload->dictionary*)
                           (TYPE-LIST payload->list*)
+                          (TYPE-COLLECTION payload->collection*)
                           (TYPE-BINARY payload->binary*)
                           (TYPE-ERROR payload->error*))
                    #:others (lambda (a b) (values #f 1))
