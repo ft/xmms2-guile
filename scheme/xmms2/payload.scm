@@ -208,6 +208,7 @@ a pair containing the two: (fractional . exponent)"
          (utf8->string (bytevector-ref bv (+ *payload-size-size* offset) len)))
      (+ *payload-size-size* pl))))
 
+;; TODO: This should be refactored in terms of payload-body->string.
 (define (payload->dict-key bv offset)
   (let* ((pl (uint32-ref bv offset))
          (len (- pl 1)))
