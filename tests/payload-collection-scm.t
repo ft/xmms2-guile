@@ -131,6 +131,10 @@
    (pass-if-equal? (payload->collection *manual-universe*)
                    (make-universe)))
 
+ (define-test "generating universe as payload works"
+   (pass-if-payload-equal? (make-collection-payload (make-universe))
+                           *manual-universe*))
+
  (define-test "big-three example payload gets parsed correctly"
    (pass-if-equal? (payload->collection *big-three-payload*)
                    *big-three*))
