@@ -337,8 +337,29 @@ a pair containing the two: (fractional . exponent)"
         value)
       '()))
 
+(define (collection-operator->bytevector op)
+  (let ((bv (make-bytevector 4 0)))
+    (uint32-set! bv 0 op)
+    bv))
+
+(define (collection->bytevector c)
+  (append
+   (list (collection-operator->bytevector (collection-operator c)))
+   (make-dictionary-payload (collection-attributes c) #:tagged #f)
+   (make-list-payload (collection-idlist c)
+                      #:restricted TAG-INT64
+                      #:tagged #f)
+   (make-list-payload (collection-children c)
+                      #:restricted TAG-COLLECTION
+                      #:tagged #f)))
+
 (define* (make-collection-payload value #:key (tagged #t))
-  (make-universe))
+  (let ((body (collection-fold (lambda (c acc)
+                                 (append acc (collection->bytevector c)))
+                               '() value)))
+    (if tagged
+        (cons TAG-COLLECTION body)
+        body)))
 
 (define (payload-body->collection bv offset)
   (let ((op (uint32-ref bv offset)))
