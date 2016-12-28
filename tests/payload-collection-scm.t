@@ -125,7 +125,7 @@
 
 (with-fs-test-bundle
  (plan (+ (* 1 *tests-per-back-and-forth*)
-          2))
+          3))
 
  (define-test "manual-universe example payload gets parsed correctly"
    (pass-if-equal? (payload->collection *manual-universe*)
