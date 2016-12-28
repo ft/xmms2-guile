@@ -3,10 +3,12 @@
 ;; Terms for redistribution and use can be found in LICENCE.
 
 (define-module (xmms2 types)
+  #:use-module (ice-9 optargs)
   #:use-module (srfi srfi-9)
   #:use-module (xmms2 constants collection)
   #:export (collection
             collection?
+            collection-fold
             make-collection
             make-universe
             collection-operator
@@ -39,6 +41,81 @@
 
 (define (make-universe)
   (make-collection COLLECTION-TYPE-UNIVERSE '() '() '()))
+
+(define (node-is-leaf? c)
+  (zero? (length (collection-children c))))
+
+(define* (collection-fold proc
+                          init
+                          collection
+                          #:key
+                          (left-to-right? #t)
+                          (order 'pre)
+                          (pick #f))
+  "This function implements `fold'-like functionality for the collection data
+type.
+
+It walks `collection' and calls `proc' with two arguments: The current node's
+payload and the return value of the last call to `proc'. On the first call of
+`proc' `init' is used as the second argument. The function returns the proc's
+last return value.
+
+The function supports a number of keyword-style arguments to alter its course
+of action:
+
+  #:order           One of: pre (the default, and fallback in case of any
+                    other value), post or level
+
+  #:left-to-right?  Boolean (defaults to #t); controls the order in which
+                    child-nodes are processed.
+
+  #:pick            Enables the caller to pick a set of information contained
+                    within the collection: operator, attributes, idlist,
+                    children. Any other value (including #f, which is the
+                    default) passes the entire collection structure to proc."
+
+  (define (recurse node acc)
+    (collection-fold proc acc node
+                     #:left-to-right? left-to-right?
+                     #:order order))
+
+  (define (children node)
+    (let ((cl (collection-children node)))
+      (if left-to-right? cl (reverse cl))))
+
+  (define (pick-node node)
+    (case pick
+      ((operator) (collection-operator node))
+      ((attributes) (collection-attributes node))
+      ((idlist) (collection-idlist node))
+      ((children) (collection-children node))
+      (else node)))
+
+  (define (recursive-traversal nodes acc)
+    (if (null? nodes)
+        acc
+        (let ((node (car nodes)))
+          (recursive-traversal (cdr nodes)
+                               (if (node-is-leaf? node)
+                                   (proc (pick-node node) acc)
+                                   (recurse node acc))))))
+
+  (case order
+    ((post)
+     (proc (pick-node collection)
+           (recursive-traversal (children collection) init)))
+    ((level)
+     (let continue ((queue (list collection))
+                    (acc init))
+       (if (null? queue)
+           acc
+           (let ((rem (cdr queue))
+                 (node (car queue)))
+             (continue (append rem (children node))
+                       (proc (pick-node node) acc))))))
+    (else
+     (recursive-traversal (children collection)
+                          (proc (pick-node collection) init)))))
 
 (define-syntax expand-collection-dsl
   (lambda (x)
