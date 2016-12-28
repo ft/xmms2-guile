@@ -76,6 +76,7 @@
                           (cond
                            ((eq? type 'integer) `(integer? ,argument))
                            ((eq? type 'string) `(string? ,argument))
+                           ((eq? type 'collection) `(collection? ,argument))
                            ;; We could perform much stricter tests with lists
                            ;; and dicts here, but that would impact performance
                            ;; with large data structures. Maybe we could make
