@@ -17,13 +17,26 @@
             collection-idlist
             collection-children
             dictionary?
+            dictionary-data
+            dictionary-type
+            make-dictionary
+            association-list?
             non-complex-number?))
 
-(define (dictionary? data)
+(define (association-list? data)
   (and (list? data)
        (not (null? data))
        (pair? (car data))
        (symbol? (caar data))))
+
+(define-record-type <dictionary>
+  (make-dictionary* data type)
+  dictionary?
+  (data dictionary-data)
+  (type dictionary-type))
+
+(define* (make-dictionary data #:key (type #f))
+  (make-dictionary* data type))
 
 (define (non-complex-number? data)
   (and (number? data) (zero? (imag-part data))))

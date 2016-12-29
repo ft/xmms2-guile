@@ -83,7 +83,8 @@
                            ;; this optional via a #:keyword flag, similar to
                            ;; #:cookie.
                            ((and (list? type) (eq? 'dictionary (car type)))
-                            `(dictionary? ,argument))
+                            `(or (association-list? ,argument)
+                                 (dictionary? ,argument)))
                            ((and (list? type) (eq? 'list (car type)))
                             `(list? ,argument))
                            (else

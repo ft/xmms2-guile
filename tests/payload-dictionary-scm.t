@@ -7,7 +7,8 @@
 (use-modules (test tap)
              (test payload)
              (test setup)
-             (xmms2 payload))
+             (xmms2 payload)
+             (xmms2 types))
 
 (init-test-tap!)
 
@@ -30,7 +31,11 @@
 (define *tests-per-back-and-forth* 4)
 
 (with-fs-test-bundle
- (plan (+ 4 (* 3 *tests-per-back-and-forth*)))
+ (plan (+ 5 (* 3 *tests-per-back-and-forth*)))
+
+ (define-test "Empty dictionary looks good"
+   (pass-if-payload-equal? (make-value-payload (make-dictionary '()))
+                           #vu8(0 0 0 7 0 0 0 0)))
 
  (define-test "Dictionary payload '() looks good"
    (pass-if-payload-equal? (make-dictionary-payload '())
