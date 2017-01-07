@@ -25,6 +25,9 @@
             association-list?
             non-complex-number?))
 
+(define (non-complex-number? data)
+  (and (number? data) (zero? (imag-part data))))
+
 (define (association-list? data)
   (and (list? data)
        (not (null? data))
@@ -41,9 +44,6 @@
 
 (define (dict-ref key dict)
   (assq-ref (dictionary-data dict) key))
-
-(define (non-complex-number? data)
-  (and (number? data) (zero? (imag-part data))))
 
 (define-record-type <collection>
   (make-collection operator attributes idlist children)
