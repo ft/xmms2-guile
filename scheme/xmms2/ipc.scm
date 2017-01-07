@@ -87,6 +87,8 @@
                                  (dictionary? ,argument)))
                            ((and (list? type) (eq? 'list (car type)))
                             `(list? ,argument))
+                           ((and (list? type) (eq? 'enumeration (car type)))
+                            `(integer? ,argument))
                            (else
                             ;; This should be fatal in the future.
                             ;;(throw 'xmms2/unknown-type type 'with argument)
