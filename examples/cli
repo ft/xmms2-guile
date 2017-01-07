@@ -4,12 +4,15 @@
              (srfi srfi-11)
              (xmms2 constants)
              (xmms2 constants meta)
+             (xmms2 constants collection)
              (xmms2 io)
+             ((xmms2 ipc collection) #:prefix coll:)
              (xmms2 ipc main)
              (xmms2 ipc media-library)
              (xmms2 ipc playlist)
              (xmms2 ipc playback)
-             (xmms2 payload))
+             (xmms2 payload)
+             (xmms2 types))
 
 (define generator-map `(("play" . ,make-start)
                         ("stop" . ,make-stop)
@@ -25,7 +28,8 @@
                                      (let ((cur (payload->value
                                                  (caddr (xmms2-recv server)))))
                                        (make-list-entries cur))))
-                        ("current-track" . ,make-get-current-identifier)))
+                        ("current-track" . ,make-get-current-identifier)
+                        ("list-collections" . ,(lambda () (coll:make-list "Collections")))))
 
 (define (cmd->generator cmd)
   (let ((rv (assoc cmd generator-map)))
@@ -120,6 +124,23 @@
                n t t g g m m k k b b)))
     (else (format #t "~10,,,@a: ~a~%" n v))))
 
+(define (output-collection data indent)
+  (format #t "~v_Operator: ~a => ~a~%"
+          (if (> indent 2) indent 0)
+          (collection-operator data)
+          (assq-ref xref-collection-types (collection-operator data)))
+  (format #t "~v_ID-List: ~s~%" indent (collection-idlist data))
+  (format #t "~v_Attributes: ~s~%" indent (collection-attributes data))
+  (format #t "~v_Children:~%" indent)
+  (for-each (lambda (x) (output-collection x (+ indent 2)))
+            (collection-children data)))
+
+(define (show-collection c)
+  (xmms2-send server (coll:make-get c "Collections"))
+  (let ((data (payload->value (caddr (xmms2-recv server)))))
+    (format #t "~%Name: ~s, " c)
+    (output-collection data 2)))
+
 (let ((reply (xmms2-recv server)))
   (cond
    ((string=? command "statistics")
@@ -136,6 +157,9 @@
               (payload->value (caddr reply))))
    ((string=? command "active-playlist")
     (format #t "Active Playlist: ~a~%" (payload->string (caddr reply))))
+   ((string=? command "list-collections")
+    (format #t "Collections:~%")
+    (for-each show-collection (payload->list (caddr reply))))
    ((string=? command "time")
     (let* ((time-ms (payload->int64 (caddr reply)))
            (ms (modulo time-ms 1000))
