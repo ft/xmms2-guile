@@ -804,6 +804,7 @@
          (broadcasts (assq-ref data 'broadcasts))
          (signals (assq-ref data 'signals))
          (std-libraries '((ice-9 optargs)
+                          (rnrs bytevectors)
                           (xmms2 constants)
                           (xmms2 constants meta)
                           (xmms2 header)

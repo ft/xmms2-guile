@@ -74,6 +74,7 @@
                   (cons (let ((type (syntax->datum (caar rest)))
                               (argument (syntax->datum (cadar rest))))
                           (cond
+                           ((eq? type 'binary) `(bytevector? ,argument))
                            ((eq? type 'integer) `(integer? ,argument))
                            ((eq? type 'string) `(string? ,argument))
                            ((eq? type 'collection) `(collection? ,argument))
