@@ -32,13 +32,9 @@
        (symbol? (caar data))))
 
 (define-record-type <dictionary>
-  (make-dictionary* data type)
+  (make-dictionary data)
   dictionary?
-  (data dictionary-data)
-  (type dictionary-type))
-
-(define* (make-dictionary data #:key (type #f))
-  (make-dictionary* data type))
+  (data dictionary-data))
 
 (define (dict key dict)
   (assq key (dictionary-data dict)))
