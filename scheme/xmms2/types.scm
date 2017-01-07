@@ -19,6 +19,8 @@
             dictionary?
             dictionary-data
             dictionary-type
+            dict
+            dict-ref
             make-dictionary
             association-list?
             non-complex-number?))
@@ -37,6 +39,12 @@
 
 (define* (make-dictionary data #:key (type #f))
   (make-dictionary* data type))
+
+(define (dict key dict)
+  (assq key (dictionary-data dict)))
+
+(define (dict-ref key dict)
+  (assq-ref (dictionary-data dict) key))
 
 (define (non-complex-number? data)
   (and (number? data) (zero? (imag-part data))))
