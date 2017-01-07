@@ -151,6 +151,15 @@ of action:
 
     (define (process-operator x)
       (let ((op (syntax->datum x)))
+        ;; TODO:
+        ;;
+        ;;   COLLECTION-TYPE-REFERENCE
+        ;;   COLLECTION-TYPE-TOKEN
+        ;;   COLLECTION-TYPE-ORDER
+        ;;   COLLECTION-TYPE-LIMIT
+        ;;   COLLECTION-TYPE-MEDIASET
+        ;;   COLLECTION-TYPE-IDLIST
+
         (assq-ref (list (cons '= #'COLLECTION-TYPE-EQUALS)
                         (cons '≠ #'COLLECTION-TYPE-NOTEQUAL)
                         (cons '!= #'COLLECTION-TYPE-NOTEQUAL)
