@@ -323,7 +323,7 @@ a pair containing the two: (fractional . exponent)"
                (consumed *payload-size-size*)
                (acc '()))
       (if (or (zero? left) (>= (+ offset consumed) bl))
-          (values (reverse acc) consumed)
+          (values (make-dictionary (reverse acc)) consumed)
           (let-values (((key key-bytes)
                         (payload->dict-key bv (+ consumed offset))))
             (let-values (((value value-bytes)
@@ -379,7 +379,7 @@ a pair containing the two: (fractional . exponent)"
                                                 *uint32-size*
                                                 attr-length
                                                 idlist-length))))
-          (values (make-collection op attributes idlist children)
+          (values (make-collection op (dictionary-data attributes) idlist children)
                   (+ *uint32-size* attr-length idlist-length ch-length)))))))
 
 (define (payload->collection* bv offset)

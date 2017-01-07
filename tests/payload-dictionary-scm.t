@@ -67,6 +67,6 @@
                          0 0 0 2 0 0 0 0 0 0 0 23
                          0 0 0 2 0 0 0 0 0 0 2 154)))
 
- (test-><-dictionary? '((foo . 23)))
- (test-><-dictionary? '((foo . 23) (bar . "bar")))
- (test-><-dictionary? '((foo . 23) (bar . "bar") (baz 42 23 666))))
+ (test-><-dictionary? (make-dictionary '((foo . 23))))
+ (test-><-dictionary? (make-dictionary '((foo . 23) (bar . "bar"))))
+ (test-><-dictionary? (make-dictionary '((foo . 23) (bar . "bar") (baz 42 23 666)))))
