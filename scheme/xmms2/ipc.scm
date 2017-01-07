@@ -7,6 +7,8 @@
   #:use-module (srfi srfi-1)
   #:use-module (srfi srfi-9)
   #:use-module (xmms2 constants)
+  #:use-module (xmms2 constants meta)
+  #:use-module (xmms2 header)
   #:use-module (xmms2 payload)
   #:export (define-ipc-packet-generator
             make-ipc-broadcast
