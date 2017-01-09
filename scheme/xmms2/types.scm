@@ -194,11 +194,15 @@ of action:
                           (format #f "Property list has to have an even number of elements! ~a"
                                   (syntax->datum lst))
                           x kw))
-      (let loop ((rest lst) (attr attributes) (source #'(make-universe)))
+      (let loop ((rest lst) (attr attributes) (source #'(list (make-universe))))
         (syntax-case rest (universe)
           (() (list attr source))
-          ((#:from universe . args) (loop #'args attr #'(make-universe)))
-          ((#:from place . args) (loop #'args attr #'place))
+          ((#:from universe . args)
+           (loop #'args attr #'(list (make-universe))))
+          ((#:from place . args) (identifier? #'place)
+           (loop #'args attr #'(list place)))
+          ((#:from place . args)
+           (loop #'args attr #'(list (expand-collection-dsl place))))
           ((#:case-sensitive active? . args)
            (begin (unless (boolean? (syntax->datum #'active?))
                     (syntax-violation 'collection
