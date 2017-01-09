@@ -188,36 +188,62 @@ of action:
         (cond ((symbol? arg) (symbol->string arg))
               (else x))))
 
-    (define (process-source x)
-      (let ((source (syntax->datum x)))
-        (cond ((eq? source 'universe) #'(make-universe))
-              (else x))))
+    (define (process-prop-list kw attributes lst)
+      (unless (zero? (modulo (length lst) 2))
+        (syntax-violation 'collection
+                          (format #f "Property list has to have an even number of elements! ~a"
+                                  (syntax->datum lst))
+                          x kw))
+      (let loop ((rest lst) (attr attributes) (source #'(make-universe)))
+        (syntax-case rest (universe)
+          (() (list attr source))
+          ((#:from universe . args) (loop #'args attr #'(make-universe)))
+          ((#:from place . args) (loop #'args attr #'place))
+          ((#:case-sensitive active? . args)
+           (begin (unless (boolean? (syntax->datum #'active?))
+                    (syntax-violation 'collection
+                                      "#:case-sensitive expects boolean argument!"
+                                      x kw))
+                  (with-syntax ((value (if #'active? #'1 #'0)))
+                    (loop #'args
+                          #`(#,@attr (case-sensitive . value))
+                          source))))
+          ((key . args) (keyword? (syntax->datum #'key))
+           (syntax-violation 'collection
+                             (format #f "Unknown keyword ~a" (syntax->datum #'key))
+                             x kw))
+          ((key . args)
+           (syntax-violation 'collection
+                             (format #f "Expected keyword at `~s'" (syntax->datum #'key))
+                             x kw)))))
 
-    (syntax-case x (from universe)
-      ((_ (op exp ...)) (set-operator? #'op)
+    (syntax-case x (universe)
+      ((kw (op exp ...)) (set-operator? #'op)
        (with-syntax ((operator (process-operator #'op)))
          #'(make-collection operator
-                            '() '() (list (expand-collection-dsl exp) ...))))
-      ((_ (op a from s)) (unary-operator? #'op)
+                            '()
+                            '()
+                            (list (expand-collection-dsl exp) ...))))
+      ((kw (op a rest ...)) (unary-operator? #'op)
        (with-syntax ((operator (process-operator #'op))
                      (arg-a (process-argument #'a))
-                     (source (process-source #'s)))
-         #'(make-collection operator '((field . arg-a)) '() (list source))))
-      ((_ (op a)) (unary-operator? #'op)
+                     ((attr source) (process-prop-list #'kw
+                                                       #`((field . #,(process-argument #'a)))
+                                                       #'(rest ...))))
+         #'(make-collection operator 'attr '() source)))
+      ((kw (a op b rest ...)) (binary-operator? #'op)
        (with-syntax ((operator (process-operator #'op))
-                     (arg-a (process-argument #'a)))
-         #'(expand-collection-dsl (op a from universe))))
-      ((_ (a op b from s)) (binary-operator? #'op)
-       (with-syntax ((operator (process-operator #'op))
-                     (arg-a (process-argument #'a))
-                     (arg-b (process-argument #'b))
-                     (source (process-source #'s)))
-         #'(make-collection operator '((field . arg-a) (value . arg-b)) '()
-                            (list source))))
-      ((_ (a op b)) (binary-operator? #'op)
-       #'(expand-collection-dsl (a op b from universe)))
-      ((_ exp) (identifier? #'exp) #'exp)
-      ((_ exp ...) #'(syntax-error "Invalid collection expression:" exp ...)))))
+                     ((attr source)
+                      (process-prop-list #'kw
+                                         #`((field . #,(process-argument #'a))
+                                            (value . #,(process-argument #'b)))
+                                         #'(rest ...))))
+         #'(make-collection operator 'attr '() source)))
+      ((kw exp) (identifier? #'exp) #'exp)
+      ((kw exp ...) (syntax-violation 'collection
+                                      "Invalid collection expression!"
+                                      x
+                                      #'kw)))))
 
 (define-syntax collection
   (lambda (x)
