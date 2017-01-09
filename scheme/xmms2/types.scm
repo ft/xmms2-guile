@@ -217,7 +217,7 @@ of action:
                              (format #f "Expected keyword at `~s'" (syntax->datum #'key))
                              x kw)))))
 
-    (syntax-case x (universe)
+    (syntax-case x ()
       ((kw (op exp ...)) (set-operator? #'op)
        (with-syntax ((operator (process-operator #'op)))
          #'(make-collection operator
