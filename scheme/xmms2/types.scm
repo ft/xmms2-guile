@@ -204,7 +204,7 @@ of action:
                     (syntax-violation 'collection
                                       "#:case-sensitive expects boolean argument!"
                                       x kw))
-                  (with-syntax ((value (if #'active? #'1 #'0)))
+                  (with-syntax ((value (if (syntax->datum #'active?) #'1 #'0)))
                     (loop #'args
                           #`(#,@attr (case-sensitive . value))
                           source))))
