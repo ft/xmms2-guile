@@ -60,12 +60,12 @@
           3 8))
 
  (simple-equals-tests "")
- (simple-equals-tests " (universe keyword)" from universe)
- (simple-equals-tests " (universe variable)" from *universe*)
+ (simple-equals-tests " (universe keyword)" #:from universe)
+ (simple-equals-tests " (universe variable)" #:from *universe*)
 
  (simple-has-tests "")
- (simple-has-tests " (universe keyword)" from universe)
- (simple-has-tests " (universe variable)" from *universe*)
+ (simple-has-tests " (universe keyword)" #:from universe)
+ (simple-has-tests " (universe variable)" #:from *universe*)
 
  (let* ((has-artist (collection (has artist)))
         (missing-artist (collection (¬ has-artist))))
