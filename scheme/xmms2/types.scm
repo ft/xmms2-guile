@@ -207,6 +207,22 @@ of action:
         (cond ((symbol? arg) (symbol->string arg))
               (else x))))
 
+    (define (add-attribute attributes a)
+      (let ((key (syntax->datum (car a)))
+            (value (syntax->datum (cdr a))))
+        (let loop ((rest attributes) (acc '()) (append? #t))
+          (if (null? rest)
+              (if append?
+                  (append acc (list a))
+                  acc)
+              (let* ((this (car rest))
+                     (this-key (syntax->datum (caar rest)))
+                     (this-value (cdar rest))
+                     (rest (cdr rest)))
+                (if (eq? this-key key)
+                    (loop rest (append acc (list a)) #f)
+                    (loop rest (append acc (list this)) append?)))))))
+
     (define (process-prop-list kw attributes lst)
       (unless (zero? (modulo (length lst) 2))
         (syntax-violation 'collection
@@ -228,10 +244,10 @@ of action:
                                       "#:case-sensitive expects boolean argument!"
                                       x kw))
                   (with-syntax ((value (if (syntax->datum #'active?) #'1 #'0)))
-                    (loop #'args
-                          #`(#,@attr (case-sensitive . value))
+                    (loop #'args (add-attribute attr #'(case-sensitive . value))
                           source))))
-          ((#:namespace ns . args) (loop #'args #`(#,@attr (namespace . ns)) #''()))
+          ((#:namespace ns . args)
+           (loop #'args (add-attribute attr #`(namespace . #,(process-argument #'ns))) #''()))
           ((key . args) (keyword? (syntax->datum #'key))
            (syntax-violation 'collection
                              (format #f "Unknown keyword ~a" (syntax->datum #'key))
