@@ -142,6 +142,10 @@ of action:
       (let ((op (syntax->datum x)))
         (not (not (memq op '(∪ ∩ UNION INTERSECTION or and ¬ not COMPLEMENT))))))
 
+    (define (id-list-operator? x)
+      (let ((op (syntax->datum x)))
+        (not (not (memq op '(‣ ID-LIST id-list))))))
+
     (define (unary-operator? x)
       (let ((op (syntax->datum x)))
         (not (not (memq op '(has REFERENCE reference →))))))
@@ -161,6 +165,9 @@ of action:
       (define (coll:reference lst)
         (list (cons #'reference (car lst))
               (cons #'namespace COLLECTION-NAMESPACE-COLLECTIONS)))
+
+      (define (coll:id-list lst)
+        (list))
 
       ;; TODO:
       ;;
@@ -193,7 +200,10 @@ of action:
                         (cons 'has #'COLLECTION-TYPE-HAS)
                         (cons '→ #'COLLECTION-TYPE-REFERENCE)
                         (cons 'reference #'COLLECTION-TYPE-REFERENCE)
-                        (cons 'REFERENCE #'COLLECTION-TYPE-REFERENCE))
+                        (cons 'REFERENCE #'COLLECTION-TYPE-REFERENCE)
+                        (cons '‣ #'COLLECTION-TYPE-IDLIST)
+                        (cons 'id-list #'COLLECTION-TYPE-IDLIST)
+                        (cons 'ID-LIST #'COLLECTION-TYPE-IDLIST))
                   (syntax->datum operator)))
              (proc (assoc
                     (syntax->datum id)
@@ -201,7 +211,8 @@ of action:
                           (cons 'COLLECTION-TYPE-UNION identity)
                           (cons 'COLLECTION-TYPE-COMPLEMENT identity)
                           (cons 'COLLECTION-TYPE-HAS unary-field)
-                          (cons 'COLLECTION-TYPE-REFERENCE coll:reference)))))
+                          (cons 'COLLECTION-TYPE-REFERENCE coll:reference)
+                          (cons 'COLLECTION-TYPE-IDLIST coll:id-list)))))
         (list id ((if proc (cdr proc) binary-field-value) args))))
 
     (define (process-argument x)
@@ -225,13 +236,14 @@ of action:
                     (loop rest (append acc (list a)) #f)
                     (loop rest (append acc (list this)) append?)))))))
 
-    (define (process-prop-list kw attributes lst)
+    (define* (process-prop-list kw attributes lst
+                                #:key (default-source #'(list (make-universe))))
       (unless (zero? (modulo (length lst) 2))
         (syntax-violation 'collection
                           (format #f "Property list has to have an even number of elements! ~a"
                                   (syntax->datum lst))
                           x kw))
-      (let loop ((rest lst) (attr attributes) (source #'(list (make-universe))))
+      (let loop ((rest lst) (attr attributes) (source default-source))
         (syntax-case rest (universe)
           (() (list attr source))
           ((#:from universe . args)
@@ -266,6 +278,12 @@ of action:
                             '()
                             '()
                             (list (expand-collection-dsl exp) ...))))
+      ((kw (op a rest ...)) (id-list-operator? #'op)
+       (with-syntax (((operator attributes) (process-operator #'op '())))
+         (with-syntax (((attr source)
+                        (process-prop-list #'kw #'attributes #'(rest ...)
+                                           #:default-source #''())))
+           #'(make-collection operator 'attr a source))))
       ((kw (op a rest ...)) (unary-operator? #'op)
        (with-syntax (((operator attributes)
                       (process-operator #'op (list (process-argument #'a)))))
