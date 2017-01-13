@@ -5,6 +5,7 @@
 (define-module (xmms2 types)
   #:use-module (ice-9 optargs)
   #:use-module (srfi srfi-9)
+  #:use-module (xmms2 constants)
   #:use-module (xmms2 constants collection)
   #:export (collection
             collection?
@@ -143,24 +144,33 @@ of action:
 
     (define (unary-operator? x)
       (let ((op (syntax->datum x)))
-        (not (not (memq op '(has))))))
+        (not (not (memq op '(has reference))))))
 
     (define (binary-operator? x)
       (let ((op (syntax->datum x)))
         (not (not (memq op '(= != ≠ < ≤ <= > ≥ >= ~ match))))))
 
-    (define (process-operator x)
-      (let ((op (syntax->datum x)))
-        ;; TODO:
-        ;;
-        ;;   COLLECTION-TYPE-REFERENCE
-        ;;   COLLECTION-TYPE-TOKEN
-        ;;   COLLECTION-TYPE-ORDER
-        ;;   COLLECTION-TYPE-LIMIT
-        ;;   COLLECTION-TYPE-MEDIASET
-        ;;   COLLECTION-TYPE-IDLIST
+    (define (process-operator operator args)
+      (define (unary-field lst)
+        (list (cons #'field (car lst))))
 
-        (assq-ref (list (cons '= #'COLLECTION-TYPE-EQUALS)
+      (define (binary-field-value lst)
+        (list (cons #'field (car lst))
+              (cons #'value (cadr lst))))
+
+      (define (coll:reference lst)
+        (list (cons #'reference (car lst))
+              (cons #'namespace COLLECTION-NAMESPACE-COLLECTIONS)))
+
+      ;; TODO:
+      ;;
+      ;;   COLLECTION-TYPE-TOKEN
+      ;;   COLLECTION-TYPE-ORDER
+      ;;   COLLECTION-TYPE-LIMIT
+      ;;   COLLECTION-TYPE-MEDIASET
+      ;;   COLLECTION-TYPE-IDLIST
+      (let* ((id (assq-ref
+                  (list (cons '= #'COLLECTION-TYPE-EQUALS)
                         (cons '≠ #'COLLECTION-TYPE-NOTEQUAL)
                         (cons '!= #'COLLECTION-TYPE-NOTEQUAL)
                         (cons '∩ #'COLLECTION-TYPE-INTERSECTION)
@@ -180,8 +190,17 @@ of action:
                         (cons 'COMPLEMENT #'COLLECTION-TYPE-COMPLEMENT)
                         (cons '~ #'COLLECTION-TYPE-MATCH)
                         (cons 'match #'COLLECTION-TYPE-MATCH)
-                        (cons 'has #'COLLECTION-TYPE-HAS))
-                  op)))
+                        (cons 'has #'COLLECTION-TYPE-HAS)
+                        (cons 'reference #'COLLECTION-TYPE-REFERENCE))
+                  (syntax->datum operator)))
+             (proc (assoc
+                    (syntax->datum id)
+                    (list (cons 'COLLECTION-TYPE-INTERSECTION identity)
+                          (cons 'COLLECTION-TYPE-UNION identity)
+                          (cons 'COLLECTION-TYPE-COMPLEMENT identity)
+                          (cons 'COLLECTION-TYPE-HAS unary-field)
+                          (cons 'COLLECTION-TYPE-REFERENCE coll:reference)))))
+        (list id ((if proc (cdr proc) binary-field-value) args))))
 
     (define (process-argument x)
       (let ((arg (syntax->datum x)))
@@ -212,6 +231,7 @@ of action:
                     (loop #'args
                           #`(#,@attr (case-sensitive . value))
                           source))))
+          ((#:namespace ns . args) (loop #'args #`(#,@attr (namespace . ns)) #''()))
           ((key . args) (keyword? (syntax->datum #'key))
            (syntax-violation 'collection
                              (format #f "Unknown keyword ~a" (syntax->datum #'key))
@@ -223,26 +243,23 @@ of action:
 
     (syntax-case x ()
       ((kw (op exp ...)) (set-operator? #'op)
-       (with-syntax ((operator (process-operator #'op)))
+       (with-syntax (((operator attributes) (process-operator #'op #'())))
          #'(make-collection operator
                             '()
                             '()
                             (list (expand-collection-dsl exp) ...))))
       ((kw (op a rest ...)) (unary-operator? #'op)
-       (with-syntax ((operator (process-operator #'op))
-                     (arg-a (process-argument #'a))
-                     ((attr source) (process-prop-list #'kw
-                                                       #`((field . #,(process-argument #'a)))
-                                                       #'(rest ...))))
-         #'(make-collection operator 'attr '() source)))
+       (with-syntax (((operator attributes)
+                      (process-operator #'op (list (process-argument #'a)))))
+         (with-syntax ((arg-a (process-argument #'a))
+                       ((attr source) (process-prop-list #'kw #'attributes #'(rest ...))))
+           #'(make-collection operator 'attr '() source))))
       ((kw (a op b rest ...)) (binary-operator? #'op)
-       (with-syntax ((operator (process-operator #'op))
-                     ((attr source)
-                      (process-prop-list #'kw
-                                         #`((field . #,(process-argument #'a))
-                                            (value . #,(process-argument #'b)))
-                                         #'(rest ...))))
-         #'(make-collection operator 'attr '() source)))
+       (with-syntax (((operator attributes)
+                      (process-operator #'op (map process-argument #'(a b)))))
+         (with-syntax (((attr source)
+                        (process-prop-list #'kw #'attributes #'(rest ...))))
+           #'(make-collection operator 'attr '() source))))
       ((kw exp) (identifier? #'exp) #'exp)
       ((kw exp ...) (syntax-violation 'collection
                                       "Invalid collection expression!"
