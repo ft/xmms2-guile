@@ -144,7 +144,7 @@ of action:
 
     (define (unary-operator? x)
       (let ((op (syntax->datum x)))
-        (not (not (memq op '(has reference))))))
+        (not (not (memq op '(has reference →))))))
 
     (define (binary-operator? x)
       (let ((op (syntax->datum x)))
