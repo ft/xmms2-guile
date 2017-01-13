@@ -39,9 +39,9 @@
 (define-public XMMS2-HEADER-SIZE 16)
 (define-public XMMS2-DEFAULT-PORT 9667)
 (define-public COLLECTION_NAMESPACE_ALL "*")
-(define-public COLLECTION_NS_COLLECTIONS "Collections")
-(define-public COLLECTION_NS_PLAYLISTS "Playlists")
-(define-public NAME_OF_ACTIVE_PLAYLIST "_active")
+(define-public COLLECTION-NAMESPACE-COLLECTIONS "Collections")
+(define-public COLLECTION-NAMESPACE-PLAYLISTS "Playlists")
+(define-public NAME-OF-ACTIVE-PLAYLIST "_active")
 
 (define-enum (=> define-type-constant)
   NONE
