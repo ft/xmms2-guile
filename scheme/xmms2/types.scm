@@ -144,7 +144,7 @@ of action:
 
     (define (unary-operator? x)
       (let ((op (syntax->datum x)))
-        (not (not (memq op '(has reference →))))))
+        (not (not (memq op '(has REFERENCE reference →))))))
 
     (define (binary-operator? x)
       (let ((op (syntax->datum x)))
@@ -192,7 +192,8 @@ of action:
                         (cons 'match #'COLLECTION-TYPE-MATCH)
                         (cons 'has #'COLLECTION-TYPE-HAS)
                         (cons '→ #'COLLECTION-TYPE-REFERENCE)
-                        (cons 'reference #'COLLECTION-TYPE-REFERENCE))
+                        (cons 'reference #'COLLECTION-TYPE-REFERENCE)
+                        (cons 'REFERENCE #'COLLECTION-TYPE-REFERENCE))
                   (syntax->datum operator)))
              (proc (assoc
                     (syntax->datum id)
