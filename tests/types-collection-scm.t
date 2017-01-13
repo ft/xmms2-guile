@@ -57,7 +57,8 @@
 (with-fs-test-bundle
  (plan (+ (* 3 *tests-per-simple-equals*)
           (* 3 *tests-per-simple-has*)
-          3 8))
+          3 8
+          1))
 
  (simple-equals-tests "")
  (simple-equals-tests " (universe keyword)" #:from universe)
@@ -253,4 +254,9 @@
      (pass-if-equal? (collection-fold append-op '() *complex*
                                       #:left-to-right? #f
                                       #:order 'level)
-                     level-rl))))
+                     level-rl))
+
+   (define-test "id-lists work"
+     (let ((lst '(1 2 3 4 5 6 7)))
+       (pass-if-equal? (collection-idlist (collection (‣ lst)))
+                       lst)))))
