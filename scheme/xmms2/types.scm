@@ -191,6 +191,7 @@ of action:
                         (cons '~ #'COLLECTION-TYPE-MATCH)
                         (cons 'match #'COLLECTION-TYPE-MATCH)
                         (cons 'has #'COLLECTION-TYPE-HAS)
+                        (cons '→ #'COLLECTION-TYPE-REFERENCE)
                         (cons 'reference #'COLLECTION-TYPE-REFERENCE))
                   (syntax->datum operator)))
              (proc (assoc
