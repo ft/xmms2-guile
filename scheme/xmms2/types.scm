@@ -231,8 +231,7 @@ of action:
         (exp #'exp)))
 
     (define (add-attribute attributes a)
-      (let ((key (syntax->datum (car a)))
-            (value (syntax->datum (cdr a))))
+      (let ((key (syntax->datum (car a))))
         (let loop ((rest attributes) (acc '()) (append? #t))
           (if (null? rest)
               (if append?
@@ -240,7 +239,6 @@ of action:
                   acc)
               (let* ((this (car rest))
                      (this-key (syntax->datum (caar rest)))
-                     (this-value (cdar rest))
                      (rest (cdr rest)))
                 (if (eq? this-key key)
                     (loop rest (append acc (list a)) #f)
