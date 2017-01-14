@@ -215,9 +215,20 @@ of action:
         (list id ((if proc (cdr proc) binary-field-value) args))))
 
     (define (process-argument x)
-      (let ((arg (syntax->datum x)))
-        (cond ((symbol? arg) (symbol->string arg))
-              (else x))))
+      (syntax-case x ()
+        ;; If an argument is a parenthesized expression, strip away one level
+        ;; of parentheses and insert the inner expression for evaluation. This
+        ;; way the DSL supports arbitrarily complex expressions in its
+        ;; arguments while allowing the user to express collections with the
+        ;; least amount of bother.
+        ((exp) #'exp)
+        ;; If a non-parenthesized expression looks like an identifier, turn it
+        ;; into a string.
+        (exp (identifier? #'exp)
+             (with-syntax ((str (symbol->string (syntax->datum #'exp))))
+               #'str))
+        ;; Insert everything else verbatim.
+        (exp #'exp)))
 
     (define (add-attribute attributes a)
       (let ((key (syntax->datum (car a)))

@@ -263,5 +263,5 @@
 
    (define-test "variables as arguments work"
      (let ((band "Slayer"))
-       (pass-if-equal? (collection-attribute (collection (artist = band)) 'value)
+       (pass-if-equal? (collection-attribute (collection (artist = (band))) 'value)
                        band)))))
