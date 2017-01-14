@@ -58,7 +58,7 @@
  (plan (+ (* 3 *tests-per-simple-equals*)
           (* 3 *tests-per-simple-has*)
           3 8
-          1))
+          2))
 
  (simple-equals-tests "")
  (simple-equals-tests " (universe keyword)" #:from universe)
@@ -259,4 +259,9 @@
    (define-test "id-lists work"
      (let ((lst '(1 2 3 4 5 6 7)))
        (pass-if-equal? (collection-idlist (collection (‣ lst)))
-                       lst)))))
+                       lst)))
+
+   (define-test "variables as arguments work"
+     (let ((band "Slayer"))
+       (pass-if-equal? (collection-attribute (collection (artist = band)) 'value)
+                       band)))))

@@ -156,18 +156,18 @@ of action:
 
     (define (process-operator operator args)
       (define (unary-field lst)
-        (list (cons #'field (car lst))))
+        #`(list (cons 'field #,(car lst))))
 
       (define (binary-field-value lst)
-        (list (cons #'field (car lst))
-              (cons #'value (cadr lst))))
+        #`(list (cons 'field #,(car lst))
+                (cons 'value #,(cadr lst))))
 
       (define (coll:reference lst)
-        (list (cons #'reference (car lst))
-              (cons #'namespace COLLECTION-NAMESPACE-COLLECTIONS)))
+        #`(list (cons 'reference #,(car lst))
+                (cons 'namespace COLLECTION-NAMESPACE-COLLECTIONS)))
 
       (define (coll:id-list lst)
-        (list))
+        #''())
 
       ;; TODO:
       ;;
@@ -257,10 +257,10 @@ of action:
                                       "#:case-sensitive expects boolean argument!"
                                       x kw))
                   (with-syntax ((value (if (syntax->datum #'active?) #'1 #'0)))
-                    (loop #'args (add-attribute attr #'(case-sensitive . value))
+                    (loop #'args (add-attribute attr #'(cons 'case-sensitive value))
                           source))))
           ((#:namespace ns . args)
-           (loop #'args (add-attribute attr #`(namespace . #,(process-argument #'ns))) #''()))
+           (loop #'args (add-attribute attr #`(cons 'namespace #,(process-argument #'ns))) #''()))
           ((key . args) (keyword? (syntax->datum #'key))
            (syntax-violation 'collection
                              (format #f "Unknown keyword ~a" (syntax->datum #'key))
@@ -277,24 +277,28 @@ of action:
                             '()
                             '()
                             (list (expand-collection-dsl exp) ...))))
+
       ((kw (op a rest ...)) (id-list-operator? #'op)
        (with-syntax (((operator attributes) (process-operator #'op '())))
          (with-syntax (((attr source)
                         (process-prop-list #'kw #'attributes #'(rest ...)
                                            #:default-source #''())))
-           #'(make-collection operator 'attr a source))))
+           #'(make-collection operator attr a source))))
+
       ((kw (op a rest ...)) (unary-operator? #'op)
        (with-syntax (((operator attributes)
                       (process-operator #'op (list (process-argument #'a)))))
-         (with-syntax ((arg-a (process-argument #'a))
-                       ((attr source) (process-prop-list #'kw #'attributes #'(rest ...))))
-           #'(make-collection operator 'attr '() source))))
+         (with-syntax (((attr source) (process-prop-list #'kw #'attributes
+                                                         #'(rest ...))))
+           #'(make-collection operator attr '() source))))
+
       ((kw (a op b rest ...)) (binary-operator? #'op)
        (with-syntax (((operator attributes)
                       (process-operator #'op (map process-argument #'(a b)))))
          (with-syntax (((attr source)
                         (process-prop-list #'kw #'attributes #'(rest ...))))
-           #'(make-collection operator 'attr '() source))))
+           #'(make-collection operator attr '() source))))
+
       ((kw exp) (identifier? #'exp) #'exp)
       ((kw exp ...) (syntax-violation 'collection
                                       "Invalid collection expression!"
