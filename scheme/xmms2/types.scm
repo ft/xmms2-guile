@@ -175,7 +175,6 @@ of action:
       ;;   COLLECTION-TYPE-ORDER
       ;;   COLLECTION-TYPE-LIMIT
       ;;   COLLECTION-TYPE-MEDIASET
-      ;;   COLLECTION-TYPE-IDLIST
       (let* ((id (assq-ref
                   (list (cons '= #'COLLECTION-TYPE-EQUALS)
                         (cons '≠ #'COLLECTION-TYPE-NOTEQUAL)
