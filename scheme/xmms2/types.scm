@@ -214,6 +214,7 @@ of action:
                           (cons 'COLLECTION-TYPE-IDLIST coll:id-list)))))
         (list id ((if proc (cdr proc) binary-field-value) args))))
 
+    ;; This expands the operand sub-language
     (define (process-argument x)
       (syntax-case x ()
         ;; If an argument is a parenthesized expression, strip away one level
@@ -241,6 +242,7 @@ of action:
           (((cons key value) . args)
            (loop #'args #`(#,@acc (cons key value)) append?)))))
 
+    ;; This expands the property-list sub-language
     (define* (process-prop-list kw attributes lst
                                 #:key (default-source #'(list (make-universe))))
       (unless (zero? (modulo (length lst) 2))
@@ -276,6 +278,7 @@ of action:
                              (format #f "Expected keyword at `~s'" (syntax->datum #'key))
                              x kw)))))
 
+    ;; This is the expansion for the main language
     (syntax-case x ()
       ((kw (op exp ...)) (set-operator? #'op)
        (with-syntax (((operator attributes) (process-operator #'op #'())))
