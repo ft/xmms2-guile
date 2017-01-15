@@ -61,7 +61,7 @@
 (with-fs-test-bundle
  (plan (+ (* 3 *tests-per-simple-equals*)
           (* 3 *tests-per-simple-has*)
-          48))
+          52))
 
  (simple-equals-tests "")
  (simple-equals-tests " (universe keyword)" #:from universe)
@@ -231,4 +231,13 @@
  (collection-type-test reference (reference Slayer) COLLECTION-TYPE-REFERENCE)
  (collection-type-test ‣ (‣ '(1 2 2 3 4 5)) COLLECTION-TYPE-IDLIST)
  (collection-type-test id-list (id-list '(1 2 2 3 4 5)) COLLECTION-TYPE-IDLIST)
- (collection-type-test ID-LIST (ID-LIST '(1 2 2 3 4 5)) COLLECTION-TYPE-IDLIST))
+ (collection-type-test ID-LIST (ID-LIST '(1 2 2 3 4 5)) COLLECTION-TYPE-IDLIST)
+ (collection-type-test limit (limit #:start 100
+                                    #:length 100
+                                    #:from universe)
+                       COLLECTION-TYPE-LIMIT)
+ (collection-type-test media-set (media-set #:from universe) COLLECTION-TYPE-MEDIASET)
+ (collection-type-test ∈ (∈ #:from universe) COLLECTION-TYPE-MEDIASET)
+ (collection-type-test order (order #:type random
+                                    #:from universe)
+                       COLLECTION-TYPE-ORDER))

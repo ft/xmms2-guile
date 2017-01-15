@@ -146,6 +146,10 @@ of action:
       (let ((op (syntax->datum x)))
         (not (not (memq op '(‣ ID-LIST id-list))))))
 
+    (define (0ary-operator? x)
+      (let ((op (syntax->datum x)))
+        (not (not (memq op '(media-set ∈ limit order))))))
+
     (define (unary-operator? x)
       (let ((op (syntax->datum x)))
         (not (not (memq op '(has REFERENCE reference →))))))
@@ -169,12 +173,7 @@ of action:
       (define (coll:id-list lst)
         #'(list))
 
-      ;; TODO:
-      ;;
-      ;;   COLLECTION-TYPE-TOKEN
-      ;;   COLLECTION-TYPE-ORDER
-      ;;   COLLECTION-TYPE-LIMIT
-      ;;   COLLECTION-TYPE-MEDIASET
+      ;; TODO:  COLLECTION-TYPE-TOKEN
       (let* ((id (assq-ref
                   (list (cons '= #'COLLECTION-TYPE-EQUALS)
                         (cons '≠ #'COLLECTION-TYPE-NOTEQUAL)
@@ -202,13 +201,20 @@ of action:
                         (cons 'REFERENCE #'COLLECTION-TYPE-REFERENCE)
                         (cons '‣ #'COLLECTION-TYPE-IDLIST)
                         (cons 'id-list #'COLLECTION-TYPE-IDLIST)
-                        (cons 'ID-LIST #'COLLECTION-TYPE-IDLIST))
+                        (cons 'ID-LIST #'COLLECTION-TYPE-IDLIST)
+                        (cons 'limit #'COLLECTION-TYPE-LIMIT)
+                        (cons 'order #'COLLECTION-TYPE-ORDER)
+                        (cons 'media-set #'COLLECTION-TYPE-MEDIASET)
+                        (cons '∈ #'COLLECTION-TYPE-MEDIASET))
                   (syntax->datum operator)))
              (proc (assoc
                     (syntax->datum id)
                     (list (cons 'COLLECTION-TYPE-INTERSECTION identity)
                           (cons 'COLLECTION-TYPE-UNION identity)
                           (cons 'COLLECTION-TYPE-COMPLEMENT identity)
+                          (cons 'COLLECTION-TYPE-LIMIT identity)
+                          (cons 'COLLECTION-TYPE-MEDIASET identity)
+                          (cons 'COLLECTION-TYPE-ORDER identity)
                           (cons 'COLLECTION-TYPE-HAS unary-field)
                           (cons 'COLLECTION-TYPE-REFERENCE coll:reference)
                           (cons 'COLLECTION-TYPE-IDLIST coll:id-list)))))
@@ -347,6 +353,13 @@ of action:
                       (process-operator #'op (map process-argument #'(a b)))))
          (with-syntax (((attr source)
                         (process-prop-list #'kw #'attributes #'(rest ...))))
+           #'(make-collection operator attr '() source))))
+
+      ((kw (op rest ...)) (0ary-operator? #'op)
+       (with-syntax (((operator attributes)
+                      (process-operator #'op #'(list))))
+         (with-syntax (((attr source) (process-prop-list #'kw #'attributes
+                                                         #'(rest ...))))
            #'(make-collection operator attr '() source))))
 
       ((kw exp) (identifier? #'exp) #'exp)
