@@ -54,10 +54,14 @@
 
 (define *tests-per-simple-has* 3)
 
+(define-syntax-rule (collection-type-test sym coll id)
+  (define-test (format #f "collection ~12,,,' @a ~32,,,'.@a" 'sym 'id)
+    (pass-if-= (collection-operator (collection coll)) id)))
+
 (with-fs-test-bundle
  (plan (+ (* 3 *tests-per-simple-equals*)
           (* 3 *tests-per-simple-has*)
-          21))
+          47))
 
  (simple-equals-tests "")
  (simple-equals-tests " (universe keyword)" #:from universe)
@@ -196,4 +200,31 @@
    (pass-if-= (collection-attribute
                (collection (artist = Slayer #:length 42))
                'length)
-              42)))
+              42))
+
+ (collection-type-test = (artist = Slayer) COLLECTION-TYPE-EQUALS)
+ (collection-type-test ≠ (artist ≠ Slayer) COLLECTION-TYPE-NOTEQUAL)
+ (collection-type-test != (artist != Slayer) COLLECTION-TYPE-NOTEQUAL)
+ (collection-type-test INTERSECTION (INTERSECTION (artist = Slayer)) COLLECTION-TYPE-INTERSECTION)
+ (collection-type-test ∩ (∩ (artist = Slayer)) COLLECTION-TYPE-INTERSECTION)
+ (collection-type-test or (or (artist = Slayer)) COLLECTION-TYPE-INTERSECTION)
+ (collection-type-test UNION (UNION (artist = Slayer)) COLLECTION-TYPE-UNION)
+ (collection-type-test ∪ (∪ (artist = Slayer)) COLLECTION-TYPE-UNION)
+ (collection-type-test and (and (artist = Slayer)) COLLECTION-TYPE-UNION)
+ (collection-type-test > (artist > Slayer) COLLECTION-TYPE-GREATER)
+ (collection-type-test ≥ (artist ≥ Slayer) COLLECTION-TYPE-GREATEREQ)
+ (collection-type-test >= (artist >= Slayer) COLLECTION-TYPE-GREATEREQ)
+ (collection-type-test < (artist < Slayer) COLLECTION-TYPE-SMALLER)
+ (collection-type-test ≤ (artist ≤ Slayer) COLLECTION-TYPE-SMALLEREQ)
+ (collection-type-test <= (artist <= Slayer) COLLECTION-TYPE-SMALLEREQ)
+ (collection-type-test not (not (artist = Slayer)) COLLECTION-TYPE-COMPLEMENT)
+ (collection-type-test COMPLEMENT (COMPLEMENT (artist = Slayer)) COLLECTION-TYPE-COMPLEMENT)
+ (collection-type-test ¬ (¬ (artist = Slayer)) COLLECTION-TYPE-COMPLEMENT)
+ (collection-type-test ~ (artist ~ Slayer) COLLECTION-TYPE-MATCH)
+ (collection-type-test match (artist match Slayer) COLLECTION-TYPE-MATCH)
+ (collection-type-test has (has artist) COLLECTION-TYPE-HAS)
+ (collection-type-test REFERENCE (REFERENCE Slayer) COLLECTION-TYPE-REFERENCE)
+ (collection-type-test reference (reference Slayer) COLLECTION-TYPE-REFERENCE)
+ (collection-type-test ‣ (‣ '(1 2 2 3 4 5)) COLLECTION-TYPE-IDLIST)
+ (collection-type-test id-list (id-list '(1 2 2 3 4 5)) COLLECTION-TYPE-IDLIST)
+ (collection-type-test ID-LIST (ID-LIST '(1 2 2 3 4 5)) COLLECTION-TYPE-IDLIST))
