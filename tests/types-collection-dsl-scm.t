@@ -131,6 +131,13 @@
                'case-sensitive)
               1))
 
+ (define-test "#:case-sensitive? can use evaluated expressions"
+   (let ((active? #t))
+     (pass-if-= (collection-attribute
+                 (collection (artist = Slayer #:case-sensitive? (active?)))
+                 'case-sensitive)
+                1)))
+
  (define-test "#:collation works"
    (pass-if-string=? (collection-attribute
                       (collection (artist = Slayer #:collation BINARY))

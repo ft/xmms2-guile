@@ -263,7 +263,8 @@ of action:
           ((#:from place . args)
            (loop #'args attr #'(list (expand-collection-dsl place))))
           ((#:case-sensitive? active? . args)
-           (begin (unless (boolean? (syntax->datum #'active?))
+           (begin (unless (let ((datum (syntax->datum #'active?)))
+                            (or (boolean? datum) (list? datum)))
                     (syntax-violation 'collection
                                       "#:case-sensitive? expects boolean argument!"
                                       x kw))
