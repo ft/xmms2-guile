@@ -57,7 +57,7 @@
 (with-fs-test-bundle
  (plan (+ (* 3 *tests-per-simple-equals*)
           (* 3 *tests-per-simple-has*)
-          18))
+          20))
 
  (simple-equals-tests "")
  (simple-equals-tests " (universe keyword)" #:from universe)
@@ -177,4 +177,16 @@
    (pass-if-string=? (collection-attribute
                       (collection (artist = Slayer #:order "desc"))
                       'order)
-                     "DESC")))
+                     "DESC"))
+
+ (define-test "#:start works"
+   (pass-if-= (collection-attribute
+               (collection (artist = Slayer #:start 23))
+               'start)
+              23))
+
+ (define-test "#:length works"
+   (pass-if-= (collection-attribute
+               (collection (artist = Slayer #:length 42))
+               'length)
+              42)))

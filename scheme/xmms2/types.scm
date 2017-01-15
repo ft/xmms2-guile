@@ -281,6 +281,14 @@ of action:
                  (add-attribute attr #`(cons 'source-preference
                                              #,(process-argument #'s)))
                  source))
+          ((#:start s . args)
+           (loop #'args
+                 (add-attribute attr #`(cons 'start #,(process-argument #'s)))
+                 source))
+          ((#:length l . args)
+           (loop #'args
+                 (add-attribute attr #`(cons 'length #,(process-argument #'l)))
+                 source))
           ((#:type t . args)
            (loop #'args (add-attribute attr #`(cons 'type #,(process-argument #'t))) source))
           ((#:order o . args)
