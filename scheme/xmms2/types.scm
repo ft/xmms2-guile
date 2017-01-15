@@ -283,6 +283,13 @@ of action:
                  source))
           ((#:type t . args)
            (loop #'args (add-attribute attr #`(cons 'type #,(process-argument #'t))) source))
+          ((#:order o . args)
+           (loop #'args
+                 (add-attribute attr
+                                #`(cons 'order
+                                        #,(process-argument #'o
+                                                            #:post string-upcase)))
+                 source))
           ((#:collation c . args)
            (loop #'args
                  (add-attribute attr

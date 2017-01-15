@@ -57,7 +57,7 @@
 (with-fs-test-bundle
  (plan (+ (* 3 *tests-per-simple-equals*)
           (* 3 *tests-per-simple-has*)
-          15))
+          18))
 
  (simple-equals-tests "")
  (simple-equals-tests " (universe keyword)" #:from universe)
@@ -159,4 +159,22 @@
    (pass-if-string=? (collection-attribute
                       (collection (artist = Slayer #:source plugin/vorbis))
                       'source)
-                     "plugin/vorbis")))
+                     "plugin/vorbis"))
+
+ (define-test "#:order works"
+   (pass-if-string=? (collection-attribute
+                      (collection (artist = Slayer #:order ASC))
+                      'order)
+                     "ASC"))
+
+ (define-test "#:order upcases symbols"
+   (pass-if-string=? (collection-attribute
+                      (collection (artist = Slayer #:order asc))
+                      'order)
+                     "ASC"))
+
+ (define-test "#:order upcases strings"
+   (pass-if-string=? (collection-attribute
+                      (collection (artist = Slayer #:order "desc"))
+                      'order)
+                     "DESC")))
