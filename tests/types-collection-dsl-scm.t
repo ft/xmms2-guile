@@ -57,7 +57,7 @@
 (with-fs-test-bundle
  (plan (+ (* 3 *tests-per-simple-equals*)
           (* 3 *tests-per-simple-has*)
-          20))
+          21))
 
  (simple-equals-tests "")
  (simple-equals-tests " (universe keyword)" #:from universe)
