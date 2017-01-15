@@ -167,7 +167,7 @@ of action:
                 (cons 'namespace COLLECTION-NAMESPACE-COLLECTIONS)))
 
       (define (coll:id-list lst)
-        #''())
+        #'(list))
 
       ;; TODO:
       ;;
