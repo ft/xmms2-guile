@@ -58,7 +58,7 @@
  (plan (+ (* 3 *tests-per-simple-equals*)
           (* 3 *tests-per-simple-has*)
           3 8
-          2))
+          5))
 
  (simple-equals-tests "")
  (simple-equals-tests " (universe keyword)" #:from universe)
@@ -264,4 +264,29 @@
    (define-test "variables as arguments work"
      (let ((band "Slayer"))
        (pass-if-equal? (collection-attribute (collection (artist = (band))) 'value)
-                       band)))))
+                       band)))
+
+   (define-test "expression may be complex in argument position"
+     (let* ((band "Slayer")
+            (stuff `((thing . "fish") (band . ,band))))
+       (pass-if-equal? (collection-attribute
+                        (collection (artist = ((assq-ref stuff 'band)))) 'value)
+                       band)))
+
+   (define-test "key expression may be complex as well"
+     (let* ((band "Slayer")
+            (stuff `((thing . "fish") (band . ,band)))
+            (key "artist")
+            (wat `((value . band) (key . ,key))))
+       (pass-if-equal? (collection-attribute
+                        (collection ((assq-ref wat 'key)
+                                     =
+                                     ((assq-ref stuff 'band))))
+                        'field)
+                       "artist")))
+
+   (define-test "#:namespace argument can be evaluated as well"
+     (let ((ns "Collectionation"))
+       (pass-if-equal? (collection-attribute (collection (→ Slayer #:namespace (ns)))
+                                             'namespace)
+                       ns)))))

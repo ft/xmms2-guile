@@ -231,18 +231,15 @@ of action:
         (exp #'exp)))
 
     (define (add-attribute attributes a)
-      (let ((key (syntax->datum (car a))))
-        (let loop ((rest attributes) (acc '()) (append? #t))
-          (if (null? rest)
-              (if append?
-                  (append acc (list a))
-                  acc)
-              (let* ((this (car rest))
-                     (this-key (syntax->datum (caar rest)))
-                     (rest (cdr rest)))
-                (if (eq? this-key key)
-                    (loop rest (append acc (list a)) #f)
-                    (loop rest (append acc (list this)) append?)))))))
+      (let loop ((rest attributes) (acc '()) (append? #t))
+        (syntax-case rest (list cons)
+          (() (if append? (append acc (list a)) acc))
+          ((list . args) (loop #'args #`(#,@acc list) append?))
+          (((cons key value) . args) (equal? (syntax->datum #'key)
+                                             (syntax->datum (cadr a)))
+           (loop #'args #`(#,@acc (cons key #,(caddr a))) #f))
+          (((cons key value) . args)
+           (loop #'args #`(#,@acc (cons key value)) append?)))))
 
     (define* (process-prop-list kw attributes lst
                                 #:key (default-source #'(list (make-universe))))
