@@ -57,7 +57,7 @@
 (with-fs-test-bundle
  (plan (+ (* 3 *tests-per-simple-equals*)
           (* 3 *tests-per-simple-has*)
-          7))
+          9))
 
  (simple-equals-tests "")
  (simple-equals-tests " (universe keyword)" #:from universe)
@@ -111,4 +111,16 @@
    (let ((ns "Collectionation"))
      (pass-if-equal? (collection-attribute (collection (→ Slayer #:namespace (ns)))
                                            'namespace)
-                     ns))))
+                     ns)))
+
+ (define-test "#:case-sensitive? works #1"
+   (pass-if-= (collection-attribute
+               (collection (artist = Slayer #:case-sensitive? #f))
+               'case-sensitive)
+              0))
+
+ (define-test "#:case-sensitive? works #2"
+   (pass-if-= (collection-attribute
+               (collection (artist = Slayer #:case-sensitive? #t))
+               'case-sensitive)
+              1)))
