@@ -359,9 +359,7 @@ a pair containing the two: (fractional . exponent)"
                       #:tagged #f)))
 
 (define* (make-collection-payload value #:key (tagged #t))
-  (let ((body (collection-fold (lambda (c acc)
-                                 (append acc (collection->bytevector c)))
-                               '() value)))
+  (let ((body (collection->bytevector value)))
     (if tagged
         (cons TAG-COLLECTION body)
         body)))
