@@ -57,7 +57,7 @@
 (with-fs-test-bundle
  (plan (+ (* 3 *tests-per-simple-equals*)
           (* 3 *tests-per-simple-has*)
-          9))
+          10))
 
  (simple-equals-tests "")
  (simple-equals-tests " (universe keyword)" #:from universe)
@@ -82,6 +82,12 @@
    (let ((lst '(1 2 3 4 5 6 7)))
      (pass-if-equal? (collection-idlist (collection (‣ lst)))
                      lst)))
+
+ (define-test "id-lists can set type"
+   (let ((lst '(1 2 3 4 5 6 7)))
+     (pass-if-equal? (collection-attribute (collection (‣ lst #:type pshuffle))
+                                           'type)
+                     "pshuffle")))
 
  (define-test "variables as arguments work"
    (let ((band "Slayer"))

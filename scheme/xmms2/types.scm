@@ -269,6 +269,8 @@ of action:
                           source))))
           ((#:namespace ns . args)
            (loop #'args (add-attribute attr #`(cons 'namespace #,(process-argument #'ns))) #''()))
+          ((#:type t . args)
+           (loop #'args (add-attribute attr #`(cons 'type #,(process-argument #'t))) source))
           ((key . args) (keyword? (syntax->datum #'key))
            (syntax-violation 'collection
                              (format #f "Unknown keyword ~a" (syntax->datum #'key))
