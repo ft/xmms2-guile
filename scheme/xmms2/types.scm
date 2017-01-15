@@ -257,10 +257,10 @@ of action:
            (loop #'args attr #'(list place)))
           ((#:from place . args)
            (loop #'args attr #'(list (expand-collection-dsl place))))
-          ((#:case-sensitive active? . args)
+          ((#:case-sensitive? active? . args)
            (begin (unless (boolean? (syntax->datum #'active?))
                     (syntax-violation 'collection
-                                      "#:case-sensitive expects boolean argument!"
+                                      "#:case-sensitive? expects boolean argument!"
                                       x kw))
                   (with-syntax ((value (if (syntax->datum #'active?) #'1 #'0)))
                     (loop #'args (add-attribute attr #'(cons 'case-sensitive value))
