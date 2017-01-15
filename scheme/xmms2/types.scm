@@ -215,7 +215,7 @@ of action:
         (list id ((if proc (cdr proc) binary-field-value) args))))
 
     ;; This expands the operand sub-language
-    (define (process-argument x)
+    (define* (process-argument x #:key (post identity))
       (syntax-case x ()
         ;; If an argument is a parenthesized expression, strip away one level
         ;; of parentheses and insert the inner expression for evaluation. This
@@ -226,7 +226,10 @@ of action:
         ;; If a non-parenthesized expression looks like an identifier, turn it
         ;; into a string.
         (exp (identifier? #'exp)
-             (with-syntax ((str (symbol->string (syntax->datum #'exp))))
+             (with-syntax ((str (post (symbol->string (syntax->datum #'exp)))))
+               #'str))
+        (exp (string? (syntax->datum #'exp))
+             (with-syntax ((str (post (syntax->datum #'exp))))
                #'str))
         ;; Insert everything else verbatim.
         (exp #'exp)))
@@ -271,6 +274,13 @@ of action:
            (loop #'args (add-attribute attr #`(cons 'namespace #,(process-argument #'ns))) #''()))
           ((#:type t . args)
            (loop #'args (add-attribute attr #`(cons 'type #,(process-argument #'t))) source))
+          ((#:collation c . args)
+           (loop #'args
+                 (add-attribute attr
+                                #`(cons 'collation
+                                        #,(process-argument #'c
+                                                            #:post string-upcase)))
+                 source))
           ((key . args) (keyword? (syntax->datum #'key))
            (syntax-violation 'collection
                              (format #f "Unknown keyword ~a" (syntax->datum #'key))

@@ -57,7 +57,7 @@
 (with-fs-test-bundle
  (plan (+ (* 3 *tests-per-simple-equals*)
           (* 3 *tests-per-simple-has*)
-          10))
+          13))
 
  (simple-equals-tests "")
  (simple-equals-tests " (universe keyword)" #:from universe)
@@ -129,4 +129,22 @@
    (pass-if-= (collection-attribute
                (collection (artist = Slayer #:case-sensitive? #t))
                'case-sensitive)
-              1)))
+              1))
+
+ (define-test "#:collation works"
+   (pass-if-string=? (collection-attribute
+                      (collection (artist = Slayer #:collation BINARY))
+                      'collation)
+                     "BINARY"))
+
+ (define-test "#:collation upcases symbols"
+   (pass-if-string=? (collection-attribute
+                      (collection (artist = Slayer #:collation binary))
+                      'collation)
+                     "BINARY"))
+
+ (define-test "#:collation upcases strings"
+   (pass-if-string=? (collection-attribute
+                      (collection (artist = Slayer #:collation "binary"))
+                      'collation)
+                     "BINARY")))
