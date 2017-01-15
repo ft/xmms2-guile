@@ -266,13 +266,15 @@ of action:
            (loop #'args attr #'(list (expand-collection-dsl place))))
           ((#:case-sensitive? active? . args)
            (begin (unless (let ((datum (syntax->datum #'active?)))
-                            (or (boolean? datum) (list? datum)))
+                            (or (boolean? datum) (and (list? datum)
+                                                      (not (null? datum))
+                                                      (eq? (car datum) '|))))
                     (syntax-violation 'collection
-                                      "#:case-sensitive? expects boolean argument!"
+                                      "#:case-sensitive? expects boolean argument or (| ...)"
                                       x kw))
-                  (with-syntax ((value (if (syntax->datum #'active?) #'1 #'0)))
-                    (loop #'args (add-attribute attr #'(cons 'case-sensitive value))
-                          source))))
+                  (loop #'args (add-attribute attr
+                                              #`(cons 'case-sensitive (if #,(process-argument #'active?) 1 0)))
+                        source)))
           ((#:namespace ns . args)
            (loop #'args (add-attribute attr #`(cons 'namespace #,(process-argument #'ns))) #''()))
           ((#:source s . args)
