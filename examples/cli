@@ -29,7 +29,10 @@
                                                  (caddr (xmms2-recv server)))))
                                        (make-list-entries cur))))
                         ("current-track" . ,make-get-current-identifier)
-                        ("list-collections" . ,(lambda () (coll:make-list "Collections")))))
+                        ("list-collections" . ,(lambda () (coll:make-list "Collections")))
+                        ("count-tracks" . ,(lambda ()
+                                             (coll:make-query (make-universe)
+                                                              '((type . "count")))))))
 
 (define (cmd->generator cmd)
   (let ((rv (assoc cmd generator-map)))
@@ -167,7 +170,11 @@
            (min (truncate (/ time 60)))
            (sec (modulo time 60)))
       (format #t "Current playtime:  ~d:~2,'0d.~3,'0d~%" min sec ms)))
-   (else #t)))
+   ((string=? command "count-tracks")
+    (format #t "Server Media-library contains ~a tracks.~%"
+            (payload->value (caddr reply))))
+   (else
+    (format #t "~a: ~s~%" command (caddr reply)))))
 (when (or (string=? command "next")
           (string=? command "prev"))
   (xmms2-send server (make-kill-decoder))
