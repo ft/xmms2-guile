@@ -27,55 +27,8 @@
                                     (album = "Call of the Mastodon"))
                                  (¬ (artist = Mozart)))))
 
-(define-syntax-rule (simple-equals-tests desc src ...)
-  (let ((c (collection (artist = "Slayer")))
-        (fmt (string-concatenate (list "simple" desc ", equals: ~a is ~s"))))
-    (define-test (format #f fmt 'operator 'COLLECTION-TYPE-EQUALS)
-      (pass-if-= (collection-operator c) COLLECTION-TYPE-EQUALS))
-    (define-test (format #f fmt 'field "artist")
-      (pass-if-string=? (collection-attribute c 'field) "artist"))
-    (define-test (format #f fmt 'value "Slayer")
-      (pass-if-string=? (collection-attribute c 'value) "Slayer"))
-    (define-test (format #f fmt 'source '*universe*)
-      (pass-if-equal? (car (collection-children c)) *universe*))))
-
-(define *tests-per-simple-equals* 4)
-
-(define-syntax-rule (simple-has-tests desc src ...)
-  (let ((c (collection (has artist)))
-        (fmt-1 (string-concatenate (list "simple" desc ", has: ~a")))
-        (fmt-2 (string-concatenate (list "simple" desc ", has: ~a is ~s"))))
-    (define-test (format #f fmt-2 'operator 'COLLECTION-TYPE-HAS)
-      (pass-if-= (collection-operator c) COLLECTION-TYPE-HAS))
-    (define-test (format #f fmt-1 "artist")
-      (pass-if-string=? (collection-attribute c 'field) "artist"))
-    (define-test (format #f fmt-2 'source '*universe*)
-      (pass-if-equal? (car (collection-children c)) *universe*))))
-
-(define *tests-per-simple-has* 3)
-
 (with-fs-test-bundle
- (plan (+ (* 3 *tests-per-simple-equals*)
-          (* 3 *tests-per-simple-has*)
-          3 8
-          5))
-
- (simple-equals-tests "")
- (simple-equals-tests " (universe keyword)" #:from universe)
- (simple-equals-tests " (universe variable)" #:from *universe*)
-
- (simple-has-tests "")
- (simple-has-tests " (universe keyword)" #:from universe)
- (simple-has-tests " (universe variable)" #:from *universe*)
-
- (let* ((has-artist (collection (has artist)))
-        (missing-artist (collection (¬ has-artist))))
-   (define-test "not: operator is COLLECTION-TYPE-COMPLEMENT"
-     (pass-if-= (collection-operator missing-artist)
-                COLLECTION-TYPE-COMPLEMENT))
-   (define-test "not: source of missing-artist is has-artist"
-     (pass-if-equal? (car (collection-children missing-artist))
-                     has-artist)))
+ (plan 9)
 
  (define-test "universe has one node"
    (pass-if-= 1 (collection-fold (lambda (x acc) (+ acc 1))
@@ -254,39 +207,4 @@
      (pass-if-equal? (collection-fold append-op '() *complex*
                                       #:left-to-right? #f
                                       #:order 'level)
-                     level-rl))
-
-   (define-test "id-lists work"
-     (let ((lst '(1 2 3 4 5 6 7)))
-       (pass-if-equal? (collection-idlist (collection (‣ lst)))
-                       lst)))
-
-   (define-test "variables as arguments work"
-     (let ((band "Slayer"))
-       (pass-if-equal? (collection-attribute (collection (artist = (band))) 'value)
-                       band)))
-
-   (define-test "expression may be complex in argument position"
-     (let* ((band "Slayer")
-            (stuff `((thing . "fish") (band . ,band))))
-       (pass-if-equal? (collection-attribute
-                        (collection (artist = ((assq-ref stuff 'band)))) 'value)
-                       band)))
-
-   (define-test "key expression may be complex as well"
-     (let* ((band "Slayer")
-            (stuff `((thing . "fish") (band . ,band)))
-            (key "artist")
-            (wat `((value . band) (key . ,key))))
-       (pass-if-equal? (collection-attribute
-                        (collection ((assq-ref wat 'key)
-                                     =
-                                     ((assq-ref stuff 'band))))
-                        'field)
-                       "artist")))
-
-   (define-test "#:namespace argument can be evaluated as well"
-     (let ((ns "Collectionation"))
-       (pass-if-equal? (collection-attribute (collection (→ Slayer #:namespace (ns)))
-                                             'namespace)
-                       ns)))))
+                     level-rl))))
