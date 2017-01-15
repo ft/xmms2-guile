@@ -57,7 +57,7 @@
 (with-fs-test-bundle
  (plan (+ (* 3 *tests-per-simple-equals*)
           (* 3 *tests-per-simple-has*)
-          13))
+          15))
 
  (simple-equals-tests "")
  (simple-equals-tests " (universe keyword)" #:from universe)
@@ -147,4 +147,16 @@
    (pass-if-string=? (collection-attribute
                       (collection (artist = Slayer #:collation "binary"))
                       'collation)
-                     "BINARY")))
+                     "BINARY"))
+
+ (define-test "#:source-preference works"
+   (pass-if-string=? (collection-attribute
+                      (collection (artist = Slayer #:source-preference all))
+                      'source-preference)
+                     "all"))
+
+ (define-test "#:source works"
+   (pass-if-string=? (collection-attribute
+                      (collection (artist = Slayer #:source plugin/vorbis))
+                      'source)
+                     "plugin/vorbis")))

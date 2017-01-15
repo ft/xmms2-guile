@@ -272,6 +272,15 @@ of action:
                           source))))
           ((#:namespace ns . args)
            (loop #'args (add-attribute attr #`(cons 'namespace #,(process-argument #'ns))) #''()))
+          ((#:source s . args)
+           (loop #'args
+                 (add-attribute attr #`(cons 'source #,(process-argument #'s)))
+                 source))
+          ((#:source-preference s . args)
+           (loop #'args
+                 (add-attribute attr #`(cons 'source-preference
+                                             #,(process-argument #'s)))
+                 source))
           ((#:type t . args)
            (loop #'args (add-attribute attr #`(cons 'type #,(process-argument #'t))) source))
           ((#:collation c . args)
