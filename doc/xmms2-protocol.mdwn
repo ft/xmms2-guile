@@ -150,36 +150,83 @@ the previous section. Like with general messages the payload part is optional.
 
 # Types
 
+Types in the protocol are expressed as 32 bit unsigned integers. Like every
+other multi-octet word, the byte order is big endian.
+
 ## Scalar Types
 
 ### NONE
 
 This data type connotes the lack of a data type. This is useful, for example,
-to express — say — a list of elements of arbitrary data.
+to express — say — a list of elements of arbitrary data. The lack of a type is
+encoded as type id `0` (type tag: `00 00 00 00`).
 
 ### INT64
 
 This is the basic integral number type used in XMMS2. It is a signed integer
-and is eight octets wide.
+and is eight octets wide. Negative numbers are expressed as twos-complement
+values. The integer type id is `2` (type tag: `00 00 00 02`).
+
+Examples (type tag, then value):
+
+- `10` → `00 00 00 02 00 00 00 00 00 00 00 0a`
+- `-10` → `00 00 00 02 ff ff ff ff ff ff ff f6`
 
 ### STRING
 
 Strings are another basic data type. Strings in XMMS2 are always encoded in
-UTF-8.
+UTF-8. Strings have the type id `3` (type tag: `00 00 00 03`). Strings are
+structured like this:
+
+- `4` octets that is the type tag.
+- `4` octets that represent the length of the string (plus one, because …)
+- `N+1` octets that is the `N` octets of the UTF-8 string plus a final `00`
+  octet.
+
+Example:
+
+- `"foo"` → `00 00 00 03 00 00 00 04 66 6f 6f 00`
 
 ### FLOAT
 
 In addition to exact integers, XMMS2 has a second number type to express
-non-integers as non-exact floating point numbers.
+non-integers as non-exact floating point numbers. Floats use the type id `9`
+(type tag: `00 00 00 09`). Floating point numbers are represented by two 32
+bit, twos-complement signed integers: The exponent and the mantissa of the
+floating point number. The mantissa is the normalized integral part of the
+number, ranged between `0.5` (inclusive) and `1` (exclusive; see `frexp(3)` for
+details) and scaled to `INT32_MAX` for positive numbers and `INT32_MIN` for
+negative ones. The exponent is to a base of `2` that raises the mantissa to the
+original number.
+
+Examples:
+
+- `2` → `00 00 00 09 40 00 00 00 00 00 00 02`
+- `-1024` → `00 00 00 09 c0 00 00 00 00 00 00 0b`
 
 ### ERROR
 
 At the time of writing, errors are strings that are specially tagged and are
-thus interpreted as error messages. I don't know if this is subject to change.
+thus interpreted as error messages. The type id for errors is `1` (type tag:
+`00 00 00 01`). Otherwise errors and strings are exactly the same.
+
+Example:
+
+- `Error "foo"` → `00 00 00 03 00 00 00 04 66 6f 6f 00`
 
 ### BINARY
 
-This data type is used for transfering binary data such as album art.
+This data type is used for transfering binary data such as album art. The type
+id for binary data is `5` (type tag: `00 00 00 05`). The data is structured
+like this:
+
+- `4` octets that is the type tag.
+- `4` octets that represent the length of the data.
+- `N` octets that is actual binary data.
+
+Example:
+
+- `Binary 01 02 03 04` → `00 00 00 05 00 00 00 04 01 02 03 04`
 
 ### BITBUFFER
 
