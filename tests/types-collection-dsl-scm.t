@@ -61,7 +61,7 @@
 (with-fs-test-bundle
  (plan (+ (* 3 *tests-per-simple-equals*)
           (* 3 *tests-per-simple-has*)
-          52))
+          54))
 
  (simple-equals-tests "")
  (simple-equals-tests " (universe keyword)" #:from universe)
@@ -240,4 +240,6 @@
  (collection-type-test ∈ (∈ #:from universe) COLLECTION-TYPE-MEDIASET)
  (collection-type-test order (order #:type random
                                     #:from universe)
-                       COLLECTION-TYPE-ORDER))
+                       COLLECTION-TYPE-ORDER)
+ (collection-type-test token (artist token * #:from universe) COLLECTION-TYPE-TOKEN)
+ (collection-type-test ~~ (artist ~~ * #:from universe) COLLECTION-TYPE-TOKEN))

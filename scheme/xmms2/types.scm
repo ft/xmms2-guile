@@ -156,7 +156,7 @@ of action:
 
     (define (binary-operator? x)
       (let ((op (syntax->datum x)))
-        (not (not (memq op '(= != ≠ < ≤ <= > ≥ >= ~ match))))))
+        (not (not (memq op '(= != ≠ < ≤ <= > ≥ >= ~ match token ~~))))))
 
     (define (process-operator operator args)
       (define (unary-field lst)
@@ -205,7 +205,9 @@ of action:
                         (cons 'limit #'COLLECTION-TYPE-LIMIT)
                         (cons 'order #'COLLECTION-TYPE-ORDER)
                         (cons 'media-set #'COLLECTION-TYPE-MEDIASET)
-                        (cons '∈ #'COLLECTION-TYPE-MEDIASET))
+                        (cons '∈ #'COLLECTION-TYPE-MEDIASET)
+                        (cons 'token #'COLLECTION-TYPE-TOKEN)
+                        (cons '~~ #'COLLECTION-TYPE-TOKEN))
                   (syntax->datum operator)))
              (proc (assoc
                     (syntax->datum id)
