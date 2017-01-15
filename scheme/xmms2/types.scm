@@ -232,6 +232,7 @@ of action:
         (exp (string? (syntax->datum #'exp))
              (with-syntax ((str (post (syntax->datum #'exp))))
                #'str))
+        ((exp ...) #''(exp ...))
         ;; Insert everything else verbatim.
         (exp #'exp)))
 
@@ -330,7 +331,7 @@ of action:
          (with-syntax (((attr source)
                         (process-prop-list #'kw #'attributes #'(rest ...)
                                            #:default-source #''())))
-           #'(make-collection operator attr a source))))
+           #`(make-collection operator attr #,(process-argument #'a) source))))
 
       ((kw (op a rest ...)) (unary-operator? #'op)
        (with-syntax (((operator attributes)

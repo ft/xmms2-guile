@@ -61,7 +61,7 @@
 (with-fs-test-bundle
  (plan (+ (* 3 *tests-per-simple-equals*)
           (* 3 *tests-per-simple-has*)
-          47))
+          48))
 
  (simple-equals-tests "")
  (simple-equals-tests " (universe keyword)" #:from universe)
@@ -82,9 +82,13 @@
      (pass-if-equal? (car (collection-children missing-artist))
                      has-artist)))
 
- (define-test "id-lists work"
+ (define-test "id-lists work #1"
+   (pass-if-equal? (collection-idlist (collection (‣ (1 2 3 4 5 6 7))))
+                   '(1 2 3 4 5 6 7)))
+
+ (define-test "id-lists work #2"
    (let ((lst '(1 2 3 4 5 6 7)))
-     (pass-if-equal? (collection-idlist (collection (‣ lst)))
+     (pass-if-equal? (collection-idlist (collection (‣ (| lst))))
                      lst)))
 
  (define-test "id-lists can set type"
