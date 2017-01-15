@@ -216,13 +216,14 @@ of action:
 
     ;; This expands the operand sub-language
     (define* (process-argument x #:key (post identity))
-      (syntax-case x ()
-        ;; If an argument is a parenthesized expression, strip away one level
-        ;; of parentheses and insert the inner expression for evaluation. This
-        ;; way the DSL supports arbitrarily complex expressions in its
-        ;; arguments while allowing the user to express collections with the
-        ;; least amount of bother.
-        ((exp) #'exp)
+      (syntax-case x (|)
+        ;; If an argument is a parenthesized expression starting with a bar
+        ;; character, strip away one level of parentheses and the bar symbol
+        ;; and insert the inner expression for evaluation. This way the DSL
+        ;; supports arbitrarily complex expressions in its arguments while
+        ;; allowing the user to express collections with the least amount of
+        ;; bother.
+        ((| exp) #'exp)
         ;; If a non-parenthesized expression looks like an identifier, turn it
         ;; into a string.
         (exp (identifier? #'exp)

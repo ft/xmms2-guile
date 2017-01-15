@@ -95,14 +95,14 @@
 
  (define-test "variables as arguments work"
    (let ((band "Slayer"))
-     (pass-if-equal? (collection-attribute (collection (artist = (band))) 'value)
+     (pass-if-equal? (collection-attribute (collection (artist = (| band))) 'value)
                      band)))
 
  (define-test "expression may be complex in argument position"
    (let* ((band "Slayer")
           (stuff `((thing . "fish") (band . ,band))))
      (pass-if-equal? (collection-attribute
-                      (collection (artist = ((assq-ref stuff 'band)))) 'value)
+                      (collection (artist = (| (assq-ref stuff 'band)))) 'value)
                      band)))
 
  (define-test "key expression may be complex as well"
@@ -111,15 +111,15 @@
           (key "artist")
           (wat `((value . band) (key . ,key))))
      (pass-if-equal? (collection-attribute
-                      (collection ((assq-ref wat 'key)
+                      (collection ((| (assq-ref wat 'key))
                                    =
-                                   ((assq-ref stuff 'band))))
+                                   (| (assq-ref stuff 'band))))
                       'field)
                      "artist")))
 
  (define-test "#:namespace argument can be evaluated as well"
    (let ((ns "Collectionation"))
-     (pass-if-equal? (collection-attribute (collection (→ Slayer #:namespace (ns)))
+     (pass-if-equal? (collection-attribute (collection (→ Slayer #:namespace (| ns)))
                                            'namespace)
                      ns)))
 
@@ -138,7 +138,7 @@
  (define-test "#:case-sensitive? can use evaluated expressions"
    (let ((active? #t))
      (pass-if-= (collection-attribute
-                 (collection (artist = Slayer #:case-sensitive? (active?)))
+                 (collection (artist = Slayer #:case-sensitive? (| active?)))
                  'case-sensitive)
                 1)))
 
