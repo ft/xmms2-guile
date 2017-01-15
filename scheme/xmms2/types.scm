@@ -173,7 +173,6 @@ of action:
       (define (coll:id-list lst)
         #'(list))
 
-      ;; TODO:  COLLECTION-TYPE-TOKEN
       (let* ((id (assq-ref
                   (list (cons '= #'COLLECTION-TYPE-EQUALS)
                         (cons '≠ #'COLLECTION-TYPE-NOTEQUAL)
