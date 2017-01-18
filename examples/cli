@@ -34,7 +34,19 @@
                         ("list-collections" . ,(lambda () (coll:make-list "Collections")))
                         ("count-tracks" . ,(lambda ()
                                              (coll:make-query (make-universe)
-                                                              '((type . "count")))))))
+                                                              '((type . "count")))))
+                        ("list-artists" .
+                         ,(lambda ()
+                            (coll:make-query ;; Takes collection and a fetch-spec...
+                             (make-universe)
+                             '((type . "cluster-list")
+                               (cluster-by . "value")
+                               (cluster-field . "artist")
+                               (data . ((type . "organize")
+                                        (data . ((count . ((type . "count")))
+                                                 (artist . ((type . "metadata")
+                                                            (fields "artist")
+                                                            (get "value")))))))))))))
 
 (define (cmd->generator cmd)
   (let ((rv (assoc cmd generator-map)))
@@ -146,6 +158,12 @@
     (format #t "~%Name: ~s, " c)
     (output-collection data 2)))
 
+(define (sort-artists lst)
+  (sort lst (lambda (a b)
+              (let ((a* (dict-ref 'count a))
+                    (b* (dict-ref 'count b)))
+                (< a* b*)))))
+
 (let ((reply (xmms2-recv server)))
   (cond
    ((string=? command "statistics")
@@ -175,6 +193,15 @@
    ((string=? command "count-tracks")
     (format #t "Server Media-library contains ~a tracks.~%"
             (payload->value (caddr reply))))
+   ((string=? command "list-artists")
+    (let loop ((rest (reverse (sort-artists (payload->value (caddr reply))))))
+      (if (null? rest)
+          #t
+          (let ((data (dictionary-data (car rest))))
+            (format #t "~a Tracks by ~a~%"
+                    (assq-ref data 'count)
+                    (assq-ref data 'artist))
+            (loop (cdr rest))))))
    (else
     (if debug?
         (format #t "~a: ~s~%" command (caddr reply))))))
