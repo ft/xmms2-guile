@@ -14,6 +14,8 @@
              (xmms2 payload)
              (xmms2 types))
 
+(define debug? #f)
+
 (define generator-map `(("play" . ,make-start)
                         ("stop" . ,make-stop)
                         ("pause" . ,make-pause)
@@ -174,7 +176,8 @@
     (format #t "Server Media-library contains ~a tracks.~%"
             (payload->value (caddr reply))))
    (else
-    (format #t "~a: ~s~%" command (caddr reply)))))
+    (if debug?
+        (format #t "~a: ~s~%" command (caddr reply))))))
 (when (or (string=? command "next")
           (string=? command "prev"))
   (xmms2-send server (make-kill-decoder))
