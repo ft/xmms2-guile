@@ -21,6 +21,7 @@
             collection-children
             dictionary?
             dictionary-data
+            dictionary-data/deep
             dictionary-type
             dict
             dict-ref
@@ -50,6 +51,28 @@
 
 (define (dict-ref key dict)
   (assq-ref (dictionary-data dict) key))
+
+(define (dictionary-data/deep lst)
+  (if (and (not (list? lst))
+           (not (dictionary? lst)))
+      lst
+      (let loop ((rest (if (dictionary? lst)
+                           (dictionary-data lst)
+                           lst))
+                 (acc '()))
+        (if (null? rest)
+            acc
+            (let ((this (car rest)))
+              (cond ((list? this)
+                     (loop (cdr rest)
+                           (append! acc (map dictionary-data/deep this))))
+                    ((pair? this)
+                     (loop (cdr rest)
+                           (append! acc (list (cons (dictionary-data/deep (car this))
+                                                    (dictionary-data/deep (cdr this)))))))
+                    ((dictionary? this)
+                     (loop (cdr rest) (append! acc (list (dictionary-data/deep this)))))
+                    (else (loop (cdr rest) (append! acc (list this))))))))))
 
 (define (property-list? lst)
   (and (list? lst)
@@ -166,6 +189,28 @@ of action:
      (recursive-traversal (children collection)
                           (proc (pick-node collection) init)))))
 
+;; This expands the operand sub-language
+(define* (process-argument x #:key (post identity))
+  (syntax-case x (|)
+    ;; If an argument is a parenthesized expression starting with a bar
+    ;; character, strip away one level of parentheses and the bar symbol
+    ;; and insert the inner expression for evaluation. This way the DSL
+    ;; supports arbitrarily complex expressions in its arguments while
+    ;; allowing the user to express collections with the least amount of
+    ;; bother.
+    ((| exp) #'exp)
+    ;; If a non-parenthesized expression looks like an identifier, turn it
+    ;; into a string.
+    (exp (identifier? #'exp)
+         (with-syntax ((str (post (symbol->string (syntax->datum #'exp)))))
+           #'str))
+    (exp (string? (syntax->datum #'exp))
+         (with-syntax ((str (post (syntax->datum #'exp))))
+           #'str))
+    ((exp ...) #''(exp ...))
+    ;; Insert everything else verbatim.
+    (exp #'exp)))
+
 (define-syntax expand-collection-dsl
   (lambda (x)
 
@@ -251,28 +296,6 @@ of action:
                           (cons 'COLLECTION-TYPE-REFERENCE coll:reference)
                           (cons 'COLLECTION-TYPE-IDLIST coll:id-list)))))
         (list id ((if proc (cdr proc) binary-field-value) args))))
-
-    ;; This expands the operand sub-language
-    (define* (process-argument x #:key (post identity))
-      (syntax-case x (|)
-        ;; If an argument is a parenthesized expression starting with a bar
-        ;; character, strip away one level of parentheses and the bar symbol
-        ;; and insert the inner expression for evaluation. This way the DSL
-        ;; supports arbitrarily complex expressions in its arguments while
-        ;; allowing the user to express collections with the least amount of
-        ;; bother.
-        ((| exp) #'exp)
-        ;; If a non-parenthesized expression looks like an identifier, turn it
-        ;; into a string.
-        (exp (identifier? #'exp)
-             (with-syntax ((str (post (symbol->string (syntax->datum #'exp)))))
-               #'str))
-        (exp (string? (syntax->datum #'exp))
-             (with-syntax ((str (post (syntax->datum #'exp))))
-               #'str))
-        ((exp ...) #''(exp ...))
-        ;; Insert everything else verbatim.
-        (exp #'exp)))
 
     (define (add-attribute attributes a)
       (let loop ((rest attributes) (acc '()) (append? #t))
