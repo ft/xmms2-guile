@@ -5,6 +5,7 @@
              (xmms2 constants)
              (xmms2 constants meta)
              (xmms2 constants collection)
+             (xmms2 fetch-spec)
              (xmms2 io)
              ((xmms2 ipc collection) #:prefix coll:)
              (xmms2 ipc main)
@@ -40,14 +41,14 @@
                          ,(lambda ()
                             (coll:make-query ;; Takes collection and a fetch-spec...
                              (make-universe)
-                             (pl #:type "cluster-list"
-                                 #:cluster-by "value"
-                                 #:cluster-field "artist"
-                                 #:data (pl #:type "organize"
-                                            #:data (pl #:count (pl #:type "count")
-                                                       #:artist (pl #:type "metadata"
-                                                                    #:fields '("artist")
-                                                                    #:get '("value"))))))))))
+                             (fetch-spec #:type cluster-list
+                                         #:cluster-by value
+                                         #:cluster-field artist
+                                         #:data (- #:type organize
+                                                   #:data (- #:count (- #:type count)
+                                                             #:artist (- #:type metadata
+                                                                         #:fields (artist)
+                                                                         #:get (value))))))))))
 
 (define (cmd->generator cmd)
   (let ((rv (assoc cmd generator-map)))
