@@ -207,7 +207,9 @@ of action:
     (exp (string? (syntax->datum #'exp))
          (with-syntax ((str (post (syntax->datum #'exp))))
            #'str))
-    ((exp ...) #''(exp ...))
+    ((exp ...)
+     (with-syntax (((exp* ...) (map process-argument #'(exp ...))))
+       #'(list exp* ...)))
     ;; Insert everything else verbatim.
     (exp #'exp)))
 
