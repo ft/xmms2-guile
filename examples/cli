@@ -15,6 +15,7 @@
              (xmms2 types))
 
 (define debug? #f)
+(define pl property-list->dictionary)
 
 (define generator-map `(("play" . ,make-start)
                         ("stop" . ,make-stop)
@@ -34,19 +35,19 @@
                         ("list-collections" . ,(lambda () (coll:make-list "Collections")))
                         ("count-tracks" . ,(lambda ()
                                              (coll:make-query (make-universe)
-                                                              '((type . "count")))))
+                                                              (pl #:type "count"))))
                         ("list-artists" .
                          ,(lambda ()
                             (coll:make-query ;; Takes collection and a fetch-spec...
                              (make-universe)
-                             '((type . "cluster-list")
-                               (cluster-by . "value")
-                               (cluster-field . "artist")
-                               (data . ((type . "organize")
-                                        (data . ((count . ((type . "count")))
-                                                 (artist . ((type . "metadata")
-                                                            (fields "artist")
-                                                            (get "value")))))))))))))
+                             (pl #:type "cluster-list"
+                                 #:cluster-by "value"
+                                 #:cluster-field "artist"
+                                 #:data (pl #:type "organize"
+                                            #:data (pl #:count (pl #:type "count")
+                                                       #:artist (pl #:type "metadata"
+                                                                    #:fields '("artist")
+                                                                    #:get '("value"))))))))))
 
 (define (cmd->generator cmd)
   (let ((rv (assoc cmd generator-map)))
