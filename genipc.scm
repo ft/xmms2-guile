@@ -638,7 +638,7 @@
                                (prefix #f))
   (pp (append
        (list 'define-ipc-packet-generator
-             (let ((sym (symbol-append 'make- name)))
+             (let ((sym (symbol-append 'ipc- name)))
                (if prefix
                    (symbol-append prefix sym)
                    sym))
@@ -696,7 +696,7 @@
   (define (name->id name)
     (symbol-append 'CMD- (symbol-upcase name)))
   (define (name->generator name)
-    (symbol-append 'make- name))
+    (symbol-append 'ipc- name))
   (define (module->object module)
     (symbol-append 'OBJECT- (symbol-upcase (caddr module))))
   (let ((name (assq-ref* data 'name))
