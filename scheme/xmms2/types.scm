@@ -3,7 +3,9 @@
 ;; Terms for redistribution and use can be found in LICENCE.
 
 (define-module (xmms2 types)
+  #:use-module (ice-9 control)
   #:use-module (ice-9 optargs)
+  #:use-module (srfi srfi-1)
   #:use-module (srfi srfi-9)
   #:use-module (xmms2 constants)
   #:use-module (xmms2 constants collection)
@@ -24,7 +26,10 @@
             dict-ref
             make-dictionary
             association-list?
-            non-complex-number?))
+            non-complex-number?
+            property-list?
+            property-list->association-list
+            property-list->dictionary))
 
 (define (non-complex-number? data)
   (and (number? data) (zero? (imag-part data))))
@@ -45,6 +50,32 @@
 
 (define (dict-ref key dict)
   (assq-ref (dictionary-data dict) key))
+
+(define (property-list? lst)
+  (and (list? lst)
+       (zero? (modulo (length lst) 2))
+       (car (call/ec (lambda (return)
+                       (fold (lambda (x state)
+                               (let ((skip? (cdr state)))
+                                 (cond (skip? '(#t . #f))
+                                       ((keyword? x) '(#t . #t))
+                                       (else (return '(#f . #f))))))
+                             '(#t . #f)
+                             lst))))))
+
+(define (property-list->association-list . lst)
+  (unless (property-list? lst)
+    (throw 'x2/not-a-property-list lst))
+  (let loop ((rest lst) (acc '()))
+    (if (null? rest)
+        (reverse acc)
+        (let ((key (keyword->symbol (car rest)))
+              (value (cadr rest))
+              (rest (cddr rest)))
+          (loop rest (cons (cons key value) acc))))))
+
+(define (property-list->dictionary . lst)
+  (make-dictionary (apply property-list->association-list lst)))
 
 (define-record-type <collection>
   (make-collection operator attributes idlist children)
