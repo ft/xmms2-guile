@@ -10,6 +10,9 @@
   #:use-module (xmms2 ipc main)
   #:use-module (xmms2 payload)
   #:export (default-uri
+            reply->header
+            reply->payload
+            reply->value
             with-xmms2-connection))
 
 (define (default-uri)
@@ -42,3 +45,12 @@
         return-value))
     (lambda (key . rest)
       (failure key rest))))
+
+(define (reply->header reply)
+  (car reply))
+
+(define (reply->payload reply)
+  (caddr reply))
+
+(define (reply->value reply)
+  (payload->value (reply->payload reply)))
