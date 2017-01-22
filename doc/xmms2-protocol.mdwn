@@ -377,8 +377,10 @@ documents what types of data are returned by all the avaible requests.
 # Errors
 
 Sometimes things go wrong and when they do, the server needs to be able to tell
-the client. This is when error messages come into play and this section will
-cover these kind of replies.
+the client. This is when error messages come into play. Errors are merely
+strings with a different type tag, so that they can be recognised as errors.
+The describe the condition that caused the error to be triggered within the
+server's processing of a request.
 
 
 # Other Messages
