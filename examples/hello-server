@@ -37,8 +37,8 @@
                                           (getlogin)
                                           ".socat"))))
 (xmms2-connect server)
-(xmms2-send server (make-hello PROTOCOL-VERSION "example-hello-server"
-                               #:cookie 42))
+(xmms2-send server (ipc-hello PROTOCOL-VERSION "example-hello-server"
+                              #:cookie 42))
 
 ;; Get the response from the server:
 (define response (xmms2-recv server))
