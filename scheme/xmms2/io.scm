@@ -11,10 +11,7 @@
   #:use-module (web uri)
   #:use-module (xmms2 constants)
   #:use-module (xmms2 header)
-  ;; TODO: ‘default-uri’ is misplaced here and should probably be in some
-  ;;       higher level utility module.
-  #:export (default-uri
-            make-xmms2-connection
+  #:export (make-xmms2-connection
             xmms2-connection?
             xmms2-connected?
             xmms2-ipv4?
@@ -193,11 +190,6 @@ The function may throw any of these exceptions:
 (define (xmms2-connected? conn)
   "Predicate determining if CONN is in connected state."
   (if (eq? (x2c/get-state conn) 'connected) #t #f))
-
-(define (default-uri)
-  "Returns the default IPC uri used by xmms2 servers."
-  (string-concatenate `("unix:///tmp/xmms-ipc-"
-                        ,(passwd:name (getpwuid (geteuid))))))
 
 (define (xmms2-connect conn)
   "Connect to xmms2 server vis CONN.
