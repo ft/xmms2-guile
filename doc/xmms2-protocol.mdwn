@@ -322,6 +322,84 @@ boundary of server restarts. Applying operators onto collections makes it
 possible to turn a collection or combinations of multiple collections into a
 playlist.
 
+A collection has three parts of data to it:
+
+- An operator id, that identifies what kind of a collection we're dealing with.
+- A dictionary of attributes, that further describe the operation desired by
+  the collection.
+- A list restricted to integers called `idlist`, that lists media-list
+  identifiers of tracks (this rarely used, such as with the `IDLIST` collection
+  type).
+- A list restricted to collections, that represents the operands to the
+  operator named ealier in the collection data structure.
+
+As you can see, there it nothing you don't already know. Let's nevertheless
+take a look at an example. Say you'd like to match all the tracks in your
+library that are either from an artist called `"Slayer"` or by an artist called
+`"Metallica"`. This can be done using two `EQUALS` collections that are
+combined using a `UNION` collection.
+
+Specifically, it is the `UNION` collection that takes the `EQUALS` collections
+as its operands. The `EQUALS` collections also take an argument, and it is not
+obvious what that operand would be. There is another collection type called
+`UNIVERSE`, which takes no operands and simply encompasses the entire media
+library of the server. We could represent that structure like this:
+
+```
+UNION ← {
+    EQUALS(artist: Slayer) ← UNIVERSE
+    EQUALS(artist: Metallica) ← UNIVERSE
+}
+```
+
+Now to send something like that to a server, it would need to be serialised
+like this:
+
+- `4` octets: Type collection: `00 00 00 04`
+- `4` octets: Union operator: `00 00 00 02`
+- `4` octets: Size of attributes dictionary (here: empty): `00 00 00 00`
+- `4` octets: IDlist type (`INT64`): `00 00 00 02`
+- `4` octets: Size of IDlist (here: empty): `00 00 00 00`
+- `4` octets: Operand list type (`COLLECTION`): `00 00 00 04`
+- `4` octets: Size of operator list: `00 00 00 02`
+
+Here goes the first operand:
+
+- `4` octets: Operand type (`EQUALS`): `00 00 00 08`
+- `4` octets: Size of attributes dictionary: `00 00 00 02`
+- `10` octets: Key `"field"`: `00 00 00 06 66 69 65 6c 64 00`
+- `15` octets: String value `"artist"`: `00 00 00 03 00 00 00 07 61 72 74 69 73 74 00`
+- `10` octets: Key `"value"`: `00 00 00 06 76 61 6c 75 65 00`
+- `15` octets: String value `"Slayer"`: `00 00 00 03 00 00 00 07 53 6c 61 79 65 72 00`
+- `4` octets: IDlist type (`INT64`): `00 00 00 02`
+- `4` octets: Size of IDlist (here: empty): `00 00 00 00`
+- `4` octets: Operand list type (`COLLECTION`): `00 00 00 04`
+- `4` octets: Size of operator list: `00 00 00 01`
+- `4` octets: Operand type (`UNIVERSE`): `00 00 00 01`
+- `4` octets: Size of attributes dictionary (here: empty): `00 00 00 00`
+- `4` octets: IDlist type (`INT64`): `00 00 00 02`
+- `4` octets: Size of IDlist (here: empty): `00 00 00 00`
+- `4` octets: Operand list type (`COLLECTION`): `00 00 00 04`
+- `4` octets: Size of operator list (here: empty): `00 00 00 00`
+
+And here is the second operand:
+
+- `4` octets: Operand type (`EQUALS`): `00 00 00 08`
+- `4` octets: Size of attributes dictionary: `00 00 00 02`
+- `10` octets: Key `"field"`: `00 00 00 06 66 69 65 6c 64 00`
+- `15` octets: String value `"artist"`: `00 00 00 03 00 00 00 07 61 72 74 69 73 74 00`
+- `10` octets: Key `"value"`: `00 00 00 06 76 61 6c 75 65 00`
+- `18` octets: String value `"Metallica"`: `00 00 00 03 00 00 00 0a 4d 65 74 61 6c 6c 69 63 61 00`
+- `4` octets: IDlist type (`INT64`): `00 00 00 02`
+- `4` octets: Size of IDlist (here: empty): `00 00 00 00`
+- `4` octets: Operand list type (`COLLECTION`): `00 00 00 04`
+- `4` octets: Size of operator list: `00 00 00 01`
+- `4` octets: Operand type (`UNIVERSE`): `00 00 00 01`
+- `4` octets: Size of attributes dictionary (here: empty): `00 00 00 00`
+- `4` octets: IDlist type (`INT64`): `00 00 00 02`
+- `4` octets: Size of IDlist (here: empty): `00 00 00 00`
+- `4` octets: Operand list type (`COLLECTION`): `00 00 00 04`
+- `4` octets: Size of operator list (here: empty): `00 00 00 00`
 
 # Requests
 
