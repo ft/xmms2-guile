@@ -266,6 +266,16 @@ Then the individual entries are listed (in case the type is *not* restricted):
 - 4 octets: String length + 1 (zero, if string was NULL)
 - (string-length+1) octets: The String data with a trailing NUL octet.
 
+When the list is a type restricted list, each entry in the list has to be of
+that particular type and the individual entries do *not* carry a type tag. So a
+list of two integers `(12 23)` looks like this:
+
+- `4` octets: It's a list: `00 00 00 06`
+- `4` octets: Restriction on `TYPE-INT64`: `00 00 00 02`
+- `4` octets: Length of the list: `00 00 00 02`
+- `8` octets: The first integer: `00 00 00 00 00 00 00 0c`
+- `8` octets: The second integer: `00 00 00 00 00 00 00 17`
+
 ### DICTIONARY
 
 Dictionaries are *key-value* stores. XMMS2's implementation uses strings as
