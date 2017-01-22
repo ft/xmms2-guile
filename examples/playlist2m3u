@@ -1,0 +1,24 @@
+;; -*- scheme-*-
+
+;; This example connects to the default xmms2 server, fetches the contents of
+;; the currently active playlists and prints a list of file-names to stdout.
+
+(use-modules (xmms2 client)
+             (xmms2 client synchronous)
+             (xmms2 constants)
+             (xmms2 fetch-spec)
+             (xmms2 ipc collection)
+             (xmms2 ipc playlist)
+             (xmms2 types)
+             (xmms2 values))
+
+(define (main c id cookie)
+  (let* ((pl (request->value c (ipc-list-entries NAME-OF-ACTIVE-PLAYLIST)))
+         (fl (request->value c (ipc-query (collection (id-list (| pl)))
+                                          (fetch-spec #:type metadata
+                                                      #:aggregate list
+                                                      #:get (value)
+                                                      #:fields (url))))))
+    (map (lambda (f) (format #t "~a~%" (decode-and-strip f))) fl)))
+
+(with-xmms2-connection #:handler main #:client "playlist2m3u")
