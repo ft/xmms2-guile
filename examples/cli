@@ -3,6 +3,7 @@
 (use-modules (ice-9 format)
              (srfi srfi-11)
              (xmms2 client)
+             (xmms2 client synchronous)
              (xmms2 constants)
              (xmms2 constants meta)
              (xmms2 constants collection)
@@ -58,10 +59,7 @@
 
     ("list" .
      ,(lambda (server)
-        (xmms2-send server (ipc-get-currently-active))
-        (let ((cur (payload->value
-                    (caddr (xmms2-recv server)))))
-          (ipc-list-entries cur))))
+        (ipc-list-entries (request->value server (ipc-get-currently-active)))))
 
     ("current-track" .
      ,(lambda (server)
@@ -112,8 +110,7 @@
 (setlocale LC_ALL "")
 
 (define (fetch-info server id)
-  (xmms2-send server (ipc-get-information id))
-  (payload->value (caddr (xmms2-recv server))))
+  (request->value server (ipc-get-information id)))
 
 (define (get-info info default)
   (if (not info) default
@@ -186,8 +183,7 @@
             (collection-children data)))
 
 (define (show-collection server c)
-  (xmms2-send server (coll:ipc-get c "Collections"))
-  (let ((data (payload->value (caddr (xmms2-recv server)))))
+  (let ((data (request->value server (coll:ipc-get c "Collections"))))
     (format #t "~%Name: ~s, " c)
     (output-collection data 2)))
 
@@ -198,39 +194,35 @@
                 (< a* b*)))))
 
 (define (main server client-id cookie)
-  (xmms2-send server (generator server))
-  (let ((reply (xmms2-recv server)))
+  (let ((reply (request->value server (generator server))))
     (cond
      ((string=? command "statistics")
       (for-each (lambda (x)
                   (let ((name (car x))
                         (value (cdr x)))
                     (format-stat name value)))
-                (dictionary-data (payload->value (caddr reply)))))
+                (dictionary-data reply)))
      ((string=? command "current-track")
       (display "np: ")
-      (format-track (fetch-info server (payload->value (caddr reply)))))
+      (format-track (fetch-info server reply)))
      ((string=? command "list")
-      (for-each (lambda (x) (format-track (fetch-info server x)))
-                (payload->value (caddr reply))))
+      (for-each (lambda (x) (format-track (fetch-info server x))) reply))
      ((string=? command "active-playlist")
-      (format #t "Active Playlist: ~a~%" (payload->string (caddr reply))))
+      (format #t "Active Playlist: ~a~%" reply))
      ((string=? command "list-collections")
       (format #t "Collections:~%")
-      (for-each (lambda (x) (show-collection server x))
-                (payload->list (caddr reply))))
+      (for-each (lambda (x) (show-collection server x)) reply))
      ((string=? command "time")
-      (let* ((time-ms (payload->int64 (caddr reply)))
+      (let* ((time-ms reply)
              (ms (modulo time-ms 1000))
              (time (truncate (/ time-ms 1000)))
              (min (truncate (/ time 60)))
              (sec (modulo time 60)))
         (format #t "Current playtime:  ~d:~2,'0d.~3,'0d~%" min sec ms)))
      ((string=? command "count-tracks")
-      (format #t "Server Media-library contains ~a tracks.~%"
-              (payload->value (caddr reply))))
+      (format #t "Server Media-library contains ~a tracks.~%" reply))
      ((string=? command "list-artists")
-      (let loop ((rest (reverse (sort-artists (payload->value (caddr reply))))))
+      (let loop ((rest (reverse (sort-artists reply))))
         (if (null? rest)
             #t
             (let ((data (dictionary-data (car rest))))
@@ -240,11 +232,10 @@
               (loop (cdr rest))))))
      (else
       (if debug?
-          (format #t "~a: ~s~%" command (caddr reply))))))
+          (format #t "~a: ~s~%" command reply)))))
   (when (or (string=? command "next")
             (string=? command "prev"))
-    (xmms2-send server (ipc-kill-decoder))
-    (xmms2-recv server)))
+    (request->reply server (ipc-kill-decoder))))
 
 (with-xmms2-connection #:handler main
                        #:client "example-sync-client"
