@@ -325,18 +325,53 @@ playlist.
 
 # Requests
 
-This is the interesting part of the text. It describes what can actually be
-done with an XMMS2 server. First we will discuss a simple example in fair
-detail: How to make up the message to the server and what the server will send
-back to us if we did everything right. After that a reference-like listing of
-requests and their expected results is presented.
+All requests that are recognised by a server are described in an XML file that
+is shipped with the XMMS2 distribution. It is located in `src/ipc.xml`. Because
+this description is available, we will not discuss all the messages that can be
+send back and forth between server and client. Use the XML file as a reference
+and come back here, if you're unsure about how to serialise on of the
+protocol's data types that the requests expect, or that are carried in replies
+from the server.
 
-## General Requests
+To give you one short example, though: The first thing you send to a server
+after connecting to a server is to send a `HELLO` request. This is a request,
+that takes two pieces of information to send to the server: The *protocol
+version* the client is using as well as the *name of the client*. Its command
+id is `32` and it belongs with the `main` object, that has the object id `1`.
+Say we're implementing protocol version `24` and our client is called `"foo"`,
+and we're writing a synchronous client, so we don't bother to mess with the
+`cookie` bit in the header. The message would look like this:
 
-The first thing you send to a server after connecting to a server is to send a
-`HELLO` request. This is a request, that takes two pieces of information to
-send to the server: The *protocol version* the client is using as well as the
-*name of the client*.
+First the header:
+
+- `4` octets: object type: `00 00 00 01`
+- `4` octets: command id: `00 00 00 20`
+- `4` octets: cookie: `00 00 00 00`
+- `4` octets: payload length: `00 00 00 24`
+
+The arguments to a request are always a list, even when there are no arguments,
+in which case the payload is an empty list. Here the request takes two
+arguments with no type restriction, so the list header looks like this:
+
+- `4` octets: It's a list: `00 00 00 06`
+- `4` octets: No restriction: `00 00 00 00`
+- `4` octets: Length of the list: `00 00 00 02`
+
+The first list entry is an integer, representing the protocol version:
+
+- `4` octets: Type tag: `00 00 00 02`
+- `8` octets: The integer payload: `00 00 00 00 00 00 00 18`
+
+The second entry is a string, representing the client's name:
+
+- `4` octets: Type tag: `00 00 00 03`
+- `4` octets: `(string length+1)`: `00 00 00 04`
+- `4` octets: String payload: `66 6f 6f 00`
+
+
+And that is that. Replies look very similar. They mirror the cookie field of
+the request that caused them to be sent. The XML file mentioned earlier
+documents what types of data are returned by all the avaible requests.
 
 
 # Errors
