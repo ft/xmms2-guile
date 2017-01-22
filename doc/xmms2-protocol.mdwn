@@ -86,7 +86,7 @@ server.
    ‘`xmmsv_bitbuffer.c`’.
 
 The first part of a message is the type of message[^msgtype] we're dealing
-with. This is the first 32 bits of the message. The next 32 bits contain the
+with. This is the first 32 Bits of the message. The next 32 Bits contain the
 command id of the message[^helloid]. The rest of the message depends on the
 payload that is sent along with the message. And if you take a look at the octet
 representation[^byteisoctett] of the data on the wire, you will realise that
@@ -102,21 +102,21 @@ out: The byte-order is *big-endian*.
    `XMMS_IPC_CMD_HELLO` is set to `XMMS_IPC_CMD_FIRST` which is defined to
    `0x20` in ‘`xmmsc_idnumbers.h`’.
 
-[^byteisoctett]: And when I say *byte* I mean what most people consider a byte:
+[^byteisoctett]: And when I say *Byte* I mean what most people consider a byte:
    A tuple of eight bits or an octet. If ‘byte’ is used in this text it will
    use that exact sense. Most of the time, I will stick to ‘octet’, though.
 
 Looking at a binary log of a message, it will look like this:
 
-- 32 Bits: Object Type
-- 32 Bits: Command
-- 32 Bits: Cookie (Example: `00 00 00 00`, purpose unknown thus far)
-- 32 Bits: Length of Payload Data in octets
+- 4 octets: Object Type
+- 4 octets: Command
+- 4 octets: Cookie (Example: `00 00 00 00`, purpose unknown thus far)
+- 4 octets: Length of Payload Data in octets
 
 The above is the message's header. If the message has payload, the header is
 followed by this:
 
-- 8·n (where ‘n’ is the length from the header) Bits: The Payload™, of which
+- *n* (where ‘*n*’ is the length from the header) octets: The Payload™, of which
   the first four octets are the payload type.
 
 In short, XMMS2 messages:
@@ -137,12 +137,12 @@ will reply in some way or another.
 Replies are messages the server sends back to a client. Since they *are*
 messages, they obviously look like messages:
 
-- 32 Bits: Object Type
-- 32 Bits: Command (`CMD-REPLY` and `CMD-ERROR`)
-- 32 Bits: Cookie (For example: `00 00 00 00`)
-- 32 Bits: Length of Payload Data in octets
-- (optional) 8·n (where ‘n’ is the length from the header) Bits: The Payload™,
-  of which the first four octets are the payload type.
+- 4 octets: Object Type
+- 4 octets: Command (`CMD-REPLY` and `CMD-ERROR`)
+- 4 octets: Cookie (For example: `00 00 00 00`)
+- 4 octets: Length of Payload Data in octets
+- (optional) *n* octets (where ‘*n*’ is the length from the header): The
+  Payload™, of which the first four octets are the payload type.
 
 This should look familiar, since you have *just* read it a few lines above in
 the previous section. Like with general messages the payload part is optional.
@@ -244,27 +244,27 @@ play track after track after track. In XMMS2, lists may nest to arbitrary depth
 and each entry in a list may be any of the supported types — unless a
 restriction is put into place.
 
-The first 32 Bits of a list payload is an id, telling whether we're dealing
-with a restricted type list[^notypelist]. The next 32 Bits contain an unsigned
-integer representing the number of octets, that will follow. Next 32 Bits are
-the type identifier for lists: `00 00 00 06`.
+The first four Bytes of a list payload is an id, telling whether we're dealing
+with a restricted type list[^notypelist]. The next four Bytes contain an
+unsigned integer representing the number of octets, that will follow. Next four
+Bytes are the type identifier for lists: `00 00 00 06`.
 
 [^notypelist]: If the list is not restricted, the type id is `00 00 00 00`,
    derived from `XMMSV_TYPE_NONE`.
 
 With `PAYLOAD_TYPE` set to `00 00 00 06`:
 
-- 32 Bits: Restricted type? (`00 00 00 00` if unrestricted)
-- 32 Bits: List size (number of entries, not octets)
+- 4 octets: Restricted type? (`00 00 00 00` if unrestricted)
+- 4 octets: List size (number of entries, not octets)
 
-Then the individual entries are listed:
+Then the individual entries are listed (in case the type is *not* restricted):
 
-- 32 Bits: Type of entry (e.g. `00 00 00 02` for an INT64 entry)
-- (With the INT64 example): 64 Bits: Data
+- 4 octets: Type of entry (e.g. `00 00 00 02` for an INT64 entry)
+- (With the INT64 example): 8 octets: Data
 
-- 32 Bits: Type of entry (e.g. `00 00 00 03` for a STRING entry)
-- 32 Bits: String length + 1 (zero, if string was NULL)
-- (string-length+1)·8 Bits: The String data with a trailing NUL octet.
+- 4 octets: Type of entry (e.g. `00 00 00 03` for a STRING entry)
+- 4 octets: String length + 1 (zero, if string was NULL)
+- (string-length+1) octets: The String data with a trailing NUL octet.
 
 ### DICTIONARY
 
