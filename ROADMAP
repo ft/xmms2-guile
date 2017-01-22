@@ -1,12 +1,6 @@
 Roadmap for xmms2-guile
 -----------------------
 
-* Version 0.1.0
-
-  - Implement binary and collection data types.
-  - Support full xmms2 protcol command set via genipc.
-  - More tests.
-
 * Version 0.2.0
 
   - Library documentation.
