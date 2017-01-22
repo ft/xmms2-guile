@@ -381,6 +381,6 @@ the client. This is when error messages come into play and this section will
 cover these kind of replies.
 
 
-## Other Messages
+# Other Messages
 
 TODO: Signals, broadcasts and client-to-client messages.
