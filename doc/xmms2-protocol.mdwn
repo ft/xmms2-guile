@@ -286,6 +286,28 @@ Unlike lists, dictionaries do *not* feature a type-restriction field (even
 though the XML IPC description sometimes mentions return values of a dictionary
 of a specific type).
 
+Like lists, a dictionary announces the number of key/value pairs it carries
+right after its type tag in a 32 Bit unsigned integer. The keys in a dictionary
+are actually strings, that don't feature their type tag. So a key called
+`"foo"` serializes to `00 00 00 04 66 6f 6f 00`. The value that corresponds to
+a key can be any value the protocol supports. So like lists, dictionaries can
+be arbitrarily complex structures.
+
+Example:
+
+Let's serialize a dictionary, that contains two key/value pairs:
+
+- `foo` → `23`
+- `bar` → `"baz"`
+
+The byte-stream would look like this:
+
+- `4` octets: Payload type tag: `00 00 00 07`
+- `4` octets: Number of key/value pairs: `00 00 00 02`
+- First key: `8` octets: The key `"foo"`: `00 00 00 04 66 6f 6f 00`
+- First value: `12` octets: `23`: `00 00 00 02 00 00 00 00 00 00 00 17`
+- Second key: `8` octets: The key `"bar"`: `00 00 00 04 62 61 72 00`
+- Second value: `12` octets: `"baz"`: `00 00 00 03 00 00 00 04 62 61 7a 00`
 
 ### COLLECTION
 
