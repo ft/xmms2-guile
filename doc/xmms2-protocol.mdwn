@@ -108,15 +108,15 @@ out: The byte-order is *big-endian*.
 
 Looking at a binary log of a message, it will look like this:
 
-- 4 octets: Object Type
-- 4 octets: Command
-- 4 octets: Cookie (Example: `00 00 00 00`, purpose unknown thus far)
-- 4 octets: Length of Payload Data in octets
+- `4` octets: Object Type
+- `4` octets: Command
+- `4` octets: Cookie (Example: `00 00 00 00`, purpose unknown thus far)
+- `4` octets: Length of Payload Data in octets
 
 The above is the message's header. If the message has payload, the header is
 followed by this:
 
-- *n* (where ‘*n*’ is the length from the header) octets: The Payload™, of which
+- `n` (where ‘`n`’ is the length from the header) octets: The Payload™, of which
   the first four octets are the payload type.
 
 In short, XMMS2 messages:
@@ -137,11 +137,11 @@ will reply in some way or another.
 Replies are messages the server sends back to a client. Since they *are*
 messages, they obviously look like messages:
 
-- 4 octets: Object Type
-- 4 octets: Command (`CMD-REPLY` and `CMD-ERROR`)
-- 4 octets: Cookie (For example: `00 00 00 00`)
-- 4 octets: Length of Payload Data in octets
-- (optional) *n* octets (where ‘*n*’ is the length from the header): The
+- `4` octets: Object Type
+- `4` octets: Command (`CMD-REPLY` and `CMD-ERROR`)
+- `4` octets: Cookie (For example: `00 00 00 00`)
+- `4` octets: Length of Payload Data in octets
+- (optional) `n` octets (where ‘`n`’ is the length from the header): The
   Payload™, of which the first four octets are the payload type.
 
 This should look familiar, since you have *just* read it a few lines above in
@@ -180,7 +180,7 @@ structured like this:
 
 - `4` octets that is the type tag.
 - `4` octets that represent the length of the string (plus one, because …)
-- `N+1` octets that is the `N` octets of the UTF-8 string plus a final `00`
+- `n+1` octets that is the `n` octets of the UTF-8 string plus a final `00`
   octet.
 
 Example:
@@ -254,17 +254,17 @@ Bytes are the type identifier for lists: `00 00 00 06`.
 
 With `PAYLOAD_TYPE` set to `00 00 00 06`:
 
-- 4 octets: Restricted type? (`00 00 00 00` if unrestricted)
-- 4 octets: List size (number of entries, not octets)
+- `4` octets: Restricted type? (`00 00 00 00` if unrestricted)
+- `4` octets: List size (number of entries, not octets)
 
 Then the individual entries are listed (in case the type is *not* restricted):
 
-- 4 octets: Type of entry (e.g. `00 00 00 02` for an INT64 entry)
-- (With the INT64 example): 8 octets: Data
+- `4` octets: Type of entry (e.g. `00 00 00 02` for an INT64 entry)
+- (With the INT64 example): `8` octets: Data
 
-- 4 octets: Type of entry (e.g. `00 00 00 03` for a STRING entry)
-- 4 octets: String length + 1 (zero, if string was NULL)
-- (string-length+1) octets: The String data with a trailing NUL octet.
+- `4` octets: Type of entry (e.g. `00 00 00 03` for a STRING entry)
+- `4` octets: `String length + 1` (zero, if string was NULL)
+- `(string-length+1)` octets: The String data with a trailing NUL octet.
 
 When the list is a type restricted list, each entry in the list has to be of
 that particular type and the individual entries do *not* carry a type tag. So a
