@@ -2,6 +2,7 @@
 
 (use-modules (ice-9 format)
              (srfi srfi-11)
+             (xmms2 client)
              (xmms2 constants)
              (xmms2 constants meta)
              (xmms2 constants collection)
@@ -18,37 +19,75 @@
 (define debug? #f)
 (define pl property-list->dictionary)
 
-(define generator-map `(("play" . ,ipc-start)
-                        ("stop" . ,ipc-stop)
-                        ("pause" . ,ipc-pause)
-                        ("tickle" . ,ipc-kill-decoder)
-                        ("next" . ,(lambda () (ipc-set-next/relative 1)))
-                        ("prev" . ,(lambda () (ipc-set-next/relative -1)))
-                        ("active-playlist" . ,ipc-get-currently-active)
-                        ("time" . ,ipc-get-playtime)
-                        ("statistics" . ,ipc-statistics)
-                        ("list" . ,(lambda ()
-                                     (xmms2-send server (ipc-get-currently-active))
-                                     (let ((cur (payload->value
-                                                 (caddr (xmms2-recv server)))))
-                                       (ipc-list-entries cur))))
-                        ("current-track" . ,ipc-get-current-identifier)
-                        ("list-collections" . ,(lambda () (coll:ipc-list "Collections")))
-                        ("count-tracks" . ,(lambda ()
-                                             (coll:ipc-query (make-universe)
-                                                             (pl #:type "count"))))
-                        ("list-artists" .
-                         ,(lambda ()
-                            (coll:ipc-query ;; Takes collection and a fetch-spec...
-                             (make-universe)
-                             (fetch-spec #:type cluster-list
-                                         #:cluster-by value
-                                         #:cluster-field artist
-                                         #:data (- #:type organize
-                                                   #:data (- #:count (- #:type count)
-                                                             #:artist (- #:type metadata
-                                                                         #:fields (artist)
-                                                                         #:get (value))))))))))
+(define generator-map
+  `(("play" .
+     ,(lambda (server)
+        (ipc-start)))
+
+    ("stop" .
+     ,(lambda (server)
+        (ipc-stop)))
+
+    ("pause" .
+     ,(lambda (server)
+        (ipc-pause)))
+
+    ("tickle" .
+     ,(lambda (server)
+        (ipc-kill-decoder)))
+
+    ("next" .
+     ,(lambda (server)
+        (ipc-set-next/relative 1)))
+
+    ("prev" .
+     ,(lambda (server)
+        (ipc-set-next/relative -1)))
+
+    ("active-playlist" .
+     ,(lambda (server)
+        (ipc-get-currently-active)))
+
+    ("time" .
+     ,(lambda (server)
+        (ipc-get-playtime)))
+
+    ("statistics" .
+     ,(lambda (server)
+        (ipc-statistics)))
+
+    ("list" .
+     ,(lambda (server)
+        (xmms2-send server (ipc-get-currently-active))
+        (let ((cur (payload->value
+                    (caddr (xmms2-recv server)))))
+          (ipc-list-entries cur))))
+
+    ("current-track" .
+     ,(lambda (server)
+        (ipc-get-current-identifier)))
+
+    ("list-collections" .
+     ,(lambda (server)
+        (coll:ipc-list "Collections")))
+
+    ("count-tracks" .
+     ,(lambda (server)
+        (coll:ipc-query (make-universe)
+                        (pl #:type "count"))))
+
+    ("list-artists" .
+     ,(lambda (server)
+        (coll:ipc-query ;; Takes collection and a fetch-spec...
+         (make-universe)
+         (fetch-spec #:type cluster-list
+                     #:cluster-by value
+                     #:cluster-field artist
+                     #:data (- #:type organize
+                               #:data (- #:count (- #:type count)
+                                         #:artist (- #:type metadata
+                                                     #:fields (artist)
+                                                     #:get (value))))))))))
 
 (define (cmd->generator cmd)
   (let ((rv (assoc cmd generator-map)))
@@ -70,17 +109,9 @@
   (usage)
   (quit 0))
 
-(define server (make-xmms2-connection
-                (string-concatenate (list "unix:///tmp/xmms-ipc-"
-                                          (getlogin)
-                                          ".socat"))))
 (setlocale LC_ALL "")
-(xmms2-connect server)
-(xmms2-send server (ipc-hello PROTOCOL-VERSION "example-sync-client"))
-(xmms2-recv server)
-(xmms2-send server (generator))
 
-(define (fetch-info id)
+(define (fetch-info server id)
   (xmms2-send server (ipc-get-information id))
   (payload->value (caddr (xmms2-recv server))))
 
@@ -154,7 +185,7 @@
   (for-each (lambda (x) (output-collection x (+ indent 2)))
             (collection-children data)))
 
-(define (show-collection c)
+(define (show-collection server c)
   (xmms2-send server (coll:ipc-get c "Collections"))
   (let ((data (payload->value (caddr (xmms2-recv server)))))
     (format #t "~%Name: ~s, " c)
@@ -166,49 +197,60 @@
                     (b* (dict-ref 'count b)))
                 (< a* b*)))))
 
-(let ((reply (xmms2-recv server)))
-  (cond
-   ((string=? command "statistics")
-    (for-each (lambda (x)
-                (let ((name (car x))
-                      (value (cdr x)))
-                  (format-stat name value)))
-              (dictionary-data (payload->value (caddr reply)))))
-   ((string=? command "current-track")
-    (display "np: ")
-    (format-track (fetch-info (payload->value (caddr reply)))))
-   ((string=? command "list")
-    (for-each (lambda (x) (format-track (fetch-info x)))
+(define (main server client-id cookie)
+  (xmms2-send server (generator server))
+  (let ((reply (xmms2-recv server)))
+    (cond
+     ((string=? command "statistics")
+      (for-each (lambda (x)
+                  (let ((name (car x))
+                        (value (cdr x)))
+                    (format-stat name value)))
+                (dictionary-data (payload->value (caddr reply)))))
+     ((string=? command "current-track")
+      (display "np: ")
+      (format-track (fetch-info server (payload->value (caddr reply)))))
+     ((string=? command "list")
+      (for-each (lambda (x) (format-track (fetch-info server x)))
+                (payload->value (caddr reply))))
+     ((string=? command "active-playlist")
+      (format #t "Active Playlist: ~a~%" (payload->string (caddr reply))))
+     ((string=? command "list-collections")
+      (format #t "Collections:~%")
+      (for-each (lambda (x) (show-collection server x))
+                (payload->list (caddr reply))))
+     ((string=? command "time")
+      (let* ((time-ms (payload->int64 (caddr reply)))
+             (ms (modulo time-ms 1000))
+             (time (truncate (/ time-ms 1000)))
+             (min (truncate (/ time 60)))
+             (sec (modulo time 60)))
+        (format #t "Current playtime:  ~d:~2,'0d.~3,'0d~%" min sec ms)))
+     ((string=? command "count-tracks")
+      (format #t "Server Media-library contains ~a tracks.~%"
               (payload->value (caddr reply))))
-   ((string=? command "active-playlist")
-    (format #t "Active Playlist: ~a~%" (payload->string (caddr reply))))
-   ((string=? command "list-collections")
-    (format #t "Collections:~%")
-    (for-each show-collection (payload->list (caddr reply))))
-   ((string=? command "time")
-    (let* ((time-ms (payload->int64 (caddr reply)))
-           (ms (modulo time-ms 1000))
-           (time (truncate (/ time-ms 1000)))
-           (min (truncate (/ time 60)))
-           (sec (modulo time 60)))
-      (format #t "Current playtime:  ~d:~2,'0d.~3,'0d~%" min sec ms)))
-   ((string=? command "count-tracks")
-    (format #t "Server Media-library contains ~a tracks.~%"
-            (payload->value (caddr reply))))
-   ((string=? command "list-artists")
-    (let loop ((rest (reverse (sort-artists (payload->value (caddr reply))))))
-      (if (null? rest)
-          #t
-          (let ((data (dictionary-data (car rest))))
-            (format #t "~a Tracks by ~a~%"
-                    (assq-ref data 'count)
-                    (assq-ref data 'artist))
-            (loop (cdr rest))))))
-   (else
-    (if debug?
-        (format #t "~a: ~s~%" command (caddr reply))))))
-(when (or (string=? command "next")
-          (string=? command "prev"))
-  (xmms2-send server (ipc-kill-decoder))
-  (xmms2-recv server))
-(xmms2-disconnect server)
+     ((string=? command "list-artists")
+      (let loop ((rest (reverse (sort-artists (payload->value (caddr reply))))))
+        (if (null? rest)
+            #t
+            (let ((data (dictionary-data (car rest))))
+              (format #t "~a Tracks by ~a~%"
+                      (assq-ref data 'count)
+                      (assq-ref data 'artist))
+              (loop (cdr rest))))))
+     (else
+      (if debug?
+          (format #t "~a: ~s~%" command (caddr reply))))))
+  (when (or (string=? command "next")
+            (string=? command "prev"))
+    (xmms2-send server (ipc-kill-decoder))
+    (xmms2-recv server)))
+
+(with-xmms2-connection #:handler main
+                       #:client "example-sync-client"
+                       #:server (let* ((env (getenv "XMMS2_GUILE_USE_SOCAT"))
+                                       (use-socat? (and env (string=? env "1")))
+                                       (uri (default-uri)))
+                                  (if use-socat?
+                                      (string-append uri ".socat")
+                                      uri)))
