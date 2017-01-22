@@ -3,7 +3,8 @@
 ;; This example connects to the default xmms2 server, fetches the contents of
 ;; the currently active playlists and prints a list of file-names to stdout.
 
-(use-modules (xmms2 client)
+(use-modules (ice-9 binary-ports)
+             (xmms2 client)
              (xmms2 client synchronous)
              (xmms2 constants)
              (xmms2 fetch-spec)
@@ -19,6 +20,9 @@
                                                       #:aggregate list
                                                       #:get (value)
                                                       #:fields (url))))))
-    (map (lambda (f) (format #t "~a~%" (decode-and-strip f))) fl)))
+    (map (lambda (f)
+           (put-bytevector (current-output-port) (decode-and-strip f))
+           (newline))
+         fl)))
 
 (with-xmms2-connection #:handler main #:client "playlist2m3u")
