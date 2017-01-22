@@ -1,0 +1,60 @@
+---
+title: xmms2-guile
+subtitle: Reference Manual
+author:
+- name: Frank Terbeck
+  email: ft@bewatermyfriend.org
+...
+
+# NAME
+
+`xmms2-guile` — Client library for the XMMS2 Audio Player Server
+
+# SYNOPSIS
+
+~~~~~~~ {.Scheme}
+;; These are just a couple of the modules provided by this library.
+;; All of them live in the (xmms2 ...) namespace. See the individual
+;; module descriptions in this manual for details.
+(use-modules (xmms2 client)
+             (xmms2 constants)
+             (xmms2 ipc playlist)
+             (xmms2 types)
+             (xmms2 ...))
+~~~~~~~
+
+
+# DESCRIPTION
+
+
+
+# SEE ALSO
+
+- The *Guile Reference Manual*
+- The *XMMS2 Client Server Protocol — An Unreliable Hacker's Guide*
+- [Collections 2.0 at the XMMS2 Wiki](https://xmms2.org/wiki/Collections_2.0)
+
+
+# AUTHOR
+
+Frank Terbeck `‹ft@bewatermyfriend.org›`
+
+
+# COPYRIGHT AND LICENCE
+
+Copyright (c) 2014—2017 Frank Terbeck `‹ft@bewatermyfriend.org›`, All rights
+reserved.
+
+This library is free software; you can redistribute it and/or modify it
+under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 3 of the License, or (at your
+option) any later version.
+
+This library is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
+License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with this library; if not, write to the Free Software Foundation,
+Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
