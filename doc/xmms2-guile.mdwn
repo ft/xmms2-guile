@@ -45,6 +45,108 @@ library reference is a requirement for a `0.2.0` release. The plan is to
 scrape function descriptions from source files as much as possible and to add
 additional information as markdown text right in here.
 
+## Overview
+
+The library is made up of two parts: A core library, that implements the XMMS2
+protocol and convenience functionality to aid in implementing client
+applications; and a second part that is generated code from XMMS2's IPC
+definition file. The core library implements a couple of macros, that shift
+most of the actual code in generated modules into the core, so that the
+generated name-spaces need to be regenerated only when the XMMS2 project makes
+changes to their definition.
+
+### The Core Library
+
+Here is an overview of the core library modules in alphabetical order:
+
+- `(xmms2 client)` — Client-side convenience functionality. This module has a
+  helper to fire up a connection to a server with minimal effort.
+- `(xmms2 client synchronous)` — High-level helpers to implement synchronous
+  XMMS2 clients (See *Synchronous vs. Asynchronous* below for details).
+- `(xmms2 constants)` — This module defines a couple of core constants, that
+  are not defined by the IPC definition that is shipped by the XMMS2 project.
+- `(xmms2 data-conversion)` — Low-level data conversion. This module contains
+  functions and constant definitions to access and create byte-sequences as
+  used by the XMMS2 protocol that represent basic integer data words.
+- `(xmms2 enumeration)` — A macro implementation for expressing enumerations
+  of constants. This is used by the `(xmms2 constants)` module as well as all
+  sub-modules in the `(xmms2 constants …)` name-space.
+- `(xmms2 fetch-spec)` — Another macro implementation for expressing *fetch
+  specifications* (see *Querying the Media Library* below for details).
+- `(xmms2 header)` — Functionality for creating and accessing XMMS2 protocol
+  headers.
+- `(xmms2 io)` — This module implements the network level data exchange
+  procedures like `xmms2-connect`, `xmms2-send` and `xmms2-recv`, that talk to
+  XMMS2 servers.
+- `(xmms2 ipc)` — This is a module that implements data types like `methods`,
+  `signals` and `broadcasts` as well as a macro that, in combination allows
+  concise generation of modules in the `(xmms2 ipc …)` name-space from XMMS2's
+  IPC definition.
+- `(xmms2 jump-table)` — Jump-tables dispatch to different callbacks based on
+  integer values. The `(xmms2 payload)` modules uses this.
+- `(xmms2 payload)` — This is the main protocol implementation. It contains
+  all serialisers and deserialisers for XMMS2 protocol data types as well
+  front-ends for turning values from and into XMMS2 byte-streams.
+- `(xmms2 types)` — Here all non-default data-types used by the protocol are
+  implemented. In particular, this is where XMMS2's collections, and a domain
+  specific language to express them in a convenient fashion, are defined.
+- `(xmms2 values)` — This module implements any special value handling, that
+  is used by the XMMS2 server. Currently, that means encoders and decoders for
+  XMMS2's `url` encoding scheme.
+
+### The `(xmms2 constants …)` Name-Space
+
+The code in this name-space is completely generated. Except for the `(xmms2
+constants meta)` module, each of these modules correspond to one of XMMS2's
+server objects, like `main`, `playlist` or `media-library`. The `(xmms2
+constants meta)` module is special in that it defines constants, that are do
+not strictly belong to one of the object-specific modules.
+
+The constants in these modules are mostly expressed using the `define-enum`
+macro from the `(xmms2 enumeration)` module. This allows the use of symbolic
+values instead of cryptic numeric data in client code; for example, the
+`OBJECT-MAIN` symbol evaluates to `1`. In addition, there are cross reference
+association lists are put in place to allow mapping numeric values to human
+readable symbols:
+
+    (assoc-ref xref-objects 1) → OBJECT-MAIN
+
+All of the constants correspond to the XMMS2 protocol version as defined by
+the `PROTOCOL-VERSION` constant defined in the `(xmms2 constants meta)`
+module.
+
+### The `(xmms2 ipc …)` Name-Space
+
+All modules in this name-space correspond to one of the XMMS2 server objects.
+All code in these modules is generated from XMMS2's IPC definition file. Each
+module may define an arbitrary amount of these IPC entities:
+
+- `methods`
+- `broadcasts`
+- `signals`
+
+For each of these entities, two data-points are generated:
+
+- A generator function that returns a binary data packet, that can be send to
+  an XMMS2 server using the `xmms2-send` procedure from the `(xmms2 io)`
+  module.
+- An introspection data-structure that holds all of the information from the
+  XML IPC definition file from the XMMS2 project.
+
+All generator functions are named `ipc-*` (for example: `ipc-pause` from
+`(xmms2 ipc playback)` module). The naming scheme of the introspection data is
+`PREFIX:NAME`, where `PREFIX` is one of `m`, `b` and `s`, depending on whether
+the IPC entity is a `method`, a `broadcast` or a `signal`; for example:
+
+- `m:add-collection` from `(xmms2 ipc playlist)`
+- `b:quit` from `(xmms2 ipc main)`
+- `s:unresolved-entries` from `(xmms2 ipc media-info-reader)`
+
+Like with the `(xmms2 constants …)` name-space, all of the functionality
+implemented by the modules from this name-space corresponds to the XMMS2
+protocol version as defined by the `PROTOCOL-VERSION` constant defined in the
+`(xmms2 constants meta)` module.
+
 # SEE ALSO
 
 - The *Guile Reference Manual*
