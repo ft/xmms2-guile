@@ -4,5 +4,4 @@ Roadmap for xmms2-guile
 * Version 0.2.0
 
   - Library documentation.
-  - Synchronous client frontend.
   - Asynchronous client infrastructure.
