@@ -147,6 +147,198 @@ implemented by the modules from this name-space corresponds to the XMMS2
 protocol version as defined by the `PROTOCOL-VERSION` constant defined in the
 `(xmms2 constants meta)` module.
 
+## Library Concepts
+
+### Packet Layout and Data Representation
+
+- `@TBD@`
+
+### Synchronous vs. Asynchronous Operation
+
+- `@TBD@`
+
+
+# MODULE REFERENCE
+
+## Core Modules
+
+### `(xmms2 client)`
+
+- `@TBD@`
+
+### `(xmms2 client synchronous)`
+
+- `@TBD@`
+
+### `(xmms2 constants)`
+
+- `@TBD@`
+
+### `(xmms2 data-conversion)`
+
+- `@TBD@`
+
+### `(xmms2 enumeration)`
+
+- `@TBD@`
+
+### `(xmms2 fetch-spec)`
+
+- `@TBD@`
+
+### `(xmms2 header)`
+
+- `@TBD@`
+
+### `(xmms2 io)`
+
+- `@TBD@`
+
+### `(xmms2 ipc)`
+
+- `@TBD@`
+
+### `(xmms2 jump-table)`
+
+- `@TBD@`
+
+### `(xmms2 payload)`
+
+- `@TBD@`
+
+### `(xmms2 types)`
+
+- `@TBD@`
+
+### `(xmms2 values)`
+
+- `@TBD@`
+
+
+## Test Suite Modules
+
+### `(test payload)`
+
+- `@TBD@`
+
+### `(test setup)`
+
+- `@TBD@`
+
+
+## Genrerated Constants Modules
+
+### `(xmms2 constants binary-data)`
+
+- `@TBD@`
+
+### `(xmms2 constants collection)`
+
+- `@TBD@`
+
+### `(xmms2 constants collection-sync)`
+
+- `@TBD@`
+
+### `(xmms2 constants configuration)`
+
+- `@TBD@`
+
+### `(xmms2 constants courier)`
+
+- `@TBD@`
+
+### `(xmms2 constants ipc-manager)`
+
+- `@TBD@`
+
+### `(xmms2 constants main)`
+
+- `@TBD@`
+
+### `(xmms2 constants media-info-reader)`
+
+- `@TBD@`
+
+### `(xmms2 constants media-library)`
+
+- `@TBD@`
+
+### `(xmms2 constants meta)`
+
+- `@TBD@`
+
+### `(xmms2 constants playback)`
+
+- `@TBD@`
+
+### `(xmms2 constants playlist)`
+
+- `@TBD@`
+
+### `(xmms2 constants visualization)`
+
+- `@TBD@`
+
+### `(xmms2 constants xform)`
+
+- `@TBD@`
+
+
+## Genrerated IPC Modules
+
+### `(xmms2 ipc binary-data)`
+
+- `@TBD@`
+
+### `(xmms2 ipc collection)`
+
+- `@TBD@`
+
+### `(xmms2 ipc collection-sync)`
+
+- `@TBD@`
+
+### `(xmms2 ipc configuration)`
+
+- `@TBD@`
+
+### `(xmms2 ipc courier)`
+
+- `@TBD@`
+
+### `(xmms2 ipc ipc-manager)`
+
+- `@TBD@`
+
+### `(xmms2 ipc main)`
+
+- `@TBD@`
+
+### `(xmms2 ipc media-info-reader)`
+
+- `@TBD@`
+
+### `(xmms2 ipc media-library)`
+
+- `@TBD@`
+
+### `(xmms2 ipc playback)`
+
+- `@TBD@`
+
+### `(xmms2 ipc playlist)`
+
+- `@TBD@`
+
+### `(xmms2 ipc visualization)`
+
+- `@TBD@`
+
+### `(xmms2 ipc xform)`
+
+- `@TBD@`
+
 # SEE ALSO
 
 - The *Guile Reference Manual*
