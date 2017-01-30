@@ -339,6 +339,88 @@ protocol version as defined by the `PROTOCOL-VERSION` constant defined in the
 
 - `@TBD@`
 
+
+# EXAMPLE
+
+To illustrate the use of the library, here is the full code for aa very simple
+synchronous client connects to a XMMS2 server and fetches a list of all
+artists, along with a count of the tracks available for each of those artists.
+
+~~~~~~~ {.Scheme}
+;; First, let's import  a couple of modules.  The ‘client’ module
+;; is  pretty  straight forward…   …since  this  is a  client
+;; application.
+(use-modules (xmms2 client)
+             ;; Since  this  is a  synchronous client,  let's use
+             ;; that specific high-level module as well.
+             (xmms2 client synchronous)
+             ;; We are going to  make a media-library query using
+             ;; ‘ipc-query’ which takes  a collection and a fetch
+             ;; specification as argum-;  ents. This module helps
+             ;; with specifying the latter.
+             (xmms2 fetch-spec)
+             ;; ‘ipc-query’ is defined in this module:
+             (xmms2 ipc collection)
+             ;; The  ‘types’  module  is  important,  because  it
+             ;; implements   collections,   which  we   need  for
+             ;; ‘ipc-query’.
+             (xmms2 types))
+
+;; This symbol evaluates to a packet (which is a byte-vector or a
+;; list of byte-vectors; the latter  in this case). It represents
+;; a complete protocol request,  that represents a ‘query’ method
+;; call, with a UNIVERSE  collection and a non-trivial fetch-spec
+;; as arguments.
+(define *query*
+  (ipc-query
+    (make-universe)
+    (fetch-spec #:type cluster-list
+                #:cluster-by value
+                #:cluster-field artist
+                #:data (- #:type organize
+                          #:data (- #:count (- #:type count)
+                                    #:artist (- #:type metadata
+                                                #:fields (artist)
+                                                #:get (value)))))))
+
+;; The fetch-spec,  as we designed  it, will cause the  server to
+;; return a list of dictionaries,  each containing a ‘artist’ and
+;; a ‘count’  key with their corresponding  values. This function
+;; sorts that list by the ‘count’ values in the dictionaries.
+(define (sort-artists lst)
+  (sort lst (lambda (a b)
+              (let ((a* (dict-ref 'count a))
+                    (b* (dict-ref 'count b)))
+                (< a* b*)))))
+
+;; This uses  the *query*  we assembled  earlier, turns  the data
+;; returned from the server, sorts it, reverses the order of that
+;; list, to have the artist with most tracks in the media library
+;; to occur before the ones with less tracks.
+(define (get-sorted-artists srv)
+  (reverse (sort-artists (request->value srv *query*))))
+
+;; Finally, define a function that can  be used as a callback for
+;; the  ‘with-xmms2-connection’ utility.  It iterates  across the
+;; sorted  list, the  ‘get-sorted-artists’ procedure  returns and
+;; print a line per entry.
+(define (main server client-id cookie)
+  (let loop ((rest (get-sorted-artists server)))
+    (if (null? rest)
+        #t
+        (let ((data (dictionary-data (car rest))))
+          (format #t "~a Tracks by ~a~%"
+                  (assq-ref data 'count)
+                  (assq-ref data 'artist))
+          (loop (cdr rest))))))
+
+;; This  puts it  all  together, connects  to  the default  XMMS2
+;; server utility and uses the  #:handler callback to perform the
+;; desired action.
+(with-xmms2-connection #:handler main #:client "example-track-count")
+~~~~~~~
+
+
 # SEE ALSO
 
 - The *Guile Reference Manual*
