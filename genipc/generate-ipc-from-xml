@@ -8,4 +8,4 @@ if test "$#" -ne 1; then
     exit 1
 fi
 
-exec ${GUILE_BINARY:-guile} -s genipc.scm "$1"
+exec ${GUILE_BINARY:-guile} -s genipc/genipc.scm "$1"

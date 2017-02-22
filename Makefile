@@ -1,7 +1,7 @@
 RUNTESTS = run-tests -strip-roots -dispatch-root "$$PWD/tests"
 
-BYTECOMPILE = sh ./compile
-INSTALL = sh ./install
+BYTECOMPILE = sh ./tools/compile
+INSTALL = sh ./tools/install
 
 all:
 	@echo
