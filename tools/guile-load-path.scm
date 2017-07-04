@@ -2,7 +2,7 @@
 
 (define (find-top-dir)
   (let loop ((start (getcwd)))
-    (let ((file (string-concatenate `(,start "/guile-load-path.scm"))))
+    (let ((file (string-concatenate `(,start "/tools/guile-load-path.scm"))))
       (cond ((string=? start "/") (throw 'cannot-file-topdir))
             ((file-exists? file) start)
             (else (loop (dirname start)))))))
