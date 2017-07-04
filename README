@@ -13,7 +13,7 @@ generated from said definition.
 Quickstart
 ----------
 
-% ./generate-ipc-from-xml ~/src/sys/xmms2/src/ipc.xml
+% ./genipc/generate-ipc-from-xml ~/src/sys/xmms2/src/ipc.xml
 % make byte-compile
 % ./guile-in-here ./examples/cli play
 
@@ -52,7 +52,7 @@ Moreover, running  the test-suite  requires the ‘scm-test-tap’  as well  as 
 Installation
 ------------
 
-% ./generate-ipc-from-xml ~/src/xmms2/src/ipc.xml
+% ./genipc/generate-ipc-from-xml ~/src/xmms2/src/ipc.xml
 % make doc
 % make byte-compile
 % make test
