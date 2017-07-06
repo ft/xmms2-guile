@@ -13,7 +13,11 @@
       (read (current-input-port)))))
 
 (define (module->documentation mod)
-  (module->documentation* (or (and (string? mod) (string->s-exp mod)) mod)))
+  (sort (module->documentation* (or (and (string? mod) (string->s-exp mod)) mod))
+        (lambda (a b)
+          (let ((a-name (symbol->string (car a)))
+                (b-name (symbol->string (car b))))
+            (string< a-name b-name)))))
 
 (define (module->documentation* mod)
   (let ((inf (module-obarray (resolve-interface mod))))
