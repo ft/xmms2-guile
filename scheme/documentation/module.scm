@@ -39,6 +39,13 @@
   (or (procedure-documentation proc)
       (additional-documentation mod (procedure-name proc))))
 
+(define (inlinable? mod name)
+  (catch #t
+    (lambda ()
+      (eval-string (symbol->string name) (resolve-module mod)))
+    (lambda (k . a)
+      #f)))
+
 (define (expand-for-value mod name value)
   (cond ((procedure? value)
          (list name 'procedure
@@ -47,15 +54,16 @@
                (procedure-property value 'arity)))
         ((macro? value)
          (let* ((tf (macro-transformer value))
-                (doc (maybe-proc-doc mod tf)))
-           (list name 'macro
+                (doc (maybe-proc-doc mod tf))
+                (inlined (inlinable? mod name)))
+           (list name (if inlined 'procedure 'macro)
                  ;; If there is documentation for the transformer, use that. If
                  ;; not, try the additional documentation for the macro name.
                  (if (eq? doc 'undocumented)
                      (additional-documentation mod name)
                      doc)
-                 (procedure-arguments tf)
-                 (procedure-property tf 'arity))))
+                 (procedure-arguments (or inlined tf))
+                 (procedure-property (or inlined tf) 'arity))))
         ((integer? value)
          (list name 'integer
                (additional-documentation mod name)))
