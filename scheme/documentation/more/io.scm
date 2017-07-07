@@ -5,4 +5,4 @@
 (define-module (documentation more io))
 
 (define xmms2-connection?
-  "Checks whether a datum is a xmms2-connection container.")
+  "Checks whether the datum ‘obj’ is a xmms2-connection container.")
