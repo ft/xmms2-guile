@@ -10,7 +10,6 @@ for dir in scheme/*/*/*/*/*/ scheme/*/*/*/*/ \
     [ ! -d "$dir" ] && continue
     case "$dir" in
     scheme/test/*) continue ;;
-    scheme/documentation/*) continue ;;
     esac
     printf 'Entering directory `%s'\''...\n' "$dir"
     (irc=0; cd "$dir" && for input in *.scm; do
