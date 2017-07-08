@@ -9,19 +9,16 @@ all:
 	@echo
 	@echo "           all: This help text"
 	@echo "       install: Install scheme modules to system paths"
-	@echo "  byte-compile: Byte-compile the client library"
-	@echo "    byte-clean: Remove byte-compiled scheme code"
+	@echo "       compile: Byte-compile the client library"
+	@echo "         clean: Remove generated files (compilation, documentation etc)"
 	@echo "           doc: Generate documentation in various formats"
 	@echo "          test: Run test suite"
 	@echo "  test-verbose: Run test suite (with verbose test harness)"
 	@echo "    test-debug: Run test suite (With all debugging enabled)"
 	@echo
 
-byte-compile:
+compile:
 	$(BYTECOMPILE)
-
-byte-clean:
-	find scheme -name '*.go' -exec rm '{}' +
 
 clean:
 	@(cd doc && $(MAKE) clean;)
@@ -43,4 +40,4 @@ test-verbose:
 test-debug:
 	$(RUNTESTS) -verbose -dispatch-verbose -debug
 
-.PHONY: all byte-compile byte-clean clean doc install test test-debug test-verbose
+.PHONY: all compile clean clean doc install test test-debug test-verbose
