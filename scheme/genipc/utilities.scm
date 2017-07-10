@@ -29,7 +29,8 @@
             cat
             pp
             am
-            assq-ref*))
+            assq-ref*
+            cleanup-documentation))
 
 (define create-files? #f)
 (define (activate-file-generation!)
@@ -150,6 +151,14 @@
   (define name-map '((client . client-name)
                      (offset-milliseconds . offset/ms)))
   (adjust-name name-map name))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Documentation processing:
+
+(define (cleanup-documentation string)
+  (filter (lambda (x)
+            (not (string=? x "")))
+          (map string-trim (string-split string #\newline))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Miscellaneous utilities:

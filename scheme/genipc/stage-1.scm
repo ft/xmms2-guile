@@ -14,11 +14,6 @@
 ;; does most of the name adjustments (it really should to all of them). This
 ;; stage makes heavy use of ‘sxml-match’.
 
-(define (cleanup-documentation string)
-  (filter (lambda (x)
-            (not (string=? x "")))
-          (map string-trim (string-split string #\newline))))
-
 (define (handle-unknown-xml name data)
   (notify "~a: Cannot handle XML entry: ~a~%" name data))
 
