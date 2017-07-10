@@ -1,0 +1,50 @@
+#!/bin/sh
+
+is_opt () {
+    case "$1" in
+    -* ) return 0 ;;
+    esac
+    return 1
+}
+
+case "$1" in
+module) mode=module ;;
+*) printf 'usage: docc MODE [OPTION(s)...] INPUT\n'
+   exit 1
+   ;;
+esac
+
+shift
+
+while is_opt "$1"; do
+    case "$1" in
+    -o) output="$2"
+        shift 2
+        ;;
+    *) printf 'Unknown option: ‘%s’\n' "$1"
+       exit 1
+       ;;
+    esac
+done
+
+input="$1"
+shift
+
+maybe_output () {
+    if test "x$output" = x; then
+        "$@"
+    else
+        "$@" > "$output"
+    fi
+}
+
+case "$mode" in
+module)
+    maybe_output ./tools/guile-in-here ./tools/module-to-markdown.scm "$input"
+    ;;
+
+*)
+    printf 'BUG: This should not happen! Please report!\n'
+    exit 2
+    ;;
+esac
