@@ -51,7 +51,7 @@
          (list name 'procedure
                (maybe-proc-doc mod value)
                (procedure-arguments value)
-               (procedure-property value 'arity)))
+               (procedure-minimum-arity value)))
         ((macro? value)
          (let* ((tf (macro-transformer value))
                 (doc (maybe-proc-doc mod tf))
@@ -63,7 +63,7 @@
                      (additional-documentation mod name)
                      doc)
                  (procedure-arguments (or inlined tf))
-                 (procedure-property (or inlined tf) 'arity))))
+                 (procedure-minimum-arity (or inlined tf)))))
         ((integer? value)
          (list name 'integer
                (additional-documentation mod name)))
