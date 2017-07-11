@@ -124,27 +124,25 @@
                           (left-to-right? #t)
                           (order 'pre)
                           (pick #f))
-  "This function implements `fold'-like functionality for the collection data
-type.
+"This function implements ‘fold’ like functionality for the collection data type.
 
-It walks `collection' and calls `proc' with two arguments: The current node's
-payload and the return value of the last call to `proc'. On the first call of
-`proc' `init' is used as the second argument. The function returns the proc's
+It walks ‘collection’ and calls ‘proc’ with two arguments: The current node's
+payload and the return value of the last call to ‘proc’. On the first call of
+‘proc’ ‘init’ is used as the second argument. The function returns the proc's
 last return value.
 
 The function supports a number of keyword-style arguments to alter its course
 of action:
 
-  #:order           One of: pre (the default, and fallback in case of any
-                    other value), post or level
+- #:order — One of: ~pre~ (the default, and fallback in case of any other value),
+  ~post~ or ~level~
 
-  #:left-to-right?  Boolean (defaults to #t); controls the order in which
-                    child-nodes are processed.
+- #:left-to-right? — Boolean (defaults to #t); controls the order in which
+  child-nodes are processed.
 
-  #:pick            Enables the caller to pick a set of information contained
-                    within the collection: operator, attributes, idlist,
-                    children. Any other value (including #f, which is the
-                    default) passes the entire collection structure to proc."
+- #:pick — Enables the caller to pick a set of information contained within the
+  collection: operator, attributes, idlist, children. Any other value (including
+  #f, which is the default) passes the entire collection structure to proc."
 
   (define (recurse node acc)
     (collection-fold proc acc node
