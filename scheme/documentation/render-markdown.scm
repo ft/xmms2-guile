@@ -104,6 +104,13 @@
                     acc)
               #f))))
 
+(define (docstring->markdown str)
+  (let ((docs (reformat-docstring str)))
+    (for-each (lambda (x)
+                (display x)
+                (newline))
+              docs)))
+
 (define (output-mdwn-procedure name data)
   (match data
     ((docstring args arity)
@@ -114,14 +121,13 @@
        (output-mdwn-kw-args kw-args)
        (output-mdwn-rest-args rest)
        (format #t ")`~%~%")
-       (let ((docs (reformat-docstring docstring)))
-         (for-each (lambda (x)
-                     (display x)
-                     (newline))
-                   docs))))))
+       (docstring->markdown docstring)))))
 
 (define (output-mdwn-macro name data)
-  (format #t "macro: ~a ~s~%" name data))
+  (match data
+    ((docstring args arity)
+     (format #t "Macro: `(~a ...)`~%" name)
+     (docstring->markdown docstring))))
 
 (define (output-mdwn-integer name data)
   (format #t "integer: ~a ~s~%" name data))
@@ -131,7 +137,7 @@
     ((name 'procedure . rest) (output-mdwn-procedure name rest))
     ((name 'macro . rest) (output-mdwn-macro name rest))
     ((name 'integer . rest) (output-mdwn-integer name rest))
-    (else (format #t "unknown type: ~a~%" item))))
+    (else (format #t "Unknown Type: `~a`~%:   undocumented~%" item))))
 
 (define* (list->markdown source
                          #:key
