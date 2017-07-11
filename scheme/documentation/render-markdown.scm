@@ -130,7 +130,10 @@
      (docstring->markdown docstring))))
 
 (define (output-mdwn-integer name data)
-  (format #t "integer: ~a ~s~%" name data))
+  (match data
+    ((docstring)
+     (format #t "Integer: `~a`~%" name)
+     (docstring->markdown docstring))))
 
 (define (output-markdown item)
   (match item
