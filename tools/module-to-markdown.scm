@@ -2,5 +2,6 @@
 
 (use-modules (documentation module)
              (documentation render-markdown))
+(setlocale LC_ALL "")
 (define *module* (cadr (command-line)))
-(output-markdown (module->documentation *module*))
+(list->markdown (module->documentation *module*))
