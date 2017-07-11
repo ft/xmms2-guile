@@ -161,23 +161,26 @@
   "Create an object that encapsulates information for xmms2 server
 connections.
 
-URI is a string, that describes the location of the xmms2 server:
+‘uri’ is a string, that describes the location of the xmms2 server:
 
-  scheme://location
+    scheme://location
 
-Valid values for SCHEME are: unix, tcp
+Valid values for ‘scheme’ are: ‘unix’, ‘tcp’
 
-In the case of the `unix' scheme, LOCATION is an *absolute* file name. In case
-of the `tcp' scheme, it takes the form of: hostname-or-address[:port]
+In the case of the ‘unix’ scheme, LOCATION is an *absolute* file name. In case
+of the ‘tcp’ scheme, it takes the form of: ~hostname-or-address[:port]~
 
-If SCHEME is missing from URI, \"tcp://\" is assumed.
+If ‘scheme’ is missing from ‘uri’, ~tcp://~ is assumed.
 
 The function may throw any of these exceptions:
 
-  - xmms2/invalid-uri in case URI could not be parsed at all.
-  - xmms2/invalid-uri-scheme in case the \"foo://\" part of URI is invalid.
-  - xmms2/getaddrinfo-failed in case getaddrinfo failed.
-  - xmms2/inet-ntop-failed in case inet-ntop failed."
+  - ~xmms2/invalid-uri~ in case URI could not be parsed at all.
+
+  - ~xmms2/invalid-uri-scheme~ in case the ~foo://~ part of URI is invalid.
+
+  - ~xmms2/getaddrinfo-failed~ in case getaddrinfo failed.
+
+  - ~xmms2/inet-ntop-failed~ in case inet-ntop failed."
   (define valid-schemes '(tcp unix))
   (let* ((parsed (safer-string->uri uri))
          (scheme (uri-scheme parsed)))
@@ -188,13 +191,13 @@ The function may throw any of these exceptions:
                             (make-connection parsed))))
 
 (define (xmms2-connected? conn)
-  "Predicate determining if CONN is in connected state."
+  "Predicate determining if ‘conn’ is in connected state."
   (if (eq? (x2c/get-state conn) 'connected) #t #f))
 
 (define (xmms2-connect conn)
-  "Connect to xmms2 server vis CONN.
+  "Connect to xmms2 server via ‘conn’.
 
-Throws an exception `xmms2/already-connected' in case the connection's state
+Throws an exception ‘xmms2/already-connected’ in case the connection's state
 yields to be connected already."
   (if (xmms2-connected? conn)
       (throw 'xmms2/already-connected conn)
@@ -210,7 +213,7 @@ yields to be connected already."
              (x2c/set-state! conn 'connected))))
 
 (define (xmms2-disconnect conn)
-  "Disconnect server connection referenced by CONN."
+  "Disconnect server connection referenced by ‘conn’."
   (let ((s (x2c/get-socket conn)))
     (if (xmms2-connected? conn)
         (when s
@@ -222,13 +225,13 @@ yields to be connected already."
   (x2c/set-socket! conn #f))
 
 (define (xmms2-send conn packet)
-  "Send PACKET to xmms server via CONN.
+  "Send ‘packet’ to xmms server via ‘conn’.
 
-CONN has to be an xmms2-connection. CONN has to be either a bytevector or a
+‘conn’ has to be an xmms2-connection. ‘conn’ has to be either a bytevector or a
 list of multiple bytevectors, that will be send to the server in sequence.
 
-Throws an exception `xmms2/send-failed' in case send throws an exception, in
-which case the connection referenced by CONN is also disconnected."
+Throws an exception ‘xmms2/send-failed’ in case send throws an exception, in
+which case the connection referenced by ‘conn’ is also disconnected."
   (catch #t
     (lambda () (send (x2c/get-socket conn)
                      (packet->data packet)))
@@ -237,19 +240,19 @@ which case the connection referenced by CONN is also disconnected."
       (throw 'xmms2/send-failed conn key args))))
 
 (define (xmms2-recv conn)
-  "Perform a receive on an xmms2-connection
+  "Perform a ~receive~ on an xmms2-connection
 
 Reads a packet header, extracts the payload size from it and then goes on the
-read that payload from the server connection referenced by CONN. Returns a
+read that payload from the server connection referenced by ‘conn’. Returns a
 list:
 
     (header payload-length payload)
 
-This happens even if PAYLOAD-LENGTH is zero in which case PAYLOAD is an empty
-bytevector.
+This happens even if ‘payload-length’ is zero in which case ‘payload’ is an
+empty bytevector.
 
-Throws an exception `xmms2/recv-failed' in case any of the procedures invoked
-throw an exception, in which case the connection referenced by CONN is also
+Throws an exception ‘xmms2/recv-failed’ in case any of the procedures invoked
+throw an exception, in which case the connection referenced by ‘conn’ is also
 disconnected."
   (catch #t
     (lambda ()
