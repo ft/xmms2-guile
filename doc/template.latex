@@ -130,6 +130,9 @@ $if(lang)$
 \fi
 $endif$
 
+\usepackage{enumitem}
+\setlist[description]{style=nextline}
+
 $if(title)$
 \title{$title$}
 $endif$
