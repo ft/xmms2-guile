@@ -44,6 +44,7 @@ integer.")
 
 (define (uint32? data)
   (and (exact-integer? data)
+       (positive? data)
        (<= data *uint32-max*)))
 
 (define (uint32-ref bv offset)
@@ -63,6 +64,7 @@ to DATA, which is that source unsigned integer."
 
 (define (uint64? data)
   (and (exact-integer? data)
+       (positive? data)
        (<= data *uint64-max*)))
 
 (define (uint64-ref bv offset)
