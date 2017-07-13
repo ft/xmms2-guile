@@ -43,6 +43,7 @@ integer.")
   "Represents the number of octets required to fit a 32 bit unsigned integer.")
 
 (define (uint32? data)
+  "Determine whether ‘data’ is an unsigned integer that fits into 32 bits."
   (and (exact-integer? data)
        (positive? data)
        (<= data *uint32-max*)))
@@ -63,6 +64,7 @@ to DATA, which is that source unsigned integer."
 (define *uint64-size* 8)
 
 (define (uint64? data)
+  "Determine whether ‘data’ is an unsigned integer that fits into 64 bits."
   (and (exact-integer? data)
        (positive? data)
        (<= data *uint64-max*)))
@@ -84,6 +86,7 @@ to DATA, which is that source unsigned integer."
 (define *int32-size* 4)
 
 (define (int32? data)
+  "Determine whether ‘data’ is an signed integer that fits into 32 bits."
   (and (exact-integer? data)
        (<= data *int32-max*)
        (>= data *int32-min*)))
@@ -104,6 +107,7 @@ which is that source integer."
 (define *int64-size* 8)
 
 (define (int64? data)
+  "Determine whether ‘data’ is an signed integer that fits into 64 bits."
   (and (exact-integer? data)
        (<= data *int64-max*)
        (>= data *int64-min*)))
