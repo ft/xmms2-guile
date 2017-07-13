@@ -11,6 +11,7 @@
   #:use-module (web uri)
   #:use-module (xmms2 constants)
   #:use-module (xmms2 header)
+  #:use-module (documentation more)
   #:export (make-xmms2-connection
             xmms2-connection?
             xmms2-connected?
@@ -48,6 +49,9 @@
   (state x2c/get-state x2c/set-state!)
   (socket x2c/get-socket x2c/set-socket!)
   (connection x2c/get-connection))
+
+(add-macro-docstring 'xmms2-connection?
+  "Checks whether the datum ‘obj’ is a xmms2-connection container.")
 
 (define-inlinable (xmms2/socket c)
   (x2c/get-socket c))

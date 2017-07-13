@@ -5,6 +5,7 @@
 (define-module (documentation module)
   #:use-module (ice-9 session)
   #:use-module (srfi srfi-1)
+  #:use-module (documentation more)
   #:export (module->documentation))
 
 (define (string->s-exp str)
@@ -24,49 +25,31 @@
     (map (lambda (x) (process-interface mod x))
          (hash-map->list cons inf))))
 
-(define (additional-documentation mod item)
-  (catch #t
-    (lambda ()
-      (or (variable-ref (module-variable (resolve-module (cons* 'documentation
-                                                                'more
-                                                                (cdr mod)))
-                                         item))
-          'undocumented))
-    (lambda (k . a)
-      'undocumented)))
-
-(define (maybe-proc-doc mod proc)
-  (or (procedure-documentation proc)
-      (additional-documentation mod (procedure-name proc))))
-
-(define (inlinable? mod name)
-  (catch #t
-    (lambda ()
-      (eval-string (symbol->string name) (resolve-module mod)))
-    (lambda (k . a)
-      #f)))
+(define (variable-documentation mod name)
+  (let ((docstring-name (symbol-append 'x2/docstring: name)))
+    (catch #t
+      (lambda ()
+        (or (variable-ref (module-variable (resolve-module mod) docstring-name))
+            'undocumented))
+      (lambda (k . a)
+        'undocumented))))
 
 (define (expand-for-value mod name value)
   (cond ((procedure? value)
          (list name 'procedure
-               (maybe-proc-doc mod value)
+               (or (procedure-documentation value) 'undocumented)
                (procedure-arguments value)
                (procedure-minimum-arity value)))
         ((macro? value)
-         (let* ((tf (macro-transformer value))
-                (doc (maybe-proc-doc mod tf))
-                (inlined (inlinable? mod name)))
+         (let ((tf (macro-transformer value))
+               (inlined (inlinable? mod name)))
            (list name (if inlined 'procedure 'macro)
-                 ;; If there is documentation for the transformer, use that. If
-                 ;; not, try the additional documentation for the macro name.
-                 (if (eq? doc 'undocumented)
-                     (additional-documentation mod name)
-                     doc)
+                 (or (procedure-documentation tf) 'undocumented)
                  (procedure-arguments (or inlined tf))
                  (procedure-minimum-arity (or inlined tf)))))
         ((integer? value)
          (list name 'integer
-               (additional-documentation mod name)))
+               (variable-documentation mod name)))
         (else (list name 'unknown-datum))))
 
 (define (process-interface mod item)

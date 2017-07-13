@@ -4,6 +4,7 @@
 
 (define-module (xmms2 data-conversion)
   #:use-module (rnrs bytevectors)
+  #:use-module (documentation more)
   #:export (bytevector-ref
             int32-ref
             int32-set!
@@ -34,8 +35,12 @@
 
 ;; uint32_t
 
-(define *uint32-max* (- (ash 1 32) 1))
-(define *uint32-size* 4)
+(define-variable *uint32-max* (- (ash 1 32) 1)
+  "Value representing the maximum value, that is storable in an unsigned 32 bit
+integer.")
+
+(define-variable *uint32-size* 4
+  "Represents the number of octets required to fit a 32 bit unsigned integer.")
 
 (define (uint32? data)
   (and (exact-integer? data)
