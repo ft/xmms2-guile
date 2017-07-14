@@ -25,15 +25,6 @@
     (map (lambda (x) (process-interface mod x))
          (hash-map->list cons inf))))
 
-(define (variable-documentation mod name)
-  (let ((docstring-name (symbol-append 'x2/docstring: name)))
-    (catch #t
-      (lambda ()
-        (or (variable-ref (module-variable (resolve-module mod) docstring-name))
-            'undocumented))
-      (lambda (k . a)
-        'undocumented))))
-
 (define (expand-for-value mod name value)
   (cond ((procedure? value)
          (list name 'procedure

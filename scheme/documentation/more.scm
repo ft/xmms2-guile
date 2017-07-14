@@ -3,9 +3,11 @@
 ;; Terms for redistribution and use can be found in doc/LICENCE.
 
 (define-module (documentation more)
+  #:use-module (ice-9 documentation)
   #:export (inlinable?
             add-macro-docstring
-            define-variable))
+            define-variable
+            variable-documentation))
 
 (define (inlinable? mod name)
   (catch #t
@@ -25,10 +27,17 @@
   (lambda (x)
     (syntax-case x ()
       ((kw name value docstring)
-       (with-syntax ((varname
-                      (datum->syntax #'kw
-                                     (symbol-append 'x2/docstring:
-                                                    (syntax->datum #'name)))))
-         #'(begin (define name value)
-                  (define varname "")
-                  (set! varname docstring)))))))
+       #'(begin (define name value)
+                (set-object-property! (module-variable (current-module)
+                                                       'name)
+                                      'documentation
+                                      docstring))))))
+
+(define (variable-documentation mod name)
+  (catch #t
+    (lambda ()
+      (or (object-property (module-variable (resolve-module mod) name)
+                           'documentation)
+          'undocumented))
+    (lambda (k . a)
+      'undocumented)))
