@@ -4,6 +4,8 @@ subtitle: An Unreliable Hacker's Guide
 author:
 - name: Frank Terbeck
   email: ft@bewatermyfriend.org
+section: 7
+date: Jul, 2017
 ...
 
 # Introduction
