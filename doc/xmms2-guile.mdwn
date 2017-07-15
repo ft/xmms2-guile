@@ -215,15 +215,57 @@ protocol version as defined by the `PROTOCOL-VERSION` constant defined in the
 @include scheme/xmms2/values.mdwn@
 
 
+## Documentation Generation Modules
+
+### `(documentation combine-markdown)`
+
+@include scheme/documentation/combine-markdown.mdwn@
+
+### `(documentation module)`
+
+@include scheme/documentation/module.mdwn@
+
+### `(documentation more)`
+
+@include scheme/documentation/more.mdwn@
+
+### `(documentation render-markdown)`
+
+@include scheme/documentation/render-markdown.mdwn@
+
+
+## Interprocess Communication Generation Modules
+
+### `(scheme genipc stage-0.scm)`
+
+@include scheme/genipc/stage-0.mdwn@
+
+### `(scheme genipc stage-1.scm)`
+
+@include scheme/genipc/stage-1.mdwn@
+
+### `(scheme genipc stage-2.scm)`
+
+@include scheme/genipc/stage-2.mdwn@
+
+### `(scheme genipc stage-3.scm)`
+
+@include scheme/genipc/stage-3.mdwn@
+
+### `(scheme genipc utilities.scm)`
+
+@include scheme/genipc/utilities.mdwn@
+
+
 ## Test Suite Modules
 
 ### `(test payload)`
 
-- `@TBD@`
+@include scheme/test/payload.mdwn@
 
 ### `(test setup)`
 
-- `@TBD@`
+@include scheme/test/setup.mdwn@
 
 
 ## Genrerated Constants Modules
