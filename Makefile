@@ -44,6 +44,7 @@ clean:
 	@(cd doc && $(MAKE) clean;)
 	find . -name "*.go" -exec rm -f '{}' +
 	find . -name "*~" -exec rm -f '{}' +
+	find . -name "*.failure" -exec rm -f '{}' +
 
 doc:
 	@(cd doc && $(MAKE) all;)

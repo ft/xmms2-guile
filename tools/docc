@@ -54,7 +54,7 @@ maybe_output () {
     if test "x$output" = x; then
         "$@"
     else
-        "$@" > "$output" || rm "$output"
+        "$@" > "$output" || mv "$output" "${output}.failure"
     fi
 }
 

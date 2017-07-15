@@ -4,6 +4,7 @@
 *~
 *.orig
 *.go
+*.failure
 doc/*.[0-9]
 doc/*.html
 doc/*.info
