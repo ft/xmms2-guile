@@ -13,7 +13,7 @@ PANDOC_FLAGS = --self-contained --number-sections --normalize --smart --toc
 MARKDOWN2HTML = $(PANDOC) $(PANDOC_FLAGS) --highlight-style=monochrome
 MARKDOWN2HTML += -c manual.css -t html5 --template template.html
 MARKDOWN2MAN = $(PANDOC) $(PANDOC_FLAGS) --highlight-style=monochrome
-MARKDOWN2MAN += -c manual.css -t man
+MARKDOWN2MAN += --template template.man -t man
 MARKDOWN2PDF = $(PANDOC) $(PANDOC_FLAGS) --highlight-style=monochrome
 MARKDOWN2PDF += -c manual.css --template template.latex
 
