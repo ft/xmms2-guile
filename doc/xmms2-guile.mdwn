@@ -164,55 +164,55 @@ protocol version as defined by the `PROTOCOL-VERSION` constant defined in the
 
 ### `(xmms2 client)`
 
-- `@TBD@`
+@include scheme/xmms2/client.mdwn@
 
 ### `(xmms2 client synchronous)`
 
-- `@TBD@`
+@include scheme/xmms2/client/synchronous.mdwn@
 
 ### `(xmms2 constants)`
 
-- `@TBD@`
+@include scheme/xmms2/constants.mdwn@
 
 ### `(xmms2 data-conversion)`
 
-- `@TBD@`
+@include scheme/xmms2/data-conversion.mdwn@
 
 ### `(xmms2 enumeration)`
 
-- `@TBD@`
+@include scheme/xmms2/enumeration.mdwn@
 
 ### `(xmms2 fetch-spec)`
 
-- `@TBD@`
+@include scheme/xmms2/fetch-spec.mdwn@
 
 ### `(xmms2 header)`
 
-- `@TBD@`
+@include scheme/xmms2/header.mdwn@
 
 ### `(xmms2 io)`
 
-- `@TBD@`
+@include scheme/xmms2/io.mdwn@
 
 ### `(xmms2 ipc)`
 
-- `@TBD@`
+@include scheme/xmms2/ipc.mdwn@
 
 ### `(xmms2 jump-table)`
 
-- `@TBD@`
+@include scheme/xmms2/jump-table.mdwn@
 
 ### `(xmms2 payload)`
 
-- `@TBD@`
+@include scheme/xmms2/payload.mdwn@
 
 ### `(xmms2 types)`
 
-- `@TBD@`
+@include scheme/xmms2/types.mdwn@
 
 ### `(xmms2 values)`
 
-- `@TBD@`
+@include scheme/xmms2/values.mdwn@
 
 
 ## Test Suite Modules
@@ -230,114 +230,114 @@ protocol version as defined by the `PROTOCOL-VERSION` constant defined in the
 
 ### `(xmms2 constants binary-data)`
 
-- `@TBD@`
+@include scheme/xmms2/constants/binary-data.mdwn@
 
 ### `(xmms2 constants collection)`
 
-- `@TBD@`
+@include scheme/xmms2/constants/collection.mdwn@
 
 ### `(xmms2 constants collection-sync)`
 
-- `@TBD@`
+@include scheme/xmms2/constants/collection-sync.mdwn@
 
 ### `(xmms2 constants configuration)`
 
-- `@TBD@`
+@include scheme/xmms2/constants/configuration.mdwn@
 
 ### `(xmms2 constants courier)`
 
-- `@TBD@`
+@include scheme/xmms2/constants/courier.mdwn@
 
 ### `(xmms2 constants ipc-manager)`
 
-- `@TBD@`
+@include scheme/xmms2/constants/ipc-manager.mdwn@
 
 ### `(xmms2 constants main)`
 
-- `@TBD@`
+@include scheme/xmms2/constants/main.mdwn@
 
 ### `(xmms2 constants media-info-reader)`
 
-- `@TBD@`
+@include scheme/xmms2/constants/media-info-reader.mdwn@
 
 ### `(xmms2 constants media-library)`
 
-- `@TBD@`
+@include scheme/xmms2/constants/media-library.mdwn@
 
 ### `(xmms2 constants meta)`
 
-- `@TBD@`
+@include scheme/xmms2/constants/meta.mdwn@
 
 ### `(xmms2 constants playback)`
 
-- `@TBD@`
+@include scheme/xmms2/constants/playback.mdwn@
 
 ### `(xmms2 constants playlist)`
 
-- `@TBD@`
+@include scheme/xmms2/constants/playlist.mdwn@
 
 ### `(xmms2 constants visualization)`
 
-- `@TBD@`
+@include scheme/xmms2/constants/visualization.mdwn@
 
 ### `(xmms2 constants xform)`
 
-- `@TBD@`
+@include scheme/xmms2/constants/xform.mdwn@
 
 
 ## Genrerated IPC Modules
 
 ### `(xmms2 ipc binary-data)`
 
-- `@TBD@`
+@include scheme/xmms2/ipc/binary-data.mdwn@
 
 ### `(xmms2 ipc collection)`
 
-- `@TBD@`
+@include scheme/xmms2/ipc/collection.mdwn@
 
 ### `(xmms2 ipc collection-sync)`
 
-- `@TBD@`
+@include scheme/xmms2/ipc/collection-sync.mdwn@
 
 ### `(xmms2 ipc configuration)`
 
-- `@TBD@`
+@include scheme/xmms2/ipc/configuration.mdwn@
 
 ### `(xmms2 ipc courier)`
 
-- `@TBD@`
+@include scheme/xmms2/ipc/courier.mdwn@
 
 ### `(xmms2 ipc ipc-manager)`
 
-- `@TBD@`
+@include scheme/xmms2/ipc/ipc-manager.mdwn@
 
 ### `(xmms2 ipc main)`
 
-- `@TBD@`
+@include scheme/xmms2/ipc/main.mdwn@
 
 ### `(xmms2 ipc media-info-reader)`
 
-- `@TBD@`
+@include scheme/xmms2/ipc/media-info-reader.mdwn@
 
 ### `(xmms2 ipc media-library)`
 
-- `@TBD@`
+@include scheme/xmms2/ipc/media-library.mdwn@
 
 ### `(xmms2 ipc playback)`
 
-- `@TBD@`
+@include scheme/xmms2/ipc/playback.mdwn@
 
 ### `(xmms2 ipc playlist)`
 
-- `@TBD@`
+@include scheme/xmms2/ipc/playlist.mdwn@
 
 ### `(xmms2 ipc visualization)`
 
-- `@TBD@`
+@include scheme/xmms2/ipc/visualization.mdwn@
 
 ### `(xmms2 ipc xform)`
 
-- `@TBD@`
+@include scheme/xmms2/ipc/xform.mdwn@
 
 
 # EXAMPLE

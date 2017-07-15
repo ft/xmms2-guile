@@ -9,6 +9,7 @@ is_opt () {
 
 case "$1" in
 module) mode=module ;;
+combine) mode=combine ;;
 *) printf 'usage: docc MODE [OPTION(s)...] INPUT\n'
    exit 1
    ;;
@@ -60,6 +61,10 @@ maybe_output () {
 case "$mode" in
 module)
     maybe_output "$TOPDIR/tools/guile-in-here" "$TOPDIR/tools/module-to-markdown.scm" "$input"
+    ;;
+
+combine)
+    maybe_output "$TOPDIR/tools/guile-in-here" "$TOPDIR/tools/combine-into-markdown.scm" "$input"
     ;;
 
 *)

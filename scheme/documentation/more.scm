@@ -7,6 +7,7 @@
   #:export (inlinable?
             add-macro-docstring
             define-variable
+            maybe-topdir
             variable-documentation))
 
 (define (inlinable? mod name)
@@ -41,3 +42,6 @@
           'undocumented))
     (lambda (k . a)
       'undocumented)))
+
+(define (maybe-topdir fallback)
+  (or (getenv "TOPDIR") fallback))

@@ -9,5 +9,6 @@ doc/*.html
 doc/*.info
 doc/*.texi
 doc/*.pdf
+doc/*.fmdwn
 tags
 TAGS
