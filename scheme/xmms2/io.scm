@@ -53,10 +53,10 @@
 (add-macro-docstring 'xmms2-connection?
   "Checks whether the datum ‘obj’ is a xmms2-connection container.")
 
-(define-inlinable (xmms2/socket c)
+(define (xmms2/socket c)
   (x2c/get-socket c))
 
-(define-inlinable (xmms2-uri c)
+(define (xmms2-uri c)
   (x2c/get-uri c))
 
 (define (xmms2-connection-has-socket? conn)
