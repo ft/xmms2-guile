@@ -23,14 +23,24 @@ Quickstart
 Documentation
 -------------
 
-At this  point in  time, the  library lacks documentation  other than  the doc-
-strings from  its source code.  The ‘doc’  sub-directory, thus far,  contains a
-document,  that  basically  reflects  a  couple of  notes  about  the  protocol
-implemented by the  library, that were taken during development.  It is neither
-complete  nor does  it claim  to  be any  sort  of an  authoritative source  of
-information about the protocol. And it was never proof-read by anyone who knows
-the protocol,  so bugs are likely.  Hence the subtitle “An  Unreliable Hacker’s
-Guide”.
+The ‘doc’ subdirectory  contains all documentation for the  project, except for
+this  README. The  main documentation  consists of  two documents:  One is  the
+library's reference manual. Much of the  reference manual is generated from the
+Scheme source code  using the documentation strings attached to  the symbols of
+the public APIs of the different  modules, using some of GNU Guile's introspec-
+tion features.
+
+The  second document,  is a  set notes  about the  protocol that  XMMS2 servers
+speak, as implemented by the library. These were taken during development. They
+are neither complete nor does the document  claim to be any sort of an authori-
+tative source of information about the protocol. And it was never proof-read by
+anyone  who knows  the protocol,  so bugs  are likely.  Hence the  subtitle “An
+Unreliable Hacker’s Guide”.
+
+Building the documentation requires ‘pandoc’ to be installed on the build host,
+along with its dependencies to generate ‘html’, ‘roff’ (manual pages) and ‘pdf’
+(think “LaTeX”) documents. Calling ‘make doc’ from the project's root directory
+will then build the two main documents in those three formats.
 
 
 Dependencies
