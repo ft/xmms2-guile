@@ -21,53 +21,21 @@
 (define pl property-list->dictionary)
 
 (define generator-map
-  `(("play" .
-     ,(lambda (server)
-        (ipc-start)))
-
-    ("stop" .
-     ,(lambda (server)
-        (ipc-stop)))
-
-    ("pause" .
-     ,(lambda (server)
-        (ipc-pause)))
-
-    ("tickle" .
-     ,(lambda (server)
-        (ipc-kill-decoder)))
-
-    ("next" .
-     ,(lambda (server)
-        (ipc-set-next/relative 1)))
-
-    ("prev" .
-     ,(lambda (server)
-        (ipc-set-next/relative -1)))
-
-    ("active-playlist" .
-     ,(lambda (server)
-        (ipc-get-currently-active)))
-
-    ("time" .
-     ,(lambda (server)
-        (ipc-get-playtime)))
-
-    ("statistics" .
-     ,(lambda (server)
-        (ipc-statistics)))
-
+  `(("play" . ,(lambda (server) (ipc-start)))
+    ("stop" . ,(lambda (server) (ipc-stop)))
+    ("pause" . ,(lambda (server) (ipc-pause)))
+    ("tickle" . ,(lambda (server) (ipc-kill-decoder)))
+    ("next" . ,(lambda (server) (ipc-set-next/relative 1)))
+    ("prev" . ,(lambda (server) (ipc-set-next/relative -1)))
+    ("active-playlist" . ,(lambda (server) (ipc-get-currently-active)))
+    ("time" . ,(lambda (server) (ipc-get-playtime)))
+    ("statistics" . ,(lambda (server) (ipc-statistics)))
     ("list" .
      ,(lambda (server)
         (ipc-list-entries (request->value server (ipc-get-currently-active)))))
 
-    ("current-track" .
-     ,(lambda (server)
-        (ipc-get-current-identifier)))
-
-    ("list-collections" .
-     ,(lambda (server)
-        (coll:ipc-list "Collections")))
+    ("current-track" . ,(lambda (server) (ipc-get-current-identifier)))
+    ("list-collections" . ,(lambda (server) (coll:ipc-list "Collections")))
 
     ("count-tracks" .
      ,(lambda (server)
