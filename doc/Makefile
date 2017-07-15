@@ -29,7 +29,7 @@ html: $(HTML)
 xmms2-guile.fmdwn: $(REFMAN_SECTIONS)
 
 clean:
-	rm -f *~ *.fmdwn *.pdf *.html *.7
+	rm -f *~ xmms2*.fmdwn xmms2*.pdf xmms2*.html xmms2*.7
 	find $(TOPDIR)/scheme -name "*.mdwn" -exec rm -f '{}' +
 
 .fmdwn.pdf:
