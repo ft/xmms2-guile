@@ -1,3 +1,15 @@
+TOPDIR = ..
+include ../modules.mk
+
+GENERATE_REFMAN_SECTION = TOPDIR="$(TOPDIR)" $(TOPDIR)/tools/docc module -g
+
+REFMAN_MODULES = $(MODULES_CORE) $(MODULES_GENERATED_CONSTANTS)
+REFMAN_MODULES += $(MODULES_GENERATED_IPC)
+
+REFMAN_SECTIONS = ${REFMAN_MODULES:.scm=.mdwn}
+
+.SUFFIXES: .scm .mdwn
+
 MAN = xmms2-protocol.7 xmms2-guile.7
 PDF = xmms2-protocol.pdf xmms2-guile.pdf
 HTML = xmms2-protocol.html xmms2-guile.html
@@ -13,7 +25,7 @@ XMMS2PROTO_MAN_META = -V title="xmms2-protocol" -V section="7" -V date="Jan, 201
 XMMS2GUILE_HTML_META = $(XMMS2GUILE_TEX_META) --highlight-style=monochrome
 XMMS2GUILE_MAN_META = -V title="xmms2-guile" -V section="7" -V date="Jan, 2017"
 
-all: html pdf man
+all: refmansecs html pdf man
 man: $(MAN)
 pdf: $(PDF)
 html: $(HTML)
@@ -34,5 +46,11 @@ xmms2-guile.html: xmms2-guile.mdwn
 
 clean:
 	rm -f $(HTML) $(PDF) $(MAN) *~
+	find $(TOPDIR)/scheme -name "*.mdwn" -exec rm -f '{}' +
 
-.PHONY: all man html pdf clean
+refmansecs: $(REFMAN_SECTIONS)
+
+.scm.mdwn:
+	$(GENERATE_REFMAN_SECTION) -o $@ $<
+
+.PHONY: all man html pdf clean refmansecs

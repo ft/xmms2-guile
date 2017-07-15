@@ -2,7 +2,7 @@
 
 is_opt () {
     case "$1" in
-    -* ) return 0 ;;
+    -*) return 0 ;;
     esac
     return 1
 }
@@ -16,10 +16,14 @@ esac
 
 shift
 
+guessmodule=0
 while is_opt "$1"; do
     case "$1" in
     -o) output="$2"
         shift 2
+        ;;
+    -g) guessmodule=1
+        shift
         ;;
     *) printf 'Unknown option: ‘%s’\n' "$1"
        exit 1
@@ -27,8 +31,23 @@ while is_opt "$1"; do
     esac
 done
 
+has_prefix () {
+    case "$1" in
+    [./]* ) return 0 ;;
+    esac
+    return 1
+}
+
 input="$1"
 shift
+if test "$guessmodule" = 1; then
+    while has_prefix "$input"; do
+        input=${input#?}
+    done
+    input=${input#scheme/}
+    input=${input%.scm}
+    input="($(printf '%s' ${input} | tr / ' '))"
+fi
 
 maybe_output () {
     if test "x$output" = x; then
@@ -40,7 +59,7 @@ maybe_output () {
 
 case "$mode" in
 module)
-    maybe_output ./tools/guile-in-here ./tools/module-to-markdown.scm "$input"
+    maybe_output "$TOPDIR/tools/guile-in-here" "$TOPDIR/tools/module-to-markdown.scm" "$input"
     ;;
 
 *)

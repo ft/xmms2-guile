@@ -1,7 +1,24 @@
-RUNTESTS = run-tests -strip-roots -dispatch-root "$$PWD/tests"
+TOPDIR = .
+include modules.mk
 
-BYTECOMPILE = sh ./tools/compile
+LOAD_PATH = "$(PWD)/scheme"
+
+RUNTESTS = run-tests -strip-roots -dispatch-root "$$PWD/tests"
 INSTALL = sh ./tools/install
+
+SH = /bin/sh
+GUILE = guile
+GUILD = guild
+
+CFLAGS = -Wunsupported-warning -Wunused-variable -Wunused-toplevel
+CFLAGS += -Wunbound-variable -Warity-mismatch -Wduplicate-case-datum
+CFLAGS += -Wbad-case-datum -Wformat -L$(LOAD_PATH)
+
+COMPILE = $(GUILD) compile $(CFLAGS)
+
+OBJECTS = ${MODULES:.scm=.go}
+
+.SUFFIXES: .scm .go
 
 all:
 	@echo
@@ -17,8 +34,10 @@ all:
 	@echo "    test-debug: Run test suite (With all debugging enabled)"
 	@echo
 
-compile:
-	$(BYTECOMPILE)
+.scm.go:
+	$(COMPILE) -o $@ $<
+
+compile: $(OBJECTS)
 
 clean:
 	@(cd doc && $(MAKE) clean;)
