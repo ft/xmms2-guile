@@ -3,18 +3,19 @@ include modules.mk
 
 LOAD_PATH = "$(PWD)/scheme"
 
-RUNTESTS = run-tests -strip-roots -dispatch-root "$$PWD/tests"
-INSTALL = sh ./tools/install
-
 SH = /bin/sh
-GUILE = guile
-GUILD = guild
+GUILE_BINARY = guile
+GUILD_BINARY = guild
+
+RUNTESTS = SCHEME_INTERPRETER="$(GUILE_BINARY)" run-tests
+RUNTESTS += -strip-roots -dispatch-root "$$PWD/tests"
+INSTALL = sh ./tools/install
 
 CFLAGS = -Wunsupported-warning -Wunused-variable -Wunused-toplevel
 CFLAGS += -Wunbound-variable -Warity-mismatch -Wduplicate-case-datum
 CFLAGS += -Wbad-case-datum -Wformat -L$(LOAD_PATH)
 
-COMPILE = $(GUILD) compile $(CFLAGS)
+COMPILE = $(GUILD_BINARY) compile $(CFLAGS)
 
 OBJECTS = ${MODULES:.scm=.go}
 
