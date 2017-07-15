@@ -15,7 +15,7 @@ MARKDOWN2HTML += -c manual.css -t html5 --template template.html
 MARKDOWN2MAN = $(PANDOC) $(PANDOC_FLAGS) --highlight-style=monochrome
 MARKDOWN2MAN += --template template.man -t man
 MARKDOWN2PDF = $(PANDOC) $(PANDOC_FLAGS) --highlight-style=monochrome
-MARKDOWN2PDF += -c manual.css --template template.latex
+MARKDOWN2PDF += --template template.latex
 
 MAN = xmms2-protocol.7 xmms2-guile.7
 PDF = xmms2-protocol.pdf xmms2-guile.pdf
