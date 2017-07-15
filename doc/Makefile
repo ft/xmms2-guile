@@ -21,11 +21,12 @@ MAN = xmms2-protocol.7 xmms2-guile.7
 PDF = xmms2-protocol.pdf xmms2-guile.pdf
 HTML = xmms2-protocol.html xmms2-guile.html
 
-all: refmansecs html pdf man
-refmansecs: $(REFMAN_SECTIONS)
+all: html pdf man
 man: $(MAN)
 pdf: $(PDF)
 html: $(HTML)
+
+xmms2-guile.fmdwn: $(REFMAN_SECTIONS)
 
 clean:
 	rm -f *~ *.fmdwn *.pdf *.html *.7
@@ -46,4 +47,4 @@ clean:
 .mdwn.fmdwn:
 	$(GENERATE_FINAL_MARKDOWN) -o $@ $<
 
-.PHONY: all man html pdf clean refmansecs
+.PHONY: all man html pdf clean
