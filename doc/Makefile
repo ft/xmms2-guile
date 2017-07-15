@@ -1,32 +1,34 @@
 TOPDIR = ..
-include ../modules.mk
 
+PROTOCOL = xmms2-protocol
+REFERENCE = xmms2-guile
+
+MAN = $(PROTOCOL).7 $(REFERENCE).7
+PDF = $(PROTOCOL).pdf $(REFERENCE).pdf
+HTML = $(PROTOCOL).html $(REFERENCE).html
+
+include $(TOPDIR)/modules.mk
 REFMAN_SECTIONS = ${MODULES:.scm=.mdwn}
 
-.SUFFIXES: .scm .mdwn .fmdwn .7 .html .pdf
-
-GENERATE_REFMAN_SECTION = TOPDIR="$(TOPDIR)" $(TOPDIR)/tools/docc module -g
-GENERATE_FINAL_MARKDOWN = TOPDIR="$(TOPDIR)" $(TOPDIR)/tools/docc combine
+DOCC = TOPDIR="$(TOPDIR)" $(TOPDIR)/tools/docc
+GENERATE_REFMAN_SECTION = $(DOCC) module -g
+GENERATE_FINAL_MARKDOWN = $(DOCC) combine
 
 PANDOC = pandoc
 PANDOC_FLAGS = --self-contained --number-sections --normalize --smart --toc
-MARKDOWN2HTML = $(PANDOC) $(PANDOC_FLAGS) --highlight-style=monochrome
-MARKDOWN2HTML += -c manual.css -t html5 --template template.html
-MARKDOWN2MAN = $(PANDOC) $(PANDOC_FLAGS) --highlight-style=monochrome
-MARKDOWN2MAN += --template template.man -t man
-MARKDOWN2PDF = $(PANDOC) $(PANDOC_FLAGS) --highlight-style=monochrome
-MARKDOWN2PDF += --template template.latex
-
-MAN = xmms2-protocol.7 xmms2-guile.7
-PDF = xmms2-protocol.pdf xmms2-guile.pdf
-HTML = xmms2-protocol.html xmms2-guile.html
+PANDOC_FLAGS += --highlight-style=monochrome
+MARKDOWN2PDF = $(PANDOC) $(PANDOC_FLAGS) --template template.latex
+MARKDOWN2MAN = $(PANDOC) $(PANDOC_FLAGS) -t man --template template.man
+MARKDOWN2HTML = $(PANDOC) $(PANDOC_FLAGS) -t html5 --template template.html
+MARKDOWN2HTML += -c manual.css
 
 all: html pdf man
 man: $(MAN)
 pdf: $(PDF)
 html: $(HTML)
 
-xmms2-guile.fmdwn: $(REFMAN_SECTIONS)
+$(PROTOCOL).fmdwn:
+$(REFERENCE).fmdwn: $(REFMAN_SECTIONS)
 
 clean:
 	rm -f *~ xmms2*.fmdwn xmms2*.pdf xmms2*.html xmms2*.7
@@ -48,3 +50,4 @@ clean:
 	$(GENERATE_FINAL_MARKDOWN) -o $@ $<
 
 .PHONY: all man html pdf clean
+.SUFFIXES: .scm .mdwn .fmdwn .7 .html .pdf
