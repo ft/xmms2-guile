@@ -4,10 +4,7 @@ include ../modules.mk
 GENERATE_REFMAN_SECTION = TOPDIR="$(TOPDIR)" $(TOPDIR)/tools/docc module -g
 GENERATE_FINAL_MARKDOWN = TOPDIR="$(TOPDIR)" $(TOPDIR)/tools/docc combine
 
-REFMAN_MODULES = $(MODULES_CORE) $(MODULES_GENERATED_CONSTANTS)
-REFMAN_MODULES += $(MODULES_GENERATED_IPC)
-
-REFMAN_SECTIONS = ${REFMAN_MODULES:.scm=.mdwn}
+REFMAN_SECTIONS = ${MODULES:.scm=.mdwn}
 
 .SUFFIXES: .scm .mdwn .fmdwn
 
@@ -46,7 +43,7 @@ xmms2-guile.html: xmms2-guile.fmdwn
 	pandoc --template template.html -t html5 $(HTML_META) $(COMMONOPTIONS) $(XMMS2GUILE_HTML_META) -o $@ xmms2-guile.fmdwn
 
 clean:
-	rm -f $(HTML) $(PDF) $(MAN) *~
+	rm -f $(HTML) $(PDF) $(MAN) *~ *.fmdwn
 	find $(TOPDIR)/scheme -name "*.mdwn" -exec rm -f '{}' +
 
 refmansecs: $(REFMAN_SECTIONS)

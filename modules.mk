@@ -1,12 +1,16 @@
-MODULES_DOCUMENTATION = $(TOPDIR)/scheme/documentation/module.scm
+MODULES_DOCUMENTATION = $(TOPDIR)/scheme/documentation/combine-markdown.scm
+MODULES_DOCUMENTATION += $(TOPDIR)/scheme/documentation/module.scm
 MODULES_DOCUMENTATION += $(TOPDIR)/scheme/documentation/more.scm
 MODULES_DOCUMENTATION += $(TOPDIR)/scheme/documentation/render-markdown.scm
 
-MODULES_GENIPC = $(TOPDIR)/scheme/genipc/stage-0.scm scheme/genipc/stage-1.scm
-MODULES_GENIPC += $(TOPDIR)/scheme/genipc/stage-2.scm scheme/genipc/stage-3.scm
+MODULES_GENIPC = $(TOPDIR)/scheme/genipc/stage-0.scm
+MODULES_GENIPC += $(TOPDIR)/scheme/genipc/stage-1.scm
+MODULES_GENIPC += $(TOPDIR)/scheme/genipc/stage-2.scm
+MODULES_GENIPC += $(TOPDIR)/scheme/genipc/stage-3.scm
 MODULES_GENIPC += $(TOPDIR)/scheme/genipc/utilities.scm
 
-MODULES_TEST = $(TOPDIR)/scheme/test/payload.scm scheme/test/setup.scm
+MODULES_TEST = $(TOPDIR)/scheme/test/payload.scm
+MODULES_TEST += $(TOPDIR)/scheme/test/setup.scm
 
 MODULES_GENERATED_CONSTANTS = $(TOPDIR)/scheme/xmms2/constants/binary-data.scm
 MODULES_GENERATED_CONSTANTS += $(TOPDIR)/scheme/xmms2/constants/collection.scm
