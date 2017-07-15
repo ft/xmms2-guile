@@ -16,11 +16,10 @@ GENERATE_FINAL_MARKDOWN = $(DOCC) combine
 
 PANDOC = pandoc
 PANDOC_FLAGS = --self-contained --number-sections --normalize --smart --toc
-PANDOC_FLAGS += --highlight-style=monochrome
 MARKDOWN2PDF = $(PANDOC) $(PANDOC_FLAGS) --template template.latex
 MARKDOWN2MAN = $(PANDOC) $(PANDOC_FLAGS) -t man --template template.man
 MARKDOWN2HTML = $(PANDOC) $(PANDOC_FLAGS) -t html5 --template template.html
-MARKDOWN2HTML += -c manual.css
+MARKDOWN2HTML += -c manual.css --highlight-style=monochrome
 
 all: html pdf man
 man: $(MAN)
