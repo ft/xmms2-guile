@@ -1,14 +1,15 @@
 TOPDIR = .
 include modules.mk
 
-LOAD_PATH = "$(PWD)/scheme"
+LOAD_PATH = "$(TOPDIR)/scheme"
+TEST_PATH = "$(TOPDIR)/tests"
 
 SH = /bin/sh
 GUILE_BINARY = guile
 GUILD_BINARY = guild
 
 RUNTESTS = SCHEME_INTERPRETER="$(GUILE_BINARY)" run-tests
-RUNTESTS += -strip-roots -dispatch-root "$$PWD/tests"
+RUNTESTS += -strip-roots -dispatch-root "$(TEST_PATH)"
 INSTALL = sh ./tools/install
 
 CFLAGS = -Wunsupported-warning -Wunused-variable -Wunused-toplevel
