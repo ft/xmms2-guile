@@ -14,7 +14,7 @@ Quickstart
 ----------
 
 % ./genipc/generate-ipc-from-xml ~/src/sys/xmms2/src/ipc.xml
-% make byte-compile
+% make compile
 % ./tools/guile-in-here ./examples/cli play
 
 (This assumes you followed the “Examples” section below.)
@@ -64,7 +64,7 @@ Installation
 
 % ./genipc/generate-ipc-from-xml ~/src/xmms2/src/ipc.xml
 % make doc
-% make byte-compile
+% make compile
 % make test
 (…and as root…)
 # ./install
