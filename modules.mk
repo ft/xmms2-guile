@@ -1,5 +1,7 @@
 MODULES_DOCUMENTATION = $(TOPDIR)/scheme/documentation/combine-markdown.scm
 MODULES_DOCUMENTATION += $(TOPDIR)/scheme/documentation/module.scm
+MODULES_DOCUMENTATION += $(TOPDIR)/scheme/documentation/module/constants.scm
+MODULES_DOCUMENTATION += $(TOPDIR)/scheme/documentation/module/generic.scm
 MODULES_DOCUMENTATION += $(TOPDIR)/scheme/documentation/more.scm
 MODULES_DOCUMENTATION += $(TOPDIR)/scheme/documentation/render-markdown.scm
 

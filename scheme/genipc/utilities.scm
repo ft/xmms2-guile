@@ -25,6 +25,7 @@
             name->identifier
             name->constants
             directory-exists?
+            symbol-prefix?
             symbol-upcase
             cat
             pp
@@ -162,6 +163,10 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Miscellaneous utilities:
+
+(define (symbol-prefix? prefix sym)
+  (string-prefix? (symbol->string prefix)
+                  (symbol->string sym)))
 
 (define (symbol-upcase sym)
   (string->symbol (string-upcase (symbol->string sym))))

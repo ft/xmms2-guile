@@ -341,6 +341,14 @@ protocol version as defined by the `PROTOCOL-VERSION` constant defined in the
 
 @include scheme/documentation/module.mdwn@
 
+### `(documentation module constants)`
+
+@include scheme/documentation/module/constants.mdwn@
+
+### `(documentation module generic)`
+
+@include scheme/documentation/module/generic.mdwn@
+
 ### `(documentation more)`
 
 @include scheme/documentation/more.mdwn@
