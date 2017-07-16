@@ -114,4 +114,4 @@ like this:
                     dir))
 
 (foreach-file-in "scheme" install-scheme
-                 #:exclude '(".git" "test"))
+                 #:exclude '(".git" "documentation" "genipc" "test"))
