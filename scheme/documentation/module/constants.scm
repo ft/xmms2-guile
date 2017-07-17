@@ -10,7 +10,7 @@
 (define (expand-constants-integer mod name value)
   (list name 'integer
         (cond ((symbol-prefix? 'CMD- name)
-               (format #f "Command identifier for the ‘~a’ command of the ‘~a’ object."
+               (format #f "Identifier for the ‘~a’ command of the ‘~a’ object."
                        (substring (string-downcase (symbol->string name)) 4)
                        (last mod)))
               (else 'undocumented))))
