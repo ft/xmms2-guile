@@ -4,6 +4,7 @@
 
 (define-module (genipc stage-3)
   #:use-module (srfi srfi-1)
+  #:use-module (srfi srfi-11)
   #:use-module (srfi srfi-19)
   #:use-module (genipc utilities)
   #:export (ensure-directories!
@@ -403,8 +404,17 @@
               (else name)))))
 
 (define (generate-ipc/enumeration enum)
+  (define (shorten-symbol sym n)
+    (if (zero? n)
+        sym
+        (let* ((str (symbol->string sym))
+               (len (string-length str)))
+          (string->symbol (substring str 0 (- len 1))))))
   (define (xref x)
-    (symbol-append 'xref- x (if (symbol-suffix? 's x) 'es 's)))
+    (let-values (((shorten plural) (cond ((symbol-suffix? 's x) (values 0 'es))
+                                         ((symbol-suffix? 'y x) (values 1 'ies))
+                                         (else (values 0 's)))))
+      (symbol-append 'xref- (shorten-symbol x shorten) plural)))
   (let* ((name (enum->name enum))
          (members (assq-ref enum 'members))
          (transformer (lambda (x) (generate-ipc/enum-member name x))))

@@ -81,9 +81,9 @@
                  (xref-mode-docstring name (last mod) mode
                                       (caar value) (cdar value))))
               ((and (symbol-prefix? 'xref- name)
-                    (symbol-suffix? '-policys name))
+                    (symbol-suffix? '-policies name))
                (let* ((str (symbol->string name))
-                      (policy (substring str 5 (- (string-length str) 8))))
+                      (policy (substring str 5 (- (string-length str) 9))))
                  (xref-policy-docstring name (last mod) policy
                                       (caar value) (cdar value))))
               ((and (symbol-prefix? 'xref- name)
