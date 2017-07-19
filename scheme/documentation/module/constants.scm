@@ -88,7 +88,8 @@
                  (xref-policy-docstring name (last mod) policy
                                       (caar value) (cdar value))))
               ((and (symbol-prefix? 'xref- name)
-                    (symbol-suffix? '-types name))
+                    (symbol-suffix? '-types name)
+                    (not (equal? mod '(xmms2 constants))))
                (let* ((str (symbol->string name))
                       (object (substring str 5 (- (string-length str) 6))))
                  (xref-types-docstring name object (caar value) (cdar value))))
