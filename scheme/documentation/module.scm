@@ -11,6 +11,7 @@
   #:use-module (documentation more)
   #:use-module (documentation module constants)
   #:use-module (documentation module generic)
+  #:use-module (xmms2 types)
   #:export (module->documentation))
 
 (define (string->s-exp str)
@@ -42,6 +43,7 @@
 (define expanders
   `((,procedure? ,expand-procedure)
     (,macro? ,expand-macro)
+    (,xref-list? ,expand-constants-xref (xmms2 constants))
     (,integer? ,expand-constants-integer (xmms2 constants))
     (,integer? ,expand-integer)))
 

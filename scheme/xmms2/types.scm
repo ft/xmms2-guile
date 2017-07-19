@@ -27,10 +27,23 @@
             dict-ref
             make-dictionary
             association-list?
+            xref-list?
             non-complex-number?
+            positive-integer?
             property-list?
             property-list->association-list
             property-list->dictionary))
+
+(define (positive-integer? data)
+  (and (exact-integer? data)
+       (or (zero? data)
+           (positive? data))))
+
+(define (xref-list? data)
+  (and (list? data)
+       (not (null? data))
+       (pair? (car data))
+       (positive-integer? (caar data))))
 
 (define (non-complex-number? data)
   (and (number? data) (zero? (imag-part data))))

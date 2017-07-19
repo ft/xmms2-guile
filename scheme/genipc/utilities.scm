@@ -26,6 +26,7 @@
             name->constants
             directory-exists?
             symbol-prefix?
+            symbol-suffix?
             symbol-upcase
             cat
             pp
@@ -166,6 +167,10 @@
 
 (define (symbol-prefix? prefix sym)
   (string-prefix? (symbol->string prefix)
+                  (symbol->string sym)))
+
+(define (symbol-suffix? suffix sym)
+  (string-suffix? (symbol->string suffix)
                   (symbol->string sym)))
 
 (define (symbol-upcase sym)

@@ -135,11 +135,18 @@
      (format #t "Integer: `~a`~%" name)
      (docstring->markdown docstring))))
 
+(define (output-mdwn-xref name data)
+  (match data
+    ((docstring)
+     (format #t "Cross-Reference List: `~a`~%" name)
+     (docstring->markdown docstring))))
+
 (define (output-markdown item)
   (match item
     ((name 'procedure . rest) (output-mdwn-procedure name rest))
     ((name 'macro . rest) (output-mdwn-macro name rest))
     ((name 'integer . rest) (output-mdwn-integer name rest))
+    ((name 'xref-list . rest) (output-mdwn-xref name rest))
     (else (format #t "Unknown Type: `~a`~%:   undocumented~%" item))))
 
 (define* (list->markdown source
