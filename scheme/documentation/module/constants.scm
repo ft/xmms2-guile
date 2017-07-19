@@ -2,6 +2,8 @@
 ;;
 ;; Terms for redistribution and use can be found in doc/LICENCE.
 
+;; TODO: There is a lot of redundancy in here, that should be removed.
+
 (define-module (documentation module constants)
   #:use-module (ice-9 format)
   #:use-module (srfi srfi-1)
