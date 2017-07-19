@@ -404,7 +404,7 @@
 
 (define (generate-ipc/enumeration enum)
   (define (xref x)
-    (symbol-append 'xref- x 's))
+    (symbol-append 'xref- x (if (symbol-suffix? 's x) 'es 's)))
   (let* ((name (enum->name enum))
          (members (assq-ref enum 'members))
          (transformer (lambda (x) (generate-ipc/enum-member name x))))
