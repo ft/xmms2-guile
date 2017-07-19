@@ -35,6 +35,13 @@
        (format #f "values to symbols. For example:~%~%")
        (xref-example name key value)))
 
+(define (xref-mode-docstring name object mode key value)
+  (cat (format #f "This is a cross-reference list for ‘~a’ mode IDs of within "
+               mode)
+       (format #f "the ‘~a’ object. This allows users to decode numeric " object)
+       (format #f "values to symbols. For example:~%~%")
+       (xref-example name key value)))
+
 (define (xref-types-docstring name object key value)
   (cat (format #f "This is a cross-reference list for type IDs of the ")
        (format #f "‘~a’ object. This allows users to decode numeric " object)
@@ -60,6 +67,12 @@
                       (action (substring str 5 (- (string-length str) 8))))
                  (xref-action-docstring name (last mod) action
                                         (caar value) (cdar value))))
+              ((and (symbol-prefix? 'xref- name)
+                    (symbol-suffix? '-modes name))
+               (let* ((str (symbol->string name))
+                      (mode (substring str 5 (- (string-length str) 6))))
+                 (xref-mode-docstring name (last mod) mode
+                                      (caar value) (cdar value))))
               ((and (symbol-prefix? 'xref- name)
                     (symbol-suffix? '-types name))
                (let* ((str (symbol->string name))
