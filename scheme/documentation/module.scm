@@ -43,6 +43,7 @@
 (define expanders
   `((,procedure? ,expand-procedure)
     (,macro? ,expand-macro)
+    (,xref-list? ,expand-constants-xref-meta (xmms2 constants meta))
     (,xref-list? ,expand-constants-xref (xmms2 constants))
     (,integer? ,expand-constants-integer (xmms2 constants))
     (,integer? ,expand-integer)))

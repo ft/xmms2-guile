@@ -8,7 +8,8 @@
   #:use-module (genipc utilities)
   #:use-module (xmms2 types)
   #:export (expand-constants-integer
-            expand-constants-xref))
+            expand-constants-xref
+            expand-constants-xref-meta))
 
 (define (expand-constants-integer mod name value)
   (list name 'integer
@@ -96,4 +97,38 @@
                (let* ((str (symbol->string name))
                       (object (substring str 5 (- (string-length str) 9))))
                  (xref-statuses-docstring name object (caar value) (cdar value))))
+              (else 'undocumented))))
+
+(define (expand-constants-xref-meta mod name value)
+  (list name 'xref-list
+        (cond ((eq? name 'xref-broadcasts-and-signals)
+               (cat "This is a cross-reference list that maps numeric "
+                    "IDs to symbols for IPC broadcasts and signals. "
+                    (format #f "For example:~%~%")
+                    (xref-example name (caar value) (cdar value))))
+              ((eq? name 'xref-ipc-command-signals)
+               (cat "This is a cross-reference list that maps numeric "
+                    "IDs to symbols for IPC command signals. "
+                    (format #f "For example:~%~%")
+                    (xref-example name (caar value) (cdar value))))
+              ((eq? name 'xref-ipc-command-specials)
+               (cat "This is a cross-reference list that maps numeric "
+                    "IDs to symbols for IPC command specials. "
+                    (format #f "For example:~%~%")
+                    (xref-example name (caar value) (cdar value))))
+              ((eq? name 'xref-log-levels)
+               (cat "This is a cross-reference list that maps numeric "
+                    "IDs to symbols for logging levels. "
+                    (format #f "For example:~%~%")
+                    (xref-example name (caar value) (cdar value))))
+              ((eq? name 'xref-objects)
+               (cat "This is a cross-reference list that maps numeric "
+                    "IDs to symbols for the XMMS2 server's objects. "
+                    (format #f "For example:~%~%")
+                    (xref-example name (caar value) (cdar value))))
+              ((eq? name 'xref-plugin-types)
+               (cat "This is a cross-reference list that maps numeric "
+                    "IDs to symbols for plugin-types. "
+                    (format #f "For example:~%~%")
+                    (xref-example name (caar value) (cdar value))))
               (else 'undocumented))))
