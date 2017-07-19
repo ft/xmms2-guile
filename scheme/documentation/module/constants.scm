@@ -32,21 +32,21 @@
        (xref-example name key value)))
 
 (define (xref-action-docstring name object action key value)
-  (cat (format #f "This is a cross-reference list for ‘~a’ action IDs of within "
+  (cat (format #f "This is a cross-reference list for ‘~a’ action IDs within "
                action)
        (format #f "the ‘~a’ object. This allows users to decode numeric " object)
        (format #f "values to symbols. For example:~%~%")
        (xref-example name key value)))
 
 (define (xref-mode-docstring name object mode key value)
-  (cat (format #f "This is a cross-reference list for ‘~a’ mode IDs of within "
+  (cat (format #f "This is a cross-reference list for ‘~a’ mode IDs within "
                mode)
        (format #f "the ‘~a’ object. This allows users to decode numeric " object)
        (format #f "values to symbols. For example:~%~%")
        (xref-example name key value)))
 
 (define (xref-policy-docstring name object policy key value)
-  (cat (format #f "This is a cross-reference list for ‘~a’ policy IDs of within "
+  (cat (format #f "This is a cross-reference list for ‘~a’ policy IDs within "
                policy)
        (format #f "the ‘~a’ object. This allows users to decode numeric " object)
        (format #f "values to symbols. For example:~%~%")
