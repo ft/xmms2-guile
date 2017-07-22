@@ -1,3 +1,9 @@
+LOAD_PATH = $(TOPDIR)/scheme
+TEST_PATH = $(TOPDIR)/tests
+GUILE_BINARY = guile
+GUILE_CALL = $(GUILE_BINARY) -L $(LOAD_PATH) -C $(LOAD_PATH) --no-auto-compile
+GUILD_BINARY = guild
+
 MODULES_DOCUMENTATION = $(TOPDIR)/scheme/documentation/combine-markdown.scm
 MODULES_DOCUMENTATION += $(TOPDIR)/scheme/documentation/module.scm
 MODULES_DOCUMENTATION += $(TOPDIR)/scheme/documentation/module/constants.scm

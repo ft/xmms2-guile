@@ -1,4 +1,5 @@
 TOPDIR = ..
+include $(TOPDIR)/common.mk
 
 PROTOCOL = xmms2-protocol
 REFERENCE = xmms2-guile
@@ -7,10 +8,9 @@ MAN = $(PROTOCOL).7 $(REFERENCE).7
 PDF = $(PROTOCOL).pdf $(REFERENCE).pdf
 HTML = $(PROTOCOL).html $(REFERENCE).html
 
-include $(TOPDIR)/modules.mk
 REFMAN_SECTIONS = ${MODULES:.scm=.mdwn}
 
-DOCC = $(TOPDIR)/tools/guile-in-here $(TOPDIR)/tools/docc -t "$(TOPDIR)"
+DOCC = $(GUILE_CALL) $(TOPDIR)/tools/docc -t "$(TOPDIR)"
 GENERATE_REFMAN_SECTION = $(DOCC) module -g
 GENERATE_FINAL_MARKDOWN = $(DOCC) combine
 
