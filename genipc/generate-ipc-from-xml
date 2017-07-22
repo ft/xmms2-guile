@@ -1,8 +1,0 @@
-#!/bin/sh
-
-if test "$#" -ne 1; then
-    printf 'usage: generate-ipc-from-xml <PATH-TO-XMMS2-IPC.XML>\n'
-    exit 1
-fi
-
-exec ./tools/guile-in-here genipc/genipc.scm "$1"

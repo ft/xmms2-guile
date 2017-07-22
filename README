@@ -13,7 +13,7 @@ generated from said definition.
 Quickstart
 ----------
 
-% ./genipc/generate-ipc-from-xml ~/src/sys/xmms2/src/ipc.xml
+% make ipc XMMS2_IPC_XML="$HOME"/src/xmms2/src/ipc.xml
 % make compile
 % ./tools/guile-in-here ./examples/cli play
 
@@ -62,7 +62,7 @@ Moreover, running  the test-suite  requires the ‘scm-test-tap’  as well  as 
 Installation
 ------------
 
-% ./genipc/generate-ipc-from-xml ~/src/xmms2/src/ipc.xml
+% make ipc XMMS2_IPC_XML="$HOME"/src/xmms2/src/ipc.xml
 % make doc
 % make compile
 % make test
