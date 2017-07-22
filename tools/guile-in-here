@@ -1,5 +1,7 @@
 #!/bin/sh
 
-. "${TOPDIR:-$PWD}/tools/dev-env"
+TOPDIR="${0%tools/guile-in-here}"
+
+. "${TOPDIR}/tools/dev-env"
 
 exec ${GUILE_BINARY:-guile} "$@"

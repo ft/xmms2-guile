@@ -10,7 +10,7 @@ HTML = $(PROTOCOL).html $(REFERENCE).html
 include $(TOPDIR)/modules.mk
 REFMAN_SECTIONS = ${MODULES:.scm=.mdwn}
 
-DOCC = TOPDIR="$(TOPDIR)" $(TOPDIR)/tools/docc
+DOCC = $(TOPDIR)/tools/guile-in-here $(TOPDIR)/tools/docc -t "$(TOPDIR)"
 GENERATE_REFMAN_SECTION = $(DOCC) module -g
 GENERATE_FINAL_MARKDOWN = $(DOCC) combine
 
