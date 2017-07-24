@@ -402,6 +402,30 @@ protocol version as defined by the `PROTOCOL-VERSION` constant defined in the
 
 ## The `tools/` Subdirectory
 
+### `guile-in-here` — A Guile Interpreter with Amended Load-Path
+
+@include tools/guile-in-here.mdwn@
+
+
+### `install` — The Project's Installation Procedure
+
+@include tools/install.mdwn@
+
+
+### `single-test` — Run Single Files from the Test Suite
+
+@include tools/single-test.mdwn@
+
+
+### `docc` — A Documentation Compiler
+
+@include tools/docc.mdwn@
+
+
+### `generate-ipc-from-xml` — Importing XMMS2's `ipc.xml`
+
+@include tools/generate-ipc-from-xml.mdwn@
+
 
 ## The Project's Test Suite
 
