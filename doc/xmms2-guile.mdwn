@@ -392,6 +392,20 @@ protocol version as defined by the `PROTOCOL-VERSION` constant defined in the
 @include scheme/test/setup.mdwn@
 
 
+# PROJECT ORGANISATION AND TOOLING
+
+## Repository Layout
+
+
+## External Dependencies
+
+
+## The `tools/` Subdirectory
+
+
+## The Project's Test Suite
+
+
 # EXAMPLE
 
 To illustrate the use of the library, here is the full code for aa very simple
