@@ -1,12 +1,11 @@
 TOPDIR = .
 include $(TOPDIR)/common.mk
 
-SH = /bin/sh
 GENERATE_IPC = $(GUILE_CALL) $(TOPDIR)/tools/generate-ipc-from-xml
 XMMS2_IPC_XML = /usr/src/xmms2/src/ipc.xml
 RUNTESTS = SCHEME_INTERPRETER="$(GUILE_BINARY)" run-tests
 RUNTESTS += -strip-roots -dispatch-root "$(TEST_PATH)"
-INSTALL = $(SH) ./tools/install
+INSTALL = $(GUILE_CALL) $(TOPDIR)/tools/install
 
 CFLAGS = -Wunsupported-warning -Wunused-variable -Wunused-toplevel
 CFLAGS += -Wunbound-variable -Warity-mismatch -Wduplicate-case-datum
