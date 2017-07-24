@@ -30,7 +30,7 @@ date: Jul, 2017
 
 `xmms2-guile` is a native implementation of the XMMS2 protocol, aimed to
 implement client applications to control an XMMS2 server. It has no external
-depencencies, not on any foreign libraries that would be accessed via a
+dependencies, not on any foreign libraries that would be accessed via a
 foreign-function-interface, nor for non-core Guile Scheme libraries.
 
 The library has a couple of loosely connected parts: One part implements the
