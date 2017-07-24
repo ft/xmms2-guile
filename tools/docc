@@ -90,6 +90,16 @@
             (exit (if success? 0 1)))
           '((guess-module (single-char #\g) (value #f)))))
 
+(define (handle-tool cmdline topdir)
+  (handle cmdline topdir
+          (lambda (options topdir input-file)
+            (format #t "undocumented~%"))
+          (lambda (success?)
+            (format (current-error-port)
+                    "usage: docc tool [OPTION(s)] <INPUT>~%")
+            (exit (if success? 0 1)))
+          '()))
+
 (let ((cmd (car *cmd+args*)))
   (catch 'could-not-guess-module
     (lambda ()
@@ -97,6 +107,7 @@
         (lambda ()
           (cond ((string= cmd "module") (handle-module *cmd+args* *topdir*))
                 ((string= cmd "combine") (handle-combine *cmd+args* *topdir*))
+                ((string= cmd "tool") (handle-tool *cmd+args* *topdir*))
                 (else (format #t "Unknown command: ‘~a’~%~%" cmd)
                       (usage #f))))
         (lambda (key func fmt fmtargs data)
