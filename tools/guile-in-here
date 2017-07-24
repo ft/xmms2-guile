@@ -1,5 +1,18 @@
 #!/bin/sh
 
+PREFIX="${TOPDIR:-$PWD}"
+GUILE_AUTO_COMPILE=0
+export GUILE_AUTO_COMPILE
+
+GUILE_WARN_DEPRECATED=detailed
+export GUILE_WARN_DEPRECATED
+
+GUILE_LOAD_PATH="$PREFIX/scheme"
+export GUILE_LOAD_PATH
+
+GUILE_LOAD_COMPILED_PATH="$PREFIX/scheme"
+export GUILE_LOAD_COMPILED_PATH
+
 TOPDIR="${0%tools/guile-in-here}"
 
 . "${TOPDIR}/tools/dev-env"
