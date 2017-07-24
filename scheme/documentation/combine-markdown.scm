@@ -35,13 +35,36 @@
               (else (display line) (newline)
                     (loop (get-stdin-line))))))))
 
+(define (warn-missing line)
+  (let loop ((rest (list (format #f "Missing file in @include directive:")
+                         ""
+                         line)))
+    (if (null? rest)
+        #t
+        (let ((this (car rest))
+              (rest (cdr rest)))
+          (cond ((string-null? this) (newline))
+                (else (display "**")
+                      (display this)
+                      (display "**")
+                      (newline)
+                      (display "docc: " (current-error-port))
+                      (display this (current-error-port))
+                      (newline (current-error-port))))
+          (loop rest)))))
+
 (define* (combine-markdown input #:key (topdir "."))
   (with-input-from-file input
     (lambda ()
       (let loop ((line (get-stdin-line)))
-        (cond ((eof-object? line) #t)
-              ((include? line)
-               (cat-file (cat topdir "/" (include-file line)))
-               (loop (get-stdin-line)))
-              (else (display line) (newline)
-                    (loop (get-stdin-line))))))))
+        (if (eof-object? line)
+            #t
+            (begin
+              (cond ((include? line)
+                     (let ((target (cat topdir "/" (include-file line))))
+                       (if (file-exists? target)
+                           (cat-file (cat topdir "/" (include-file line)))
+                           (warn-missing line))))
+                    (else (display line)
+                          (newline)))
+              (loop (get-stdin-line))))))))
