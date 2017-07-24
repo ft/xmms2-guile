@@ -66,3 +66,9 @@ MODULES_CORE += $(TOPDIR)/scheme/xmms2/values.scm
 MODULES = $(MODULES_CORE) $(MODULES_GENERATED_CONSTANTS)
 MODULES += $(MODULES_GENERATED_IPC) $(MODULES_DOCUMENTATION)
 MODULES += $(MODULES_GENIPC) $(MODULES_TEST)
+
+TOOLS = $(TOPDIR)/tools/docc
+TOOLS += $(TOPDIR)/tools/generate-ipc-from-xml
+TOOLS += $(TOPDIR)/tools/guile-in-here
+TOOLS += $(TOPDIR)/tools/install
+TOOLS += $(TOPDIR)/tools/single-test

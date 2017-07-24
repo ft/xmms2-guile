@@ -9,9 +9,11 @@ PDF = $(PROTOCOL).pdf $(REFERENCE).pdf
 HTML = $(PROTOCOL).html $(REFERENCE).html
 
 REFMAN_SECTIONS = ${MODULES:.scm=.mdwn}
+TOOL_SECTIONS = ${TOOLS:=.mdwn}
 
 DOCC = $(GUILE_CALL) $(TOPDIR)/tools/docc -t "$(TOPDIR)"
 GENERATE_REFMAN_SECTION = $(DOCC) module -g
+GENERATE_TOOL_SECTION = $(DOCC) tool
 GENERATE_FINAL_MARKDOWN = $(DOCC) combine
 
 PANDOC = pandoc
@@ -27,7 +29,7 @@ pdf: $(PDF)
 html: $(HTML)
 
 $(PROTOCOL).fmdwn:
-$(REFERENCE).fmdwn: $(REFMAN_SECTIONS)
+$(REFERENCE).fmdwn: $(REFMAN_SECTIONS) $(TOOL_SECTIONS)
 
 clean:
 	rm -f *~ xmms2*.fmdwn xmms2*.pdf xmms2*.html xmms2*.7
@@ -47,6 +49,17 @@ clean:
 
 .mdwn.fmdwn:
 	$(GENERATE_FINAL_MARKDOWN) -o $@ $<
+
+$(TOPDIR)/tools/docc.mdwn: $(TOPDIR)/tools/docc
+	$(GENERATE_TOOL_SECTION) -o $@ $<
+$(TOPDIR)/tools/generate-ipc-from-xml.mdwn: $(TOPDIR)/tools/generate-ipc-from-xml
+	$(GENERATE_TOOL_SECTION) -o $@ $<
+$(TOPDIR)/tools/guile-in-here.mdwn: $(TOPDIR)/tools/guile-in-here
+	$(GENERATE_TOOL_SECTION) -o $@ $<
+$(TOPDIR)/tools/install.mdwn: $(TOPDIR)/tools/install
+	$(GENERATE_TOOL_SECTION) -o $@ $<
+$(TOPDIR)/tools/single-test.mdwn: $(TOPDIR)/tools/single-test
+	$(GENERATE_TOOL_SECTION) -o $@ $<
 
 .PHONY: all man html pdf clean
 .SUFFIXES: .scm .mdwn .fmdwn .7 .html .pdf
