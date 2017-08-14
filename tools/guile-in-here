@@ -15,6 +15,4 @@ export GUILE_LOAD_COMPILED_PATH
 
 TOPDIR="${0%tools/guile-in-here}"
 
-. "${TOPDIR}/tools/dev-env"
-
 exec ${GUILE_BINARY:-guile} "$@"
